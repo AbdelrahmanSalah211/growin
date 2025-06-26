@@ -9,14 +9,20 @@ import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { User, UserSubscriber } from './models/user.entity';
 import { Course } from './models/course.entity';
+import { Lesson } from './models/lesson.entity';
 import { CourseModule } from './modules/course/course.module';
-
+import { LessonProgress } from './models/lesson_progress.entity';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
 config();
 
 const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -30,16 +36,12 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
       },
       logging: true,
       poolSize: 5,
-      entities: [
-        User,
-        Course,
-      ],
-      subscribers: [
-        UserSubscriber
-      ],
+      entities: [User, Course, Lesson, LessonProgress],
+      subscribers: [UserSubscriber],
     }),
     UserModule,
     CourseModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
