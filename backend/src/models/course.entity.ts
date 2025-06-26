@@ -2,7 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+
+import { Lesson } from './lesson.entity';
 
 enum CourseLevel {
   BEGINNER = 'beginner',
@@ -46,6 +52,17 @@ export class Course {
   @Column()
   numberOfReviewers: number;
 
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  lessons: Lesson[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
 
 export default Course;
