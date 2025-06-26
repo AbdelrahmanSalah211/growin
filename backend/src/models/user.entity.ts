@@ -9,9 +9,12 @@ import {
   EntitySubscriberInterface,
   UpdateEvent,
   InsertEvent,
+  OneToMany,
 } from 'typeorm';
 
-enum UserMode {
+import { LessonProgress } from './lesson_progress.entity';
+
+export enum UserMode {
   LEARNER = 'learner',
   INSTRUCTOR = 'instructor',
 }
@@ -21,7 +24,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({})
   username: string;
 
   @Column({ unique: true })
@@ -30,10 +33,10 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ default: 'https://i.ibb.co/2HTV3dh/Default-profile-image.jpg' })
   profileImage: string;
 
-  @Column()
+  @Column({ default: '' })
   imageDeleteURL: string;
 
   @Column({
@@ -51,6 +54,11 @@ export class User {
 
   @Column({ nullable: true })
   passwordResetExpires: Date;
+
+  @OneToMany(() => LessonProgress, (progress) => progress.user, {
+    onDelete: 'CASCADE',
+  })
+  lessonProgress: LessonProgress[];
 
   @BeforeInsert()
   beforeInsertLowercase() {
@@ -88,13 +96,14 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
   }
 
   async beforeUpdate(event: UpdateEvent<User>) {
-
-    const newPassword: string | undefined = (event.entity && typeof event.entity.password === 'string')
-      ? event.entity.password
-      : undefined;
-    const oldPassword: string | undefined = (event.databaseEntity && typeof event.databaseEntity.password === 'string')
-      ? event.databaseEntity.password
-      : undefined;
+    const newPassword: string | undefined =
+      event.entity && typeof event.entity.password === 'string'
+        ? event.entity.password
+        : undefined;
+    const oldPassword: string | undefined =
+      event.databaseEntity && typeof event.databaseEntity.password === 'string'
+        ? event.databaseEntity.password
+        : undefined;
 
     if (newPassword && newPassword !== oldPassword && event.entity) {
       event.entity.password = await argon2.hash(newPassword);
