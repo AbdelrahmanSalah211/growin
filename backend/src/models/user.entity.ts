@@ -13,7 +13,8 @@ import {
 } from 'typeorm';
 
 import { LessonProgress } from './lesson_progress.entity';
-
+import InstructorPayout from './instructor_payout.entity';
+import { Transaction } from './transaction.entity';
 export enum UserMode {
   LEARNER = 'learner',
   INSTRUCTOR = 'instructor',
@@ -59,6 +60,16 @@ export class User {
     onDelete: 'CASCADE',
   })
   lessonProgress: LessonProgress[];
+  @OneToMany(() => InstructorPayout, (payout) => payout.instructor,{
+    onDelete: 'CASCADE',
+  })
+  payouts: InstructorPayout[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.course,{
+    onDelete: 'CASCADE',
+  })
+  transactions: Transaction[];
+
 
   @BeforeInsert()
   beforeInsertLowercase() {

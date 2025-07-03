@@ -9,6 +9,8 @@ import {
 } from 'typeorm';
 
 import { Lesson } from './lesson.entity';
+import InstructorPayout from './instructor_payout.entity';
+import { Transaction } from './transaction.entity';
 
 enum CourseLevel {
   BEGINNER = 'beginner',
@@ -54,7 +56,14 @@ export class Course {
 
   @OneToMany(() => Lesson, (lesson) => lesson.course)
   lessons: Lesson[];
-
+  @OneToMany(() => InstructorPayout, (payout) => payout.course, {
+    onDelete: 'CASCADE',
+  })
+  payouts: InstructorPayout[];
+  @OneToMany(() => Transaction, (transaction) => transaction.course, {
+    onDelete: 'CASCADE',
+  })
+  transactions: Transaction[];
   @CreateDateColumn()
   createdAt: Date;
 
