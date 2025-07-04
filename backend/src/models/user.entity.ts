@@ -9,7 +9,11 @@ import {
   EntitySubscriberInterface,
   UpdateEvent,
   InsertEvent,
+  OneToMany
 } from 'typeorm';
+
+import { Review } from './review.entity';
+import { Enrollment } from './enrollment.entity';
 
 enum UserMode {
   LEARNER = 'learner',
@@ -51,6 +55,12 @@ export class User {
 
   @Column({ nullable: true })
   passwordResetExpires: Date;
+
+  @OneToMany(() => Review, (review) => review.student)
+  reviews: Review[];
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
+  enrollments: Enrollment[];
 
   @BeforeInsert()
   beforeInsertLowercase() {

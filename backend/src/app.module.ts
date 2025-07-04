@@ -10,6 +10,10 @@ import { UserModule } from './modules/user/user.module';
 import { User, UserSubscriber } from './models/user.entity';
 import { Course } from './models/course.entity';
 import { CourseModule } from './modules/course/course.module';
+import { Review } from './models/review.entity';
+import { ReviewsModule } from './modules/review/review.module';
+import { Enrollment } from './models/enrollment.entity';
+import { CourseCategory } from './models/courses-category.entity';
 
 config();
 
@@ -33,6 +37,9 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
       entities: [
         User,
         Course,
+        Review,
+        Enrollment,
+        CourseCategory
       ],
       subscribers: [
         UserSubscriber
@@ -40,6 +47,7 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
     }),
     UserModule,
     CourseModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
