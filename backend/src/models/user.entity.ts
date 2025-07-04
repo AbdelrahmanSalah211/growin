@@ -9,10 +9,11 @@ import {
   EntitySubscriberInterface,
   UpdateEvent,
   InsertEvent,
-  OneToMany,
+  OneToManyو
 } from 'typeorm';
-
 import { LessonProgress } from './lesson_progress.entity';
+import { Review } from './review.entity';
+import { Enrollment } from './enrollment.entity';
 
 export enum UserMode {
   LEARNER = 'learner',
@@ -59,6 +60,12 @@ export class User {
     onDelete: 'CASCADE',
   })
   lessonProgress: LessonProgress[];
+
+  @OneToMany(() => Review, (review) => review.student)
+  reviews: Review[];
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
+  enrollments: Enrollment[];
 
   @BeforeInsert()
   beforeInsertLowercase() {

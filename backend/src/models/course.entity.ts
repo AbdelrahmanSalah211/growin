@@ -2,13 +2,17 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  OneToMany,
 } from 'typeorm';
-
 import { Lesson } from './lesson.entity';
+import { Review } from './review.entity';
+import { Enrollment } from './enrollment.entity';
+import { CourseCategory } from './courses-category.entity';
 
 enum CourseLevel {
   BEGINNER = 'beginner',
@@ -51,10 +55,7 @@ export class Course {
 
   @Column()
   numberOfReviewers: number;
-
-  @OneToMany(() => Lesson, (lesson) => lesson.course)
-  lessons: Lesson[];
-
+  
   @CreateDateColumn()
   createdAt: Date;
 
@@ -63,6 +64,19 @@ export class Course {
 
   @DeleteDateColumn()
   deletedAt: Date;
+  
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  lessons: Lesson[];
+
+  @OneToMany(() => Review, (review) => review.course)
+  reviews: Review[];
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  enrollments: Enrollment[];
+  
+  @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
+  courseCategory: CourseCategory;
+
 }
 
 export default Course;

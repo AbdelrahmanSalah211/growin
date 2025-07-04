@@ -10,10 +10,15 @@ import { UserModule } from './modules/user/user.module';
 import { User, UserSubscriber } from './models/user.entity';
 import { Course } from './models/course.entity';
 import { Lesson } from './models/lesson.entity';
-import { CourseModule } from './modules/course/course.module';
 import { LessonProgress } from './models/lesson_progress.entity';
+import { CourseModule } from './modules/course/course.module';
+import { Review } from './models/review.entity';
+import { ReviewsModule } from './modules/review/review.module';
+import { Enrollment } from './models/enrollment.entity';
+import { CourseCategory } from './models/courses-category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+
 config();
 
 const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
@@ -36,11 +41,22 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
       },
       logging: true,
       poolSize: 5,
-      entities: [User, Course, Lesson, LessonProgress],
-      subscribers: [UserSubscriber],
+      entities: [
+        User,
+        Course,
+        Lesson,
+        LessonProgress,
+        Review,
+        Enrollment,
+        CourseCategory,
+      ],
+      subscribers: [
+        UserSubscriber
+      ],
     }),
     UserModule,
     CourseModule,
+    ReviewsModule,
     AuthModule,
   ],
   controllers: [AppController],
