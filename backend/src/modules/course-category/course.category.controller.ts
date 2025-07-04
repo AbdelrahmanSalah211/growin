@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
 import { CourseCategoryService } from './course.category.service';
 import { CourseCategory } from 'src/models/courses-category.entity';
 
-@Controller('course-categories')
+@Controller('courseCategories')
 export class CourseCategoryController {
   constructor(private readonly categoryService: CourseCategoryService) {}
 
