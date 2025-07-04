@@ -7,15 +7,15 @@ import { CourseCategory } from 'src/models/courses-category.entity';
 export class CourseCategoryService {
   constructor(
     @InjectRepository(CourseCategory)
-    private categoryRepo: Repository<CourseCategory>,
+    private categoryRepository: Repository<CourseCategory>,
   ) {}
 
   findAll(): Promise<CourseCategory[]> {
-    return this.categoryRepo.find({ relations: ['courses'] });
+    return this.categoryRepository.find({ relations: ['courses'] });
   }
 
   create(title: string): Promise<CourseCategory> {
-    const category = this.categoryRepo.create({ title });
-    return this.categoryRepo.save(category);
+    const category = this.categoryRepository.create({ title });
+    return this.categoryRepository.save(category);
   }
 }
