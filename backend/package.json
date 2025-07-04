@@ -34,7 +34,7 @@
     "class-validator": "^0.14.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "jsonwebtoken": "^9.0.2",
+    "httpyac": "^6.16.7",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "passport": "^0.7.0",
