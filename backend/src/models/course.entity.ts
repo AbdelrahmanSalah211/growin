@@ -4,9 +4,12 @@ import {
   Column,
   OneToMany,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-
+import { Lesson } from './lesson.entity';
 import { Review } from './review.entity';
 import { Enrollment } from './enrollment.entity';
 import { CourseCategory } from './courses-category.entity';
@@ -52,6 +55,18 @@ export class Course {
 
   @Column()
   numberOfReviewers: number;
+  
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+  
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  lessons: Lesson[];
 
   @OneToMany(() => Review, (review) => review.course)
   reviews: Review[];
@@ -60,12 +75,7 @@ export class Course {
   enrollments: Enrollment[];
   
   @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
-  
-  @JoinColumn({ name: 'categoryId' })
-  category: CourseCategory;
-
-  @Column({ nullable: true })
-  categoryId: number;
+  courseCategory: CourseCategory;
 
 }
 
