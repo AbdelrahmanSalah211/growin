@@ -6,8 +6,11 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { Course } from './course.entity';
-import { User } from './user.entity';
+
+import {
+  User,
+  Course,
+} from './index';
 
 export enum EnrollmentStatus {
   PENDING = 'pending',
@@ -33,11 +36,11 @@ export class Enrollment {
   })
   status: EnrollmentStatus;
 
-  @ManyToOne(() => Course, (course) => course.enrollments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Course, (course) => course.enrollments)
   @JoinColumn({ name: 'courseId' })
   course: Course;
 
-  @ManyToOne(() => User, (user) => user.enrollments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.enrollments)
   @JoinColumn({ name: 'studentId' })
   student: User;
 }

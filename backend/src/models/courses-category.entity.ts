@@ -4,7 +4,10 @@ import {
   Column,
   OneToMany,
 } from 'typeorm';
-import { Course } from './course.entity';
+
+import { 
+  Course
+} from './index';
 
 @Entity('course_category')
 export class CourseCategory {
@@ -14,6 +17,6 @@ export class CourseCategory {
   @Column({ length: 100 })
   title: string;
 
-  @OneToMany(() => Course, (course) => course.category)
+  @OneToMany(() => Course, (course) => course.courseCategory)
   courses: Course[];
 }

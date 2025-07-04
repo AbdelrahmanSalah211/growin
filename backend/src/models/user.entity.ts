@@ -9,11 +9,14 @@ import {
   EntitySubscriberInterface,
   UpdateEvent,
   InsertEvent,
-  OneToManyو
+  OneToMany,
 } from 'typeorm';
-import { LessonProgress } from './lesson_progress.entity';
-import { Review } from './review.entity';
-import { Enrollment } from './enrollment.entity';
+
+import {
+  LessonProgress,
+  Review,
+  Enrollment,
+} from './index';
 
 export enum UserMode {
   LEARNER = 'learner',
@@ -25,7 +28,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({})
+  @Column()
   username: string;
 
   @Column({ unique: true })
@@ -47,7 +50,7 @@ export class User {
   })
   userMode: UserMode;
 
-  @Column()
+  @Column({ nullable: true })
   bio: string;
 
   @Column({ nullable: true })

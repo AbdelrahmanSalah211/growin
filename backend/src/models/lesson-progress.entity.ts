@@ -3,13 +3,16 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
-  // CreateDateColumn,
-  // DeleteDateColumn,
-  // UpdateDateColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  UpdateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { User } from './user.entity';
-import { Lesson } from './lesson.entity';
+
+import {
+  User,
+  Lesson,
+} from './index';
 
 @Entity('lesson_progress')
 export class LessonProgress {
@@ -36,13 +39,12 @@ export class LessonProgress {
   @JoinColumn({ name: 'lessonId' })
   lesson: Lesson;
 
-  //?
-  // @CreateDateColumn()
-  // createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-  // @UpdateDateColumn()
-  // updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 
-  // @DeleteDateColumn()
-  // deletedAt: Date;
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
