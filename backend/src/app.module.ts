@@ -21,6 +21,8 @@ import {
   LessonProgress,
   Enrollment,
   Review,
+  Transaction,
+  InstructorPayout,
 } from './models';
 
 config();
@@ -41,7 +43,7 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
       database: process.env.DB_NAME,
       synchronize: true,
       ssl: {
-        ca: sslCaPath.toString(),
+      ca: sslCaPath.toString(),
       },
       logging: true,
       poolSize: 5,
@@ -53,6 +55,8 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
         Review,
         Enrollment,
         CourseCategory,
+        Transaction,
+        InstructorPayout,
       ],
       subscribers: [
         UserSubscriber

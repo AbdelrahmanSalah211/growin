@@ -16,6 +16,8 @@ import {
   LessonProgress,
   Review,
   Enrollment,
+  Transaction,
+  InstructorPayout,
 } from './index';
 
 export enum UserMode {
@@ -62,7 +64,13 @@ export class User {
   @OneToMany(() => LessonProgress, (progress) => progress.user, {
     onDelete: 'CASCADE',
   })
+
   lessonProgress: LessonProgress[];
+  @OneToMany(() => InstructorPayout, (payout) => payout.instructor)
+  payouts: InstructorPayout[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.course)
+  transactions: Transaction[];
 
   @OneToMany(() => Review, (review) => review.student)
   reviews: Review[];
