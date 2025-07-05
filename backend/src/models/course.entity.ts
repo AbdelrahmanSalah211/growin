@@ -4,15 +4,17 @@ import {
   Column,
   OneToMany,
   ManyToOne,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
 } from 'typeorm';
-import { Lesson } from './lesson.entity';
-import { Review } from './review.entity';
-import { Enrollment } from './enrollment.entity';
-import { CourseCategory } from './courses-category.entity';
+
+import {
+  Lesson,
+  Review,
+  Enrollment,
+  CourseCategory,
+} from './index';
 
 enum CourseLevel {
   BEGINNER = 'beginner',
@@ -28,7 +30,7 @@ export class Course {
   @Column()
   title: string;
 
-  @Column({ unique: true })
+  @Column()
   description: string;
 
   @Column()

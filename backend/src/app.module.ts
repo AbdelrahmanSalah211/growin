@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -7,17 +8,20 @@ import { config } from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
-import { User, UserSubscriber } from './models/user.entity';
-import { Course } from './models/course.entity';
-import { Lesson } from './models/lesson.entity';
-import { LessonProgress } from './models/lesson_progress.entity';
 import { CourseModule } from './modules/course/course.module';
-import { Review } from './models/review.entity';
 import { ReviewsModule } from './modules/review/review.module';
-import { Enrollment } from './models/enrollment.entity';
-import { CourseCategory } from './models/courses-category.entity';
-import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { LessonsModule } from './modules/lesson/lessons.module';
+import {
+  User,
+  UserSubscriber,
+  Course,
+  CourseCategory,
+  Lesson,
+  LessonProgress,
+  Enrollment,
+  Review,
+} from './models';
 
 config();
 
@@ -57,6 +61,7 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
     UserModule,
     CourseModule,
     ReviewsModule,
+    LessonsModule,
     AuthModule,
   ],
   controllers: [AppController],

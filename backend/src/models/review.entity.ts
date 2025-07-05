@@ -6,31 +6,33 @@ import {
     JoinColumn
 } from "typeorm";
 
-import { Course } from './course.entity';
-import { User } from './user.entity';
+import {
+    User,
+    Course,
+} from './index';
 
 @Entity('review')
 export class Review {
-    @PrimaryColumn({ type: 'int' })
+    @PrimaryColumn()
     courseId: number;
 
-    @PrimaryColumn({ type: 'int' })
+    @PrimaryColumn()
     studentId: number;
 
-    @Column({ type: 'text' })
+    @Column()
     comment: string;
 
-    @Column({ type: 'bigint' })
-    rates: number;
+    @Column()
+    rating: number;
 
-    @Column({ type: 'boolean', default: false })
+    @Column()
     helpful: boolean;
 
-    @ManyToOne(() => Course, (course) => course.reviews, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Course, (course) => course.reviews)
     @JoinColumn({ name: 'courseId' })
     course: Course;
 
-    @ManyToOne(() => User, (user) => user.reviews, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, (user) => user.reviews)
     @JoinColumn({ name: 'studentId' })
     student: User;
 }

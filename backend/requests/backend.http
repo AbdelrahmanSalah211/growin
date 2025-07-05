@@ -1,0 +1,9 @@
+@backendUrl = http://localhost:3000
+
+### Get all lessons
+GET {{ backendUrl }}/lessons
+Accept: application/json
+
+### Get all courses
+GET {{ backendUrl }}/courses
+Accept: application/json
