@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { config } from 'dotenv';
@@ -14,9 +14,11 @@ import { CourseModule } from './modules/course/course.module';
 import { LessonProgress } from './models/lesson_progress.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { Transaction } from './models/transaction.entity';
+import InstructorPayout from './models/instructor_payout.entity';
 config();
 
-const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
+// const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
 
 @Module({
   imports: [
@@ -31,12 +33,12 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: true,
-      ssl: {
-        ca: sslCaPath.toString(),
-      },
+      // ssl: {
+      //   ca: sslCaPath.toString(),
+      // },
       logging: true,
       poolSize: 5,
-      entities: [User, Course, Lesson, LessonProgress],
+      entities: [User, Course, Lesson, LessonProgress,Transaction,InstructorPayout],
       subscribers: [UserSubscriber],
     }),
     UserModule,

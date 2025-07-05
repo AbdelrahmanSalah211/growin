@@ -6,10 +6,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  Unique,
 } from 'typeorm';
 
 import { User } from './user.entity';
 import { Course } from './course.entity';
+import InstructorPayout from './instructor_payout.entity';
 
 @Entity('tranaction')
 export class Transaction {
@@ -27,7 +29,8 @@ export class Transaction {
 
   @ManyToOne(() => Course, (course) => course.payouts)
   course: Course;
-
+  @ManyToOne(() => InstructorPayout, (payout) => payout.transactions)
+  payout: InstructorPayout;
   @Column()
   transactionId: string;
 

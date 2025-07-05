@@ -1,12 +1,13 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    ManyToOne,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
 } from 'typeorm';
-
+import { Transaction } from './transaction.entity';
 import { User } from './user.entity';
 import { Course } from './course.entity';
 
@@ -15,16 +16,15 @@ export class InstructorPayout {
   @PrimaryGeneratedColumn()
   id: number;
 
-    
   @ManyToOne(() => User, (user) => user.payouts)
   instructor: User;
 
   @ManyToOne(() => Course, (course) => course.payouts)
   course: Course;
 
-  @Column()
-  transactionId: string;
-  
+  @OneToMany(() => Transaction, (transaction) => transaction.payout)
+  transactions: Transaction[];
+
   @CreateDateColumn()
   createdAt: Date;
 
