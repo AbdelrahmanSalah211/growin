@@ -5,3 +5,5 @@ export * from './courses-category.entity';
 export * from './enrollment.entity';
 export * from './lesson-progress.entity';
 export * from './review.entity';
+export * from './transaction.entity';
+export * from './instructor-payout.entity';
