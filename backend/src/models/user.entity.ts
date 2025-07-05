@@ -12,9 +12,14 @@ import {
   OneToMany,
 } from 'typeorm';
 
-import { LessonProgress } from './lesson_progress.entity';
-import InstructorPayout from './instructor_payout.entity';
-import { Transaction } from './transaction.entity';
+import {
+  LessonProgress,
+  Review,
+  Enrollment,
+  Transaction,
+  InstructorPayout,
+} from './index';
+
 export enum UserMode {
   LEARNER = 'learner',
   INSTRUCTOR = 'instructor',
@@ -25,7 +30,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({})
+  @Column()
   username: string;
 
   @Column({ unique: true })
@@ -47,7 +52,7 @@ export class User {
   })
   userMode: UserMode;
 
-  @Column()
+  @Column({ nullable: true })
   bio: string;
 
   @Column({ nullable: true })
@@ -59,17 +64,19 @@ export class User {
   @OneToMany(() => LessonProgress, (progress) => progress.user, {
     onDelete: 'CASCADE',
   })
+
   lessonProgress: LessonProgress[];
-  @OneToMany(() => InstructorPayout, (payout) => payout.instructor,{
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => InstructorPayout, (payout) => payout.instructor)
   payouts: InstructorPayout[];
 
-  @OneToMany(() => Transaction, (transaction) => transaction.course,{
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
 
+  @OneToMany(() => Review, (review) => review.student)
+  reviews: Review[];
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
+  enrollments: Enrollment[];
 
   @BeforeInsert()
   beforeInsertLowercase() {

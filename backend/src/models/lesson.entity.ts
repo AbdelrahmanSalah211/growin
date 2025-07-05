@@ -7,11 +7,12 @@ import {
   DeleteDateColumn,
   ManyToOne,
   OneToMany,
-  JoinColumn,
 } from 'typeorm';
 
-import { Course } from './course.entity';
-import { LessonProgress } from './lesson_progress.entity';
+import {
+  Course,
+  LessonProgress
+} from './index';
 
 export enum LessonType {
   VIDEO = 'video',
@@ -42,19 +43,6 @@ export class Lesson {
   })
   lessonType: LessonType;
 
-  @Column()
-  courseId: number;
-
-  @ManyToOne(() => Course, (course) => course.lessons, {
-    eager: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'courseId' })
-  course: Course;
-
-  @OneToMany(() => LessonProgress, (progress) => progress.lesson)
-  progress: LessonProgress[];
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -63,4 +51,13 @@ export class Lesson {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @ManyToOne(() => Course, (course) => course.lessons, {
+    eager: true,
+  })
+  course: Course;
+
+  @OneToMany(() => LessonProgress, (progress) => progress.lesson)
+  progress: LessonProgress[];
+
 }

@@ -2,15 +2,21 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  OneToMany,
+  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  OneToMany,
 } from 'typeorm';
 
-import { Lesson } from './lesson.entity';
-import InstructorPayout from './instructor_payout.entity';
-import { Transaction } from './transaction.entity';
+import {
+  Lesson,
+  Review,
+  Enrollment,
+  CourseCategory,
+  Transaction,
+  InstructorPayout,
+} from './index';
 
 enum CourseLevel {
   BEGINNER = 'beginner',
@@ -26,7 +32,7 @@ export class Course {
   @Column()
   title: string;
 
-  @Column({ unique: true })
+  @Column()
   description: string;
 
   @Column()
@@ -54,16 +60,6 @@ export class Course {
   @Column()
   numberOfReviewers: number;
 
-  @OneToMany(() => Lesson, (lesson) => lesson.course)
-  lessons: Lesson[];
-  @OneToMany(() => InstructorPayout, (payout) => payout.course, {
-    onDelete: 'CASCADE',
-  })
-  payouts: InstructorPayout[];
-  @OneToMany(() => Transaction, (transaction) => transaction.course, {
-    onDelete: 'CASCADE',
-  })
-  transactions: Transaction[];
   @CreateDateColumn()
   createdAt: Date;
 
@@ -72,6 +68,25 @@ export class Course {
 
   @DeleteDateColumn()
   deletedAt: Date;
+  
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  lessons: Lesson[];
+
+  @OneToMany(() => Review, (review) => review.course)
+  reviews: Review[];
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  enrollments: Enrollment[];
+  
+  @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
+  courseCategory: CourseCategory;
+
+  @OneToMany(() => InstructorPayout, (payout) => payout.course)
+  payouts: InstructorPayout[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.course)
+  transactions: Transaction[];
+
 }
 
 export default Course;
