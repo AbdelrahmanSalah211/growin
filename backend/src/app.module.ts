@@ -43,7 +43,7 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
       database: process.env.DB_NAME,
       synchronize: true,
       ssl: {
-      ca: sslCaPath.toString(),
+        ca: sslCaPath.toString(),
       },
       logging: true,
       poolSize: 5,

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import InstructorPayout from 'src/models/instructor_payout.entity';
 import { Repository } from 'typeorm';
+import { InstructorPayout } from '../../models';
 
 @Injectable()
-export class PayountTransactionService {
+export class PayoutTransactionService {
   constructor(
     @InjectRepository(InstructorPayout)
     private instructorPayoutRepository: Repository<InstructorPayout>,

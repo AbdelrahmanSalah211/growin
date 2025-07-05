@@ -1,18 +1,21 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { Transaction } from './transaction.entity';
-import { User } from './user.entity';
-import { Course } from './course.entity';
+
+import {
+  User,
+  Course,
+  Transaction,
+} from './index';
 
 @Entity('instructor_payouts')
 export class InstructorPayout {
+
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -31,5 +34,3 @@ export class InstructorPayout {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-
-export default InstructorPayout;

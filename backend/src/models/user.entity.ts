@@ -128,5 +128,3 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
     }
   }
 }
-
-export default User;

@@ -1,38 +1,38 @@
 import {
-    Entity,
-    PrimaryColumn, 
-    Column,
-    ManyToOne,
-    JoinColumn
+  Entity,
+  PrimaryColumn, 
+  Column,
+  ManyToOne,
+  JoinColumn
 } from "typeorm";
 
 import {
-    User,
-    Course,
+  User,
+  Course,
 } from './index';
 
 @Entity('review')
 export class Review {
-    @PrimaryColumn()
-    courseId: number;
+  @PrimaryColumn()
+  courseId: number;
 
-    @PrimaryColumn()
-    studentId: number;
+  @PrimaryColumn()
+  studentId: number;
 
-    @Column()
-    comment: string;
+  @Column()
+  comment: string;
 
-    @Column()
-    rating: number;
+  @Column()
+  rating: number;
 
-    @Column()
-    helpful: boolean;
+  @Column()
+  helpful: boolean;
 
-    @ManyToOne(() => Course, (course) => course.reviews)
-    @JoinColumn({ name: 'courseId' })
-    course: Course;
+  @ManyToOne(() => Course, (course) => course.reviews)
+  @JoinColumn({ name: 'courseId' })
+  course: Course;
 
-    @ManyToOne(() => User, (user) => user.reviews)
-    @JoinColumn({ name: 'studentId' })
-    student: User;
+  @ManyToOne(() => User, (user) => user.reviews)
+  @JoinColumn({ name: 'studentId' })
+  student: User;
 }
