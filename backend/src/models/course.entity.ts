@@ -18,7 +18,7 @@ import {
   InstructorPayout,
 } from './index';
 
-enum CourseLevel {
+export enum CourseLevel {
   BEGINNER = 'beginner',
   INTERMEDIATE = 'intermediate',
   ADVANCED = 'advanced',
