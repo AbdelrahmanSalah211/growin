@@ -68,7 +68,7 @@ export class Course {
 
   @DeleteDateColumn()
   deletedAt: Date;
-  
+
   @OneToMany(() => Lesson, (lesson) => lesson.course)
   lessons: Lesson[];
 
@@ -77,7 +77,7 @@ export class Course {
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollments: Enrollment[];
-  
+
   @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
   courseCategory: CourseCategory;
 
@@ -88,5 +88,3 @@ export class Course {
   transactions: Transaction[];
 
 }
-
-export default Course;
