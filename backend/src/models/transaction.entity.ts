@@ -5,38 +5,47 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
-  Unique,
+  DeleteDateColumn,
 } from 'typeorm';
 
-import { User } from './user.entity';
-import { Course } from './course.entity';
-import InstructorPayout from './instructor_payout.entity';
-
-@Entity('tranaction')
+import {
+  User,
+  Course,
+  InstructorPayout,
+} from './index';
+@Entity('transaction')
 export class Transaction {
+
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ unique: true })
+  transactionId: string;
+
   @Column()
   paymentMethod: string;
+
   @Column()
   amount: number;
+
   @Column()
   paymentStatus: string;
+
   @ManyToOne(() => User, (user) => user.payouts)
   instructor: User;
 
   @ManyToOne(() => Course, (course) => course.payouts)
   course: Course;
+
   @ManyToOne(() => InstructorPayout, (payout) => payout.transactions)
   payout: InstructorPayout;
-  @Column()
-  transactionId: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
