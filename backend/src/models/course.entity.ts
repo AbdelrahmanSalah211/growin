@@ -14,6 +14,8 @@ import {
   Review,
   Enrollment,
   CourseCategory,
+  Transaction,
+  InstructorPayout,
 } from './index';
 
 enum CourseLevel {
@@ -57,7 +59,7 @@ export class Course {
 
   @Column()
   numberOfReviewers: number;
-  
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -78,6 +80,12 @@ export class Course {
   
   @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
   courseCategory: CourseCategory;
+
+  @OneToMany(() => InstructorPayout, (payout) => payout.course)
+  payouts: InstructorPayout[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.course)
+  transactions: Transaction[];
 
 }
 

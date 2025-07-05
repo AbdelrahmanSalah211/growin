@@ -3,8 +3,9 @@ import {
   PrimaryColumn,
   Column,
   ManyToOne,
-  JoinColumn,
   CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 import {
@@ -26,21 +27,25 @@ export class Enrollment {
   @PrimaryColumn()
   studentId: number;
 
-  @CreateDateColumn()
-  enrolledAt: Date;
-
-  @Column({
+    @Column({
     type: 'enum',
     enum: EnrollmentStatus,
     default: EnrollmentStatus.PENDING,
   })
   status: EnrollmentStatus;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
   @ManyToOne(() => Course, (course) => course.enrollments)
-  @JoinColumn({ name: 'courseId' })
   course: Course;
 
   @ManyToOne(() => User, (user) => user.enrollments)
-  @JoinColumn({ name: 'studentId' })
   student: User;
 }
