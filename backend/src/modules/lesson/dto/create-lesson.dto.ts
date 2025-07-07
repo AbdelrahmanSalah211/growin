@@ -1,23 +1,24 @@
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { LessonType } from 'src/models/lesson.entity';
+import { IsEnum, IsInt, IsNumber, IsString } from 'class-validator';
+import { LessonType } from 'src/models';
 
 export class CreateLessonDto {
+
+  @IsNumber()
+  courseId: number;
+
   @IsString()
   title: string;
-
-  @IsInt()
-  position: number;
-
-  @IsString()
-  section: string;
-
-  @IsOptional()
-  @IsString()
-  subTitle?: string;
 
   @IsEnum(LessonType)
   lessonType: LessonType;
 
+  @IsString()
+  subTitle: string;
+
   @IsInt()
-  courseId: number;
+  position: number;
+
+
+  @IsString()
+  section: string;
 }
