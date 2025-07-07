@@ -78,7 +78,9 @@ export class Course {
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollments: Enrollment[];
 
-  @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
+  @ManyToOne(() => CourseCategory, (category) => category.courses, {
+    onDelete: 'SET NULL',
+  })
   courseCategory: CourseCategory;
 
   @OneToMany(() => InstructorPayout, (payout) => payout.course)
@@ -86,5 +88,4 @@ export class Course {
 
   @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
-
 }

@@ -7,15 +7,21 @@ import { Lesson } from 'src/models/lesson.entity';
 
 @Injectable()
 export class LessonsService {
-
   constructor(
     @InjectRepository(Lesson)
     private lessonRepository: Repository<Lesson>,
   ) {}
 
   create(createLessonDto: CreateLessonDto) {
-    const lesson = this.lessonRepository.create(createLessonDto);
+    const lesson = this.lessonRepository.create({
+      ...createLessonDto,
+      course: { id: createLessonDto.courseId },
+    });
     return this.lessonRepository.save(lesson);
+  }
+
+  addFileURl(id: string, fileURL: string) {
+    return this.lessonRepository.update(id, { fileURL });
   }
 
   findAll() {
