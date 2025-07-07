@@ -42,7 +42,7 @@ export class User {
   @Column({ default: 'https://i.ibb.co/2HTV3dh/Default-profile-image.jpg' })
   profileImage: string;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   imageDeleteURL: string;
 
   @Column({
@@ -64,7 +64,6 @@ export class User {
   @OneToMany(() => LessonProgress, (progress) => progress.user, {
     onDelete: 'CASCADE',
   })
-
   lessonProgress: LessonProgress[];
   @OneToMany(() => InstructorPayout, (payout) => payout.instructor)
   payouts: InstructorPayout[];

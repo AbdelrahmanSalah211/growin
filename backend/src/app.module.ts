@@ -12,6 +12,7 @@ import { CourseModule } from './modules/course/course.module';
 import { ReviewsModule } from './modules/review/review.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { LessonsModule } from './modules/lesson/lessons.module';
+// import { UploadModule } from './modules/videos/videos.module';
 import {
   User,
   UserSubscriber,
@@ -67,6 +68,7 @@ const sslCaPath = readFileSync(join(__dirname, '../certs/ca.pem'));
     ReviewsModule,
     LessonsModule,
     AuthModule,
+    // UploadModule
   ],
   controllers: [AppController],
   providers: [AppService],
