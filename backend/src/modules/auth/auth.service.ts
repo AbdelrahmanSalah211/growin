@@ -7,47 +7,58 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { SignInDto } from './dto/signin.dto';
 import { User } from '../../models/user.entity';
-import { CreateUserDto } from '../user/dto/create-user.dto';
+import { CreateUserDto } from '../user/dto/user.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  async signIn(dto: SignInDto): Promise<{ accessToken: string }> {
+  async signIn(dto: SignInDto): Promise<{ accessToken: string, user: Partial<User> }> {
     const { identifier, password } = dto;
 
-    const user = await this.userService.findByUsernameOrEmail(identifier);
+    const user = await this.userRepository.findOne({ where: { email: identifier } });
     const isValid =
-      user && (await User.correctPassword(user.password, password));
+      user && user.password && (await User.correctPassword(user.password, password));
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.id, email: user.email };
-    const token = this.jwtService.sign(payload);
+    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
+    const token = await this.jwtService.signAsync(payload)
 
-    return { accessToken: token };
+    return {
+      accessToken: token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        profileImage: user.profileImage,
+        userMode: user.userMode,
+      },
+    };
   }
 
   async signUp(dto: CreateUserDto) {
-    const { email, username } = dto;
+    const { email } = dto;
 
-    const existing =
-      (await this.userService.findByUsernameOrEmail(email)) ||
-      (await this.userService.findByUsernameOrEmail(username));
+    const existing = await this.userService.findByEmail(email);
 
     if (existing) {
-      throw new BadRequestException('Email or username already taken');
+      throw new BadRequestException('Email already taken');
     }
 
     const user = await this.userService.createUser(dto);
 
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
+    const accessToken = await this.jwtService.signAsync(payload);
 
     return {
       accessToken,
@@ -55,11 +66,11 @@ export class AuthService {
   }
 
   async loginWithOAuth(
-    googleUser: any,
+    googleUser: { email: string; name: string; photo: string },
   ): Promise<{ accessToken: string; user: Partial<User> }> {
     const { email, name, photo } = googleUser;
 
-    let user = await this.userService.findByUsernameOrEmail(email);
+    let user = await this.userService.findByEmail(email);
 
     if (!user) {
       user = await this.userService.createUser({
@@ -67,12 +78,11 @@ export class AuthService {
         email,
         password: '',
         profileImage: photo,
-        bio: `OAuth Google user ${name}`,
       });
     }
 
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
+    const accessToken = await this.jwtService.signAsync(payload);
 
     return {
       accessToken,
@@ -81,6 +91,7 @@ export class AuthService {
         email: user.email,
         username: user.username,
         profileImage: user.profileImage,
+        userMode: user.userMode,
       },
     };
   }

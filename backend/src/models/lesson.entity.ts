@@ -40,7 +40,7 @@ export class Lesson {
     default:LessonType.VIDEO
   })
   lessonType: LessonType;
-  
+
   @Column({ nullable: true })
   fileURL: string;
 
