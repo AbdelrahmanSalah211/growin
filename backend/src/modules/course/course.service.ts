@@ -1,9 +1,8 @@
-
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from 'src/models/course.entity';
-import { CreateCourseDto } from './dto/create_course.dto';
+import { CreateCourseDto } from './dto/create-course.dto';
 
 @Injectable()
 export class CourseService {
@@ -13,12 +12,14 @@ export class CourseService {
   ) {}
 
   async findAll(): Promise<Course[]> {
-    return this.courseRepository.find();
+    return this.courseRepository.find({
+      relations: ['lessons'],
+    });
   }
 
   async createCourse(course: CreateCourseDto): Promise<Course> {
     const newCourse = new Course();
-    
+
     newCourse.title = course.title;
     newCourse.description = course.description;
     newCourse.isPublished = course.isPublished;

@@ -69,9 +69,7 @@ export class Course {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => Lesson, (lesson) => lesson.course,{
-    eager:true
-  })
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
   lessons: Lesson[];
 
   @OneToMany(() => Review, (review) => review.course)
