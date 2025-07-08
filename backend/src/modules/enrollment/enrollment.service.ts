@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 export class EnrollmentService {
   constructor(
     @InjectRepository(Enrollment)
-    private enrollmentRepository: Repository<Enrollment>
+    private enrollmentRepository: Repository<Enrollment>,
   ) {}
 
   async findAll(): Promise<Enrollment[]> {

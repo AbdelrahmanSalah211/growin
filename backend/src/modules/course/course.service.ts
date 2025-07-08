@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from 'src/models/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { User } from 'src/models';
 
 @Injectable()
 export class CourseService {
@@ -17,10 +18,13 @@ export class CourseService {
     });
   }
 
-  async createCourse(course: CreateCourseDto): Promise<Course> {
+  async createCourse(
+    instructor_id: number,
+    course: CreateCourseDto,
+  ): Promise<Course> {
     const newCourse = new Course();
-
     newCourse.title = course.title;
+    newCourse.instructor = { id: instructor_id } as User;
     newCourse.description = course.description;
     newCourse.isPublished = course.isPublished;
     newCourse.language = course.language;

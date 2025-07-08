@@ -1,7 +1,8 @@
-import { Controller, Body, Get, Post } from '@nestjs/common';
+import { Controller, Body, Get, Post, UseGuards, Req } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { Course } from 'src/models/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('courses')
 export class CourseController {
@@ -13,9 +14,12 @@ export class CourseController {
   }
 
   @Post()
-  async createCourse(@Body() course: CreateCourseDto): Promise<Course> {
-    
-    const newCourse =  this.courseService.createCourse(course);
+  @UseGuards(AuthGuard)
+  async createCourse(
+    @Body() course: CreateCourseDto,
+    @Req() req: { user: { sub: number } },
+  ): Promise<Course> {
+    const newCourse = this.courseService.createCourse(req.user.sub, course);
     return newCourse;
   }
 }

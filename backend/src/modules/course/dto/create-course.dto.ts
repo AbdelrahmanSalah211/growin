@@ -19,7 +19,7 @@ export class CreateCourseDto {
     @IsString()
     imageDeleteURL: string;
 
-
+  
     @IsInt()
     ratingSum: number;
   

@@ -18,6 +18,7 @@ import {
   Enrollment,
   Transaction,
   InstructorPayout,
+  Course,
 } from './index';
 
 export enum UserMode {
@@ -77,6 +78,8 @@ export class User {
   @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
   enrollments: Enrollment[];
 
+  @OneToMany(() => Course, (course) => course.instructor)
+  courses: Course[];
   @BeforeInsert()
   beforeInsertLowercase() {
     this.username = this.username.toLowerCase();
@@ -109,7 +112,7 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
 
   async beforeInsert(event: InsertEvent<User>) {
     if (event.entity.password && event.entity.password.trim() !== '') {
-    event.entity.password = await argon2.hash(event.entity.password);
+      event.entity.password = await argon2.hash(event.entity.password);
     } else {
       event.entity.password = null;
     }
