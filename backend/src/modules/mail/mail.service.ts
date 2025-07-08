@@ -21,7 +21,7 @@ export class MailService {
   }
 
   async sendMail(to: string, subject: string, template: string, {name, url}: {name: string, url: string}): Promise<nodemailer.SentMessageInfo> {
-    const html = pug.renderFile(`${__dirname}/templates/${template}.pug`, {
+    const html = pug.renderFile(`${__dirname}/../../../../mail-templates/${template}.pug`, {
       name,
       url,
     });
