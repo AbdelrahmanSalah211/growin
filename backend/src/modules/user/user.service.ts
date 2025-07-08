@@ -1,8 +1,9 @@
 import { Injectable} from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/models/user.entity';
-
+import { JwtService } from '@nestjs/jwt';
+import { createHash } from 'crypto';
+import { Repository } from 'typeorm';
+import { User, UserMode } from 'src/models';
 import { 
   CreateUserDto,
   UpdateUserDto,
@@ -17,6 +18,7 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private mailService: MailService,
+    private jwtService: JwtService,
   ) {}
 
   async createUser(user: CreateUserDto): Promise<User> {
@@ -24,7 +26,6 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  
   async findByUserId(id: number): Promise<User | null> {
       return this.userRepository.findOne({
       where: { id },
@@ -45,8 +46,14 @@ export class UserService {
       throw new Error('User not found');
     }
     const { username, email: newEmail, bio } = dto;
+    if (user.email != newEmail){
+      const foundUser = await this.findByEmail(newEmail);
+      if(foundUser){
+        throw new Error('Email already in use');
+      }
+      user.email = newEmail || user.email;
+    }
     user.username = username || user.username;
-    user.email = newEmail || user.email;
     user.bio = bio || user.bio;
     if (dto.profileImage && dto.imageDeleteURL) {
       user.profileImage = dto.profileImage;
@@ -115,15 +122,45 @@ export class UserService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<User> {
+    const hashedToken = createHash('sha256').update(token).digest('hex');
     const user = await this.userRepository.findOne({
-      where: { passwordResetToken: token },
+      where: { passwordResetToken: hashedToken },
     });
     if (!user || !user.passwordResetExpires || Number(user.passwordResetExpires) < Date.now()) {
+      console.log('inside throw');
       throw new Error('Invalid or expired token');
     }
     user.password = newPassword;
     user.passwordResetToken = null;
     user.passwordResetExpires = null;
     return this.userRepository.save(user);
+  }
+
+  async switchUserMode(id: number){
+    const user = await this.findByUserId(id);
+    if(!user) {
+      throw new Error('User not found');
+    }
+    if (user.userMode === UserMode.LEARNER) {
+      user.userMode = UserMode.INSTRUCTOR;
+    } else if (user.userMode === UserMode.INSTRUCTOR) {
+      user.userMode = UserMode.LEARNER;
+    }
+
+    await this.userRepository.save(user);
+
+    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
+    const token = await this.jwtService.signAsync(payload)
+
+    return {
+      accessToken: token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        profileImage: user.profileImage,
+        userMode: user.userMode,
+      },
+    };
   }
 }
