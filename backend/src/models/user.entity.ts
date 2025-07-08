@@ -61,6 +61,12 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   passwordResetExpires: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  refreshTokenExpiresAt: string | null;
+
   @OneToMany(() => LessonProgress, (progress) => progress.user, {
     onDelete: 'CASCADE',
   })
@@ -92,9 +98,7 @@ export class User {
 
   createPasswordResetToken(): string {
     const resetToken = randomBytes(32).toString('hex');
-    this.passwordResetToken = createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
+    this.passwordResetToken = createHash('sha256').update(resetToken).digest('hex');
     console.log({ resetToken }, this.passwordResetToken);
     this.passwordResetExpires = `${Date.now() + 10 * 60 * 1000}`;
     return resetToken;

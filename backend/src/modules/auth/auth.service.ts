@@ -10,6 +10,7 @@ import { User } from '../../models/user.entity';
 import { CreateUserDto } from '../user/dto/user.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,27 @@ export class AuthService {
     private userRepository: Repository<User>,
   ) {}
 
-  async signIn(dto: SignInDto): Promise<{ accessToken: string, user: Partial<User> }> {
+  private async generateAccessToken(user: User): Promise<{ accessToken: string }>{
+    const accessPayload = { sub: user.id, email: user.email, userMode: user.userMode };
+    const accessToken = await this.jwtService.signAsync(accessPayload, {
+      expiresIn: '60m'
+    });
+    return { accessToken };
+  }
+  private async generateRefreshToken(user: User): Promise<{ refreshToken: string }>{
+    const refreshPayload = { sub: user.id };
+    const refreshToken = await this.jwtService.signAsync(refreshPayload, {
+      expiresIn: '7d'
+    });
+    const refreshTokenExpiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    await this.userRepository.update(user.id, {
+      refreshToken,
+      refreshTokenExpiresAt: refreshTokenExpiresAt.toString()
+    });
+    return { refreshToken }
+  }
+
+  async signIn(dto: SignInDto): Promise<{ accessToken: string; refreshToken: string; user: Partial<User> }> {
     const { identifier, password } = dto;
 
     const user = await this.userRepository.findOne({ where: { email: identifier } });
@@ -31,11 +52,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
-    const token = await this.jwtService.signAsync(payload)
+    const { accessToken } = await this.generateAccessToken(user);
+    const { refreshToken } = await this.generateRefreshToken(user);
 
     return {
-      accessToken: token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -46,32 +68,23 @@ export class AuthService {
     };
   }
 
-  async signUp(dto: CreateUserDto) {
+  async signUp(dto: CreateUserDto): Promise<{ message: string }> {
     const { email } = dto;
-
     const existing = await this.userService.findByEmail(email);
-
     if (existing) {
       throw new BadRequestException('Email already taken');
     }
-
-    const user = await this.userService.createUser(dto);
-
-    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
-    const accessToken = await this.jwtService.signAsync(payload);
-
+    await this.userService.createUser(dto);
     return {
-      accessToken,
+      message: "User created successfully"
     };
   }
 
   async loginWithOAuth(
     googleUser: { email: string; name: string; photo: string },
-  ): Promise<{ accessToken: string; user: Partial<User> }> {
+  ): Promise<{ accessToken: string; refreshToken: string; user: Partial<User> }> {
     const { email, name, photo } = googleUser;
-
     let user = await this.userService.findByEmail(email);
-
     if (!user) {
       user = await this.userService.createUser({
         username: name,
@@ -80,12 +93,11 @@ export class AuthService {
         profileImage: photo,
       });
     }
-
-    const payload = { sub: user.id, email: user.email, userMode: user.userMode };
-    const accessToken = await this.jwtService.signAsync(payload);
-
+    const { accessToken } = await this.generateAccessToken(user);
+    const { refreshToken } = await this.generateRefreshToken(user);
     return {
       accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -94,5 +106,44 @@ export class AuthService {
         userMode: user.userMode,
       },
     };
+  }
+
+  async refreshAccessToken(refreshTokenDto: RefreshTokenDto): Promise<{ 
+    accessToken: string
+  }> {
+    const { refreshToken } = refreshTokenDto;
+    try {
+      const payload: { sub: number } = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_SECRET
+      });
+      const user = await this.userRepository.findOne({
+        where: { id: payload.sub }
+      });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+      if (user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      if (user.refreshTokenExpiresAt && Number(user.refreshTokenExpiresAt) < Date.now()) {
+        await this.userRepository.update(user.id, {
+          refreshToken: null,
+          refreshTokenExpiresAt: null
+        });
+        throw new UnauthorizedException('Refresh token expired');
+      }
+      const { accessToken } = await this.generateAccessToken(user);
+      return { accessToken };
+    } catch (error) {
+      console.error('error: ', error);
+      throw new UnauthorizedException('Invalid refresh token - please login again');
+    }
+  }
+
+  async logout(id: number){
+    return this.userRepository.update(id, {
+      refreshToken: null,
+      refreshTokenExpiresAt: null
+    });
   }
 }

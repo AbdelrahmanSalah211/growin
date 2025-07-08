@@ -1,24 +1,29 @@
 import { Controller, Body, Get, Patch, UseGuards, Req, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models';
-import { AuthGuard } from '../auth/auth.guard';
+import { JwtAuthGuard } from '../auth/auth.guard';
 import { Request } from 'express';
 import { UpdatePasswordDto, UpdateUserDto, CreatePasswordDto, ResetPasswordDto } from './dto/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageService } from '../image/image.service';
+import { RolesGuard } from '../authorization/roles.guard';
+import { Roles } from '../authorization/roles.decorator';
+import { UserMode } from '../../models/user.entity';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService, private readonly imageService: ImageService) {}
 
   @Get('info')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR, UserMode.LEARNER)
   async getUserInfo(@Req() req: { user: { sub: number } }): Promise<User | null> {
     return this.userService.findByUserId(req.user.sub);
   }
 
   @Patch('info')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR, UserMode.LEARNER)
   @UseInterceptors(FileInterceptor('file'))
   async updateUser(
     @Body() dto: UpdateUserDto,
@@ -33,9 +38,9 @@ export class UserController {
     return await this.userService.updateUser(req.user.sub, dto);
   }
 
-
   @Patch('password')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR, UserMode.LEARNER)
   async updatePassword(
     @Body()
     dto: UpdatePasswordDto,
@@ -46,7 +51,8 @@ export class UserController {
   }
 
   @Patch('create-password')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR, UserMode.LEARNER)
   async createPassword(
     @Body()
     dto: CreatePasswordDto,
@@ -56,7 +62,6 @@ export class UserController {
     return { message: 'Password created successfully' };
   }
 
-  // how to extract properties from request body @Body('email')
   @Post('forget-password')
   async forgetPassword(
     @Body('email') email: string,
@@ -78,5 +83,14 @@ export class UserController {
   ): Promise<{ message: string }> {
     await this.userService.resetPassword(dto.token, dto.newPassword);
     return { message: 'Password reset successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR, UserMode.LEARNER)
+  @Patch('user-mode')
+  async switchUserMode(
+    @Req() req: { user: { sub: number } }
+  ) {
+    return await this.userService.switchUserMode(req.user.sub);
   }
 }
