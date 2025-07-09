@@ -6,10 +6,10 @@ export interface FileInputProps {
   title?: string;
   placeHolder?: string;
   icon?: ReactNode;
-  AcceptedFileType?: string;
-  Multiple?: boolean;
+  acceptedFileType?: string;
+  multiple?: boolean;
   onDrop?: () => {};
-  InputProps?: InputHTMLAttributes<HTMLInputElement>;
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
 
 const FileInput: FC<FileInputProps> = ({
@@ -29,12 +29,12 @@ const FileInput: FC<FileInputProps> = ({
       />
     </svg>
   ),
-  Multiple = false,
+  multiple = false,
   onDrop = () => {},
-  InputProps = {},
+  inputProps = {},
   title = "Upload File",
   placeHolder = "Drag & drop or click to upload",
-  AcceptedFileType = "*/*",
+  acceptedFileType = "*/*",
 }) => {
   return (
     <>
@@ -51,9 +51,10 @@ const FileInput: FC<FileInputProps> = ({
           Browse files
         </div> */}
         <input
+        {...inputProps}
           type="file"
-          accept={AcceptedFileType}
-          multiple={Multiple}
+          accept={acceptedFileType}
+          multiple={multiple}
           onDrop={onDrop}
           id="upload"
           className="opacity-0 "

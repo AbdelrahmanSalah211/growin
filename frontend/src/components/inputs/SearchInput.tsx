@@ -3,7 +3,7 @@
 import { FC, InputHTMLAttributes, ReactNode } from "react";
 
 export interface SearchInputProps {
-  placeholder?: string;
+  placeHolder?: string;
   icon?: ReactNode;
   value?: string;
   onChange?: () => {};
@@ -11,7 +11,7 @@ export interface SearchInputProps {
 }
 
 const SearchInput: FC<SearchInputProps> = ({
-  placeholder = "Search...",
+  placeHolder = "Search...",
   icon = (
     <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -43,7 +43,7 @@ const SearchInput: FC<SearchInputProps> = ({
             {...inputProps}
             type="text"
             id="search"
-            placeholder={placeholder}
+            placeholder={placeHolder}
             value={value}
             onChange={onChange}
             className="w-full outline-none"

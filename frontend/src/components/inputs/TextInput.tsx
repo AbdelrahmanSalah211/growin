@@ -3,7 +3,7 @@ import { FC, InputHTMLAttributes, ReactNode } from "react";
 
 export interface TextInputProps {
   title?: string;
-  placeholder?: string;
+  placeHolder?: string;
   name?: string;
   icon?: ReactNode;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
@@ -14,7 +14,7 @@ export interface TextInputProps {
 const TextInput: FC<TextInputProps> = ({
   name,
   title = "Text",
-  placeholder = "Type here..",
+  placeHolder = "Type here..",
   icon = (
     <svg fill="#2C3E50" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -43,7 +43,7 @@ const TextInput: FC<TextInputProps> = ({
             {...inputProps}
             type="text"
             onChange={onChange}
-            placeholder={placeholder}
+            placeholder={placeHolder}
             name={name}
             className=" focus:outline-none w-full"
             
