@@ -16,6 +16,7 @@ import {
   CourseCategory,
   Transaction,
   InstructorPayout,
+  User,
 } from './index';
 
 export enum CourseLevel {
@@ -88,4 +89,9 @@ export class Course {
 
   @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
+
+  @ManyToOne(() => User, {
+    onDelete: 'SET NULL',
+  })
+  instructor: User;
 }
