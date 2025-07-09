@@ -7,32 +7,51 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 export class CreateUserDto {
+  @ApiProperty({
+    description: 'Username (max 30 chars)',
+    maxLength: 30,
+    required: true,
+  })
   @IsString()
   @MaxLength(30)
   username: string;
 
+  @ApiProperty({ description: 'User email address', required: true })
   @IsEmail()
   email: string;
 
+  @ApiProperty({
+    description: 'Strong password (min 8 chars)',
+    minLength: 8,
+    required: true,
+  })
   @MinLength(8)
   @IsStrongPassword()
   password: string;
 
+  @ApiPropertyOptional({ description: 'Profile image URL (optional)' })
   @IsOptional()
   @IsString()
   profileImage?: string;
 
+  @ApiPropertyOptional({
+    description: 'Cloud image delete token URL (optional)',
+  })
   @IsOptional()
   @IsString()
   imageDeleteURL?: string;
 
+  @ApiPropertyOptional({ description: 'Short user bio (optional)' })
+  @ApiProperty()
   @IsOptional()
   @IsString()
   bio?: string;
 }
 
-export class UpdateUserDto  {
+export class UpdateUserDto {
   @IsString()
   username: string;
 
