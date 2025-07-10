@@ -2,7 +2,7 @@ import { Controller, Body, Get, Post, UseGuards, Req } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { Course } from 'src/models/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { AuthGuard } from '../auth/auth.guard';
+import { JwtAuthGuard } from '../auth/auth.guard';
 
 @Controller('courses')
 export class CourseController {
@@ -14,7 +14,7 @@ export class CourseController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   async createCourse(
     @Body() course: CreateCourseDto,
     @Req() req: { user: { sub: number } },
