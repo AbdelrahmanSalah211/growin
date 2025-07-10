@@ -3,7 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { SignInDto } from './dto/signin.dto';
 import { User } from '../../models/user.entity';
@@ -31,12 +31,11 @@ export class AuthService {
   private async generateRefreshToken(user: User): Promise<{ refreshToken: string }>{
     const refreshPayload = { sub: user.id };
     const refreshToken = await this.jwtService.signAsync(refreshPayload, {
+      secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: '7d'
     });
-    const refreshTokenExpiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
     await this.userRepository.update(user.id, {
       refreshToken,
-      refreshTokenExpiresAt: refreshTokenExpiresAt.toString()
     });
     return { refreshToken }
   }
@@ -114,7 +113,7 @@ export class AuthService {
     const { refreshToken } = refreshTokenDto;
     try {
       const payload: { sub: number } = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_SECRET
+        secret: process.env.JWT_REFRESH_SECRET
       });
       const user = await this.userRepository.findOne({
         where: { id: payload.sub }
@@ -123,27 +122,22 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
       if (user.refreshToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
-      if (user.refreshTokenExpiresAt && Number(user.refreshTokenExpiresAt) < Date.now()) {
-        await this.userRepository.update(user.id, {
-          refreshToken: null,
-          refreshTokenExpiresAt: null
-        });
-        throw new UnauthorizedException('Refresh token expired');
+        throw new UnauthorizedException('refresh_token_invalid');
       }
       const { accessToken } = await this.generateAccessToken(user);
       return { accessToken };
     } catch (error) {
       console.error('error: ', error);
-      throw new UnauthorizedException('Invalid refresh token - please login again');
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException('refresh_token_expired');
+      }
+      throw new UnauthorizedException('refresh_token_invalid');
     }
   }
 
   async logout(id: number){
     return this.userRepository.update(id, {
       refreshToken: null,
-      refreshTokenExpiresAt: null
     });
   }
 }

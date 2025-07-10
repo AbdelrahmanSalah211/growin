@@ -65,9 +65,6 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   refreshToken: string | null;
 
-  @Column({ type: 'varchar', nullable: true })
-  refreshTokenExpiresAt: string | null;
-
   @OneToMany(() => LessonProgress, (progress) => progress.user, {
     onDelete: 'CASCADE',
   })
