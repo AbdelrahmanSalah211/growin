@@ -45,7 +45,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() dto: CreateUserDto,
   ): Promise<{ message: string }> {
-    return await this.authService.signUp(dto);
+    return this.authService.signUp(dto);
   }
 
   @Post('refresh')

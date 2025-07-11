@@ -1,10 +1,10 @@
 import { Controller, Body, Get, Patch, UseGuards, Req, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
 import { UserService } from './user.service';
 import { User } from 'src/models';
 import { JwtAuthGuard } from '../auth/auth.guard';
-import { Request } from 'express';
 import { UpdatePasswordDto, UpdateUserDto, CreatePasswordDto, ResetPasswordDto } from './dto/user.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageService } from '../image/image.service';
 import { RolesGuard } from '../authorization/roles.guard';
 import { Roles } from '../authorization/roles.decorator';
@@ -35,7 +35,7 @@ export class UserController {
       dto.profileImage = result.imageUrl;
       dto.imageDeleteURL = result.deleteUrl;
     }
-    return await this.userService.updateUser(req.user.sub, dto);
+    return this.userService.updateUser(req.user.sub, dto);
   }
 
   @Patch('password')
@@ -91,6 +91,6 @@ export class UserController {
   async switchUserMode(
     @Req() req: { user: { sub: number } }
   ) {
-    return await this.userService.switchUserMode(req.user.sub);
+    return this.userService.switchUserMode(req.user.sub);
   }
 }

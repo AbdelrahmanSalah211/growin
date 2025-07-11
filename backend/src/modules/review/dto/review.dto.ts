@@ -1,14 +1,10 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString, Max, Min } from 'class-validator';
 
-export class reviewDTO {
+export class ReviewDto {
   @IsNumber()
-  courseID: number;
-
-  @IsNumber()
-  studentID: number;
-
-  @IsNumber()
-  rates: number;
+  @Max(5)
+  @Min(1)
+  rating: number;
 
   @IsString()
   comment: string;
