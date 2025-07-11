@@ -37,11 +37,11 @@ export class Lesson {
   @Column({
     type: 'enum',
     enum: LessonType,
-    default:LessonType.VIDEO
+    default: LessonType.VIDEO,
   })
   lessonType: LessonType;
 
-  @Column({ nullable: true })
+  @Column('text', { nullable: true, array: true })
   fileURL: string;
 
   @CreateDateColumn()
@@ -54,7 +54,7 @@ export class Lesson {
   deletedAt: Date;
 
   @ManyToOne(() => Course, (course) => course.lessons, {
-    // eager: true,
+    // onDelete: 'CASCADE',
   })
   course: Course;
 
