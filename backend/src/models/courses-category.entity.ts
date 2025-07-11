@@ -14,7 +14,7 @@ export class CourseCategory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 100 })
+  @Column({ unique: true, length: 100 })
   title: string;
 
   @OneToMany(() => Course, (course) => course.courseCategory)

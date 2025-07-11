@@ -1,7 +1,6 @@
 import { IsString } from "class-validator";
 
-export class categoryDTO
-{
-    @IsString()
-    title:string
+export class CategoryDto {
+  @IsString()
+  title: string;
 }
