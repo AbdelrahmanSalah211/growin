@@ -20,6 +20,12 @@ export class LessonsService {
     return this.lessonRepository.save(lesson);
   }
 
+  findByCourseId(courseId: number) {
+    const lessons = this.lessonRepository.find({
+      where: { course: { id: courseId } },
+    });
+    return lessons;
+  }
   addFileURl(id: string, fileURL: string) {
     return this.lessonRepository.update(id, { fileURL });
   }

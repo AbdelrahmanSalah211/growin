@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from 'src/models/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -14,7 +14,7 @@ export class CourseService {
 
   async findAll(): Promise<Course[]> {
     return this.courseRepository.find({
-      relations: ['lessons'],
+      relations: ['lessons', 'instructor'],
     });
   }
 
@@ -34,5 +34,56 @@ export class CourseService {
     newCourse.price = course.price;
     newCourse.numberOfReviewers = course.numberOfReviewers;
     return this.courseRepository.save(newCourse);
+  }
+
+  async findAllCoursesByUser(userId: number): Promise<Course[]> {
+    return this.courseRepository.find({
+      where: { instructor: { id: userId } },
+    });
+  }
+
+  async findById(id: number): Promise<Course> {
+    const course = await this.courseRepository.findOne({
+      where: { id: id },
+      relations: ['lessons'],
+    });
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+    return course;
+  }
+
+  async delete(id: number) {
+    await this.courseRepository.softDelete(id);
+    return {
+      message: `Course with ID ${id} has been deleted successfully`,
+    };
+  }
+
+  async getAllBySoftDeleted(): Promise<Course[]> {
+    return this.courseRepository.find({
+      withDeleted: true,
+      where: { deletedAt: Not(IsNull()) },
+    });
+  }
+
+  async updateCourse(
+    id: number,
+    updatedCourse: Partial<CreateCourseDto>,
+  ): Promise<Course> {
+    const course = await this.courseRepository.findOne({ where: { id } });
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+
+    Object.assign(course, updatedCourse);
+    return this.courseRepository.save(course);
+  }
+
+  async findByInstructor(instructorId: number): Promise<Course[]> {
+    return this.courseRepository.find({
+      where: { instructor: { id: instructorId } },
+      relations: ['lessons'],
+    });
   }
 }
