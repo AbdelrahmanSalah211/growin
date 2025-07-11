@@ -1,66 +1,72 @@
 "use client";
 
-import React, { useState } from "react";
+import {
+  FC,
+  ChangeEvent,
+  ReactNode,
+  InputHTMLAttributes,
+  useState,
+} from "react";
+import { KeySkeletonIcon } from "../icons/KeySkeletonIcon";
+import { EyeIcon } from "../icons/EyeIcon";
+import { EyeClosedIcon } from "../icons/EyeClosedIcon";
 
-interface PasswordInputProps {
-    title?: string;
-    placeholder?: string;
-    name?: string;
-    value: string;
-    onChange?: (value: string) => void;
-    icon?: React.ReactNode;
-    hiddenPasswordIcon?: React.ReactNode;
-    visiblePasswordIcon?: React.ReactNode;
-    inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
+export interface PasswordInputProps {
+  title?: string;
+  placeholder?: string;
+  name?: string;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  icon?: ReactNode;
+  hiddenPasswordIcon?: ReactNode;
+  visiblePasswordIcon?: ReactNode;
+  inputProps?: Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "type" | "value" | "onChange" | "name"
+  >;
 }
 
-const PasswordInput: React.FC<PasswordInputProps> = ({
-    title = "Password",
-    placeholder = "Enter your password",
-    name,
-    value,
-    onChange,
-    icon,
-    hiddenPasswordIcon,
-    visiblePasswordIcon,
-    inputProps = {},
+const PasswordInput: FC<PasswordInputProps> = ({
+  title = "Password",
+  placeholder = "Enter your password",
+  name,
+  value = "",
+  onChange = () => {},
+  icon = <KeySkeletonIcon color="#2C3E50" />,
+  hiddenPasswordIcon = <EyeClosedIcon color="#2C3E50" />,
+  visiblePasswordIcon = <EyeIcon color="#2C3E50" />,
+  inputProps = {},
 }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const toggleVisibility = () => setIsVisible((prev) => !prev);
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleVisibility = () => setIsVisible((prev) => !prev);
 
-    return (
-        <div className="flex flex-col gap-1 w-[23.125rem]">
-            <label htmlFor={name} className="text-lg text-primary-text">
-                {title}
-            </label>
-            <div className="flex items-center bg-background px-3 py-2 rounded-lg gap-2">
-                {icon && (
-                    <span className="text-lg text-primary-text">{icon}</span>
-                )}
+  return (
+    <label htmlFor={name} className="block space-y-[0.625rem] w-[23.125rem]">
+      <p className="text-[1.125rem] text-primary-text">{title}</p>
 
-                <input
-                    id={name}
-                    name={name}
-                    value={value}
-                    type={isVisible ? "text" : "password"}
-                    onChange={
-                        onChange ? (e) => onChange(e.target.value) : undefined
-                    }
-                    placeholder={placeholder}
-                    {...inputProps}
-                    className="flex-1 outline-none bg-background text-primary-text"
-                />
+      <div className="bg-background flex items-center p-4 gap-[0.75rem] rounded-[0.75rem] focus-within:ring-2 focus-within:ring-border transition">
+        {icon && <span>{icon}</span>}
 
-                <button
-                    type="button"
-                    onClick={toggleVisibility}
-                    className="text-lg text-primary-text"
-                >
-                    {isVisible ? visiblePasswordIcon : hiddenPasswordIcon}
-                </button>
-            </div>
-        </div>
-    );
+        <input
+          className="w-full text-primary-text outline-none ring-0 focus:ring-0 focus:outline-none bg-background"
+          {...inputProps}
+          name={name}
+          value={value}
+          type={isVisible ? "text" : "password"}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
+
+        <button
+          type="button"
+          onClick={toggleVisibility}
+          className="text-primary-text cursor-pointer"
+        >
+          {isVisible ? visiblePasswordIcon : hiddenPasswordIcon}
+        </button>
+      </div>
+    </label>
+  );
 };
 
 export default PasswordInput;

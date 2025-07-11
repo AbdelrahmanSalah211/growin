@@ -1,48 +1,47 @@
 "use client";
 
-import React from "react";
+import { FC, ReactNode, InputHTMLAttributes, ChangeEvent } from "react";
+import { EmailAddressSignAtIcon } from "../icons/EmailAddressSignAtIcon";
 
-interface EmailInputProps {
-    title?: string;
-    placeholder?: string;
-    name?: string;
-    value?: string;
-    icon?: React.ReactNode;
-    onChange?: (value: string) => void;
-    inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
+export interface EmailInputProps {
+  title?: string;
+  placeholder?: string;
+  name?: string;
+  icon?: ReactNode;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  inputProps?: Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "type" | "name" | "value" | "onChange" | "placeholder"
+  >;
 }
 
-const EmailInput: React.FC<EmailInputProps> = ({
-    title = "Email",
-    placeholder = "You@example.com",
-    name,
-    value,
-    icon,
-    onChange,
-    inputProps = {},
+const EmailInput: FC<EmailInputProps> = ({
+  title = "Email",
+  placeholder = "you@example.com",
+  name,
+  icon = <EmailAddressSignAtIcon color="#2C3E50" />,
+  value = "",
+  onChange = () => {},
+  inputProps = {},
 }) => {
-    return (
-        <div className="flex flex-col gap-1 w-[23.125rem]">
-            <label htmlFor={name} className="text-lg text-primary-text">
-                {title}
-            </label>
-            <div className="flex items-center bg-background px-3 py-2 rounded-lg gap-2">
-                <span className="text-lg text-primary-text ">{icon}</span>
-                <input
-                    id={name}
-                    name={name}
-                    value={value}
-                    type="email"
-                    onChange={
-                        onChange ? (e) => onChange(e.target.value) : undefined
-                    }
-                    placeholder={placeholder}
-                    {...inputProps}
-                    className="flex-1 outline-none bg-background text-primary-text"
-                />
-            </div>
-        </div>
-    );
+  return (
+    <label htmlFor={name} className="block space-y-[0.625rem] w-[23.125rem]">
+      <p className="text-[1.125rem] text-primary-text">{title}</p>
+      <div className="bg-background flex items-center p-4 gap-[0.75rem] rounded-[0.75rem] focus-within:ring-2 focus-within:ring-border transition">
+        <span>{icon}</span>
+        <input
+          className="w-full text-primary-text outline-none ring-0 focus:ring-0 focus:outline-none"
+          name={name}
+          value={value}
+          type="email"
+          onChange={onChange}
+          placeholder={placeholder}
+          {...inputProps}
+        />
+      </div>
+    </label>
+  );
 };
 
 export default EmailInput;

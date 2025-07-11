@@ -1,41 +1,48 @@
 "use client";
 
-import React from "react";
+import { ReactNode, TextareaHTMLAttributes, FC, ChangeEvent } from "react";
+import { TextFieldIcon } from "../icons/TextFieldIcon";
 
-interface TextareaProps {
-    title?: string;
-    placeholder?: string;
-    icon?: React.ReactNode;
-    value: string;
-    onChange?: (value: string) => void;
-    textareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+export interface TextareaProps {
+  title?: string;
+  placeholder?: string;
+  name?: string;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  icon?: ReactNode;
+  textareaProps?: Omit<
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    "value" | "onChange" | "name" | "placeholder"
+  >;
 }
 
-const Textarea: React.FC<TextareaProps> = ({
-    title = "Text",
-    placeholder = "Type your text here…",
-    icon,
-    value,
-    onChange,
-    textareaProps = {},
+const TextArea: FC<TextareaProps> = ({
+  title = "Text",
+  placeholder = "Type your text here…",
+  name,
+  value = "",
+  onChange = () => {},
+  icon = <TextFieldIcon color="#2C3E50" />,
+  textareaProps = {},
 }) => {
-    return (
-        <div className="flex flex-col gap-1 w-[48.75rem]">
-            <label className="text-lg text-primary-text">{title}</label>
-            <div className="flex items-start bg-background px-3 py-2 rounded-lg gap-2">
-                {icon && <span className="pt-1 text-primary-text">{icon}</span>}
-                <textarea
-                    value={value}
-                    onChange={
-                        onChange ? (e) => onChange(e.target.value) : undefined
-                    }
-                    placeholder={placeholder}
-                    {...textareaProps}
-                    className="flex-1 outline-none bg-background text-primary-text resize-none"
-                />
-            </div>
-        </div>
-    );
+  return (
+    <label className="block space-y-[0.625rem] w-[48.75rem]">
+      <p className="text-[1.125rem] text-primary-text">{title}</p>
+
+      <div className="flex items-start bg-background p-4 gap-[0.75rem] rounded-[0.75rem] focus-within:ring-2 focus-within:ring-border transition">
+        {icon && <span className="text-primary-text">{icon}</span>}
+
+        <textarea
+          className="w-full min-h-[10rem] text-primary-text outline-none ring-0 focus:ring-0 focus:outline-none bg-background resize-none"
+          {...textareaProps}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
+      </div>
+    </label>
+  );
 };
 
-export default Textarea;
+export default TextArea;

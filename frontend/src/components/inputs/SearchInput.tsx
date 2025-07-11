@@ -1,55 +1,69 @@
 "use client";
 
-import { FC, InputHTMLAttributes, ReactNode } from "react";
+import {
+  FC,
+  InputHTMLAttributes,
+  ReactNode,
+  ChangeEvent,
+  useRef,
+  useEffect,
+} from "react";
+import { MagnifyingGlassIcon } from "../icons/MagnifyingGlassIcon";
 
 export interface SearchInputProps {
   placeHolder?: string;
   icon?: ReactNode;
   value?: string;
-  onChange?: () => {};
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  inputProps?: Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "type" | "value" | "onChange" | "id"
+  >;
 }
+
 
 const SearchInput: FC<SearchInputProps> = ({
   placeHolder = "Search...",
-  icon = (
-    <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
-      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-      <g
-        id="SVGRepo_tracerCarrier"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      ></g>
-      <g id="SVGRepo_iconCarrier">
-        {" "}
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M10 6.5C10 8.433 8.433 10 6.5 10C4.567 10 3 8.433 3 6.5C3 4.567 4.567 3 6.5 3C8.433 3 10 4.567 10 6.5ZM9.30884 10.0159C8.53901 10.6318 7.56251 11 6.5 11C4.01472 11 2 8.98528 2 6.5C2 4.01472 4.01472 2 6.5 2C8.98528 2 11 4.01472 11 6.5C11 7.56251 10.6318 8.53901 10.0159 9.30884L12.8536 12.1464C13.0488 12.3417 13.0488 12.6583 12.8536 12.8536C12.6583 13.0488 12.3417 13.0488 12.1464 12.8536L9.30884 10.0159Z"
-          fill="#2C3E50"
-        ></path>{" "}
-      </g>
-    </svg>
-  ),
+  icon = <MagnifyingGlassIcon color="#2C3E50" />,
   value,
   onChange = () => {},
   inputProps = {},
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
-    <>
-    <label htmlFor="search" className="bg-[#F2F5F7] flex w-[34.375rem] h-[2.5rem] rounded-[3rem]">
-          {icon && <span className="relative top-[0.4rem]">{icon}</span>}
-          <input
-            {...inputProps}
-            type="text"
-            id="search"
-            placeholder={placeHolder}
-            value={value}
-            onChange={onChange}
-            className="w-full outline-none"
-            />
+    <label
+      htmlFor="search"
+      className="flex items-center py-2 px-3 gap-2 bg-background rounded-full focus-within:ring-2 focus-within:ring-border transition"
+    >
+      <span>{icon}</span>
+      <input
+        ref={inputRef}
+        className="w-full outline-none ring-0 focus:ring-0 focus:outline-none bg-transparent text-primary-text placeholder-secondary-text"
+        {...inputProps}
+        type="search"
+        id="search"
+        placeholder={placeHolder}
+        value={value}
+        onChange={onChange}
+      />
+      <span className="flex items-center gap-[0.25rem] text-[0.75rem] text-secondary-text border border-border rounded px-[0.375rem] py-[0.125rem]">
+        <span className="tracking-wider">CTRL</span>
+        <span>+</span>
+        <span className="tracking-wider">K</span>
+      </span>
     </label>
-    </>
   );
 };
 

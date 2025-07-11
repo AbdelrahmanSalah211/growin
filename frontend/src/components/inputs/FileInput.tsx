@@ -1,66 +1,155 @@
 "use client";
 
-import { FC, InputHTMLAttributes, ReactNode } from "react";
+import {
+  FC,
+  InputHTMLAttributes,
+  ReactNode,
+  DragEvent,
+  useRef,
+  useState,
+} from "react";
+import { FileUploadIcon } from "../icons/FileUploadIcon";
 
 export interface FileInputProps {
   title?: string;
-  placeHolder?: string;
+  placeHolder?: ReactNode;
   icon?: ReactNode;
   acceptedFileType?: string;
   multiple?: boolean;
-  onDrop?: () => {};
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  onDrop?: (e: DragEvent<HTMLLabelElement>) => void;
+  inputProps?: Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "type" | "accept" | "multiple" | "onChange"
+  >;
+  files?: FileList | null;
+  onFilesChange?: (files: FileList) => void;
 }
 
-const FileInput: FC<FileInputProps> = ({
-  icon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="size-25"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-      />
-    </svg>
-  ),
+
+export const FileInput: FC<FileInputProps> = ({
+  icon = <FileUploadIcon size={75} color="#5D6D7E" strokeWidth={0.8} />,
   multiple = false,
-  onDrop = () => {},
+  onDrop,
   inputProps = {},
-  title = "Upload File",
-  placeHolder = "Drag & drop or click to upload",
-  acceptedFileType = "*/*",
-}) => {
-  return (
+  title = "Browse Files",
+  placeHolder = (
     <>
-      <label
-        htmlFor="upload"
-        className=" h-[18.75rem] w-[28.125rem] rounded-[0.625rem] bg-[#FFFFFF] border-[#E0E6EB] border-[0.3125rem] flex flex-col items-center justify-center"
-      >
-        {icon && <div>{icon}</div>}
-        <p className="text-[1.25rem] text-[#2C3E50]">{placeHolder}</p>
-        <button className="btn btn-[#F2F5F7] h-[3.4375rem] w-[16.875rem] rounded-[0.625rem] border-none hover:btn-primary">
-          Browse Files
-        </button>
-        {/* <div className="btn btn-[#F2F5F7] h-[3.4375rem] w-[16.875rem] rounded-[0.625rem] border-none hover:btn-primary">
-          Browse files
-        </div> */}
-        <input
-        {...inputProps}
-          type="file"
-          accept={acceptedFileType}
-          multiple={multiple}
-          onDrop={onDrop}
-          id="upload"
-          className="opacity-0 "
-        />
-      </label>
+      Drag and drop your
+      <br />
+      file{multiple ? "s" : ""} here
     </>
+  ),
+  acceptedFileType = "*/*",
+  files,
+  onFilesChange,
+}) => {
+  const [dragCounter, setDragCounter] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isDragging = dragCounter > 0;
+
+  const handleDragEnter = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragCounter((prev) => prev + 1);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragCounter((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragCounter(0);
+
+    const droppedFiles = e.dataTransfer.files;
+    if (onFilesChange) onFilesChange(droppedFiles);
+    if (onDrop) onDrop(e);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && onFilesChange) {
+      onFilesChange(e.target.files);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLLabelElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      inputRef.current?.click();
+    }
+  };
+
+  return (
+    <label
+      className={`relative w-[28.125rem] min-h-[18.75rem] rounded-[0.625rem] bg-surface ${
+        isDragging ? "border-4" : "border-2"
+      } border-border flex flex-col items-center justify-center px-4 py-6 gap-4 cursor-pointer transition-all duration-200 focus-within:ring-2 focus-within:ring-border`}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+    >
+      {isDragging && (
+        <div
+          className="absolute inset-0 bg-primary/10 backdrop-blur flex items-center justify-center text-primary-text text-lg font-semibold rounded-[0.625rem] pointer-events-none z-10"
+          aria-hidden="true"
+        >
+          Drop file{multiple ? "s" : ""} here!
+        </div>
+      )}
+
+      <div className="flex flex-col items-center gap-2 z-0 pointer-events-none">
+        {icon && <div>{icon}</div>}
+
+        <div className="text-[1.125rem] text-secondary-text text-center">
+          {placeHolder}
+        </div>
+
+        <div className="relative py-1 flex items-center gap-2 w-full">
+          <p className="absolute px-3 bg-surface text-[0.75rem] text-secondary-text left-1/2 -translate-x-1/2">
+            OR
+          </p>
+          <hr className="flex-1 border-border" />
+        </div>
+
+        <div
+          className="btn text-primary-text w-[16.875rem] h-[3.4375rem] rounded-[0.625rem] border-none flex items-center justify-center"
+          aria-hidden="true"
+        >
+          {title}
+        </div>
+      </div>
+
+      <input
+        {...inputProps}
+        ref={inputRef}
+        type="file"
+        accept={acceptedFileType}
+        multiple={multiple}
+        className="sr-only"
+        onChange={handleFileChange}
+      />
+
+      {files && (
+        <div className="w-full max-h-[6rem] overflow-y-auto px-2">
+          <ul className="text-center text-sm text-primary-text space-y-1">
+            {Array.from(files).map((file, index) => (
+              <li key={index} className="truncate">
+                {file.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </label>
   );
 };
+
 export default FileInput;
