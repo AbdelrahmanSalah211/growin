@@ -7,15 +7,27 @@ import { Lesson } from 'src/models/lesson.entity';
 
 @Injectable()
 export class LessonsService {
-
   constructor(
     @InjectRepository(Lesson)
     private lessonRepository: Repository<Lesson>,
   ) {}
 
   create(createLessonDto: CreateLessonDto) {
-    const lesson = this.lessonRepository.create(createLessonDto);
+    const lesson = this.lessonRepository.create({
+      ...createLessonDto,
+      course: { id: createLessonDto.courseId },
+    });
     return this.lessonRepository.save(lesson);
+  }
+
+  findByCourseId(courseId: number) {
+    const lessons = this.lessonRepository.find({
+      where: { course: { id: courseId } },
+    });
+    return lessons;
+  }
+  addFileURl(id: string, fileURL: string) {
+    return this.lessonRepository.update(id, { fileURL });
   }
 
   findAll() {

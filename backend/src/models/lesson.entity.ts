@@ -9,10 +9,7 @@ import {
   OneToMany,
 } from 'typeorm';
 
-import {
-  Course,
-  LessonProgress
-} from './index';
+import { Course, LessonProgress } from './index';
 
 export enum LessonType {
   VIDEO = 'video',
@@ -40,8 +37,12 @@ export class Lesson {
   @Column({
     type: 'enum',
     enum: LessonType,
+    default: LessonType.VIDEO,
   })
   lessonType: LessonType;
+
+  @Column('text', { nullable: true, array: true })
+  fileURL: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -53,11 +54,10 @@ export class Lesson {
   deletedAt: Date;
 
   @ManyToOne(() => Course, (course) => course.lessons, {
-    eager: true,
+    // onDelete: 'CASCADE',
   })
   course: Course;
 
   @OneToMany(() => LessonProgress, (progress) => progress.lesson)
   progress: LessonProgress[];
-
 }

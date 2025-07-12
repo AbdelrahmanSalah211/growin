@@ -7,6 +7,8 @@ import { UserModule } from '../user/user.module';
 import { ImageModule } from '../image/image.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../../models';
 
 @Module({
   imports: [
@@ -14,11 +16,13 @@ import { PassportModule } from '@nestjs/passport';
     UserModule,
     ImageModule,
     PassportModule,
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
+      global: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '7d' },
+        signOptions: { expiresIn: '60min' },
       }),
       inject: [ConfigService],
     }),

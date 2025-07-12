@@ -3,7 +3,6 @@ import {
   PrimaryColumn, 
   Column,
   ManyToOne,
-  JoinColumn
 } from "typeorm";
 
 import {
@@ -29,10 +28,8 @@ export class Review {
   helpful: boolean;
 
   @ManyToOne(() => Course, (course) => course.reviews)
-  @JoinColumn({ name: 'courseId' })
   course: Course;
 
   @ManyToOne(() => User, (user) => user.reviews)
-  @JoinColumn({ name: 'studentId' })
   student: User;
 }

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import * as argon2 from 'argon2';
 import {
   Entity,
@@ -18,6 +18,7 @@ import {
   Enrollment,
   Transaction,
   InstructorPayout,
+  Course,
 } from './index';
 
 export enum UserMode {
@@ -36,13 +37,13 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ type: 'varchar', nullable: true })
+  password: string | null;
 
   @Column({ default: 'https://i.ibb.co/2HTV3dh/Default-profile-image.jpg' })
   profileImage: string;
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   imageDeleteURL: string;
 
   @Column({
@@ -55,16 +56,18 @@ export class User {
   @Column({ nullable: true })
   bio: string;
 
-  @Column({ nullable: true })
-  passwordResetToken: string;
+  @Column({ type: 'varchar', nullable: true })
+  passwordResetToken: string | null;
 
-  @Column({ nullable: true })
-  passwordResetExpires: Date;
+  @Column({ type: 'varchar', nullable: true })
+  passwordResetExpires: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken: string | null;
 
   @OneToMany(() => LessonProgress, (progress) => progress.user, {
     onDelete: 'CASCADE',
   })
-
   lessonProgress: LessonProgress[];
   @OneToMany(() => InstructorPayout, (payout) => payout.instructor)
   payouts: InstructorPayout[];
@@ -78,6 +81,8 @@ export class User {
   @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
   enrollments: Enrollment[];
 
+  @OneToMany(() => Course, (course) => course.instructor)
+  courses: Course[];
   @BeforeInsert()
   beforeInsertLowercase() {
     this.username = this.username.toLowerCase();
@@ -92,13 +97,10 @@ export class User {
   }
 
   createPasswordResetToken(): string {
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    this.passwordResetToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
+    const resetToken = randomBytes(32).toString('hex');
+    this.passwordResetToken = createHash('sha256').update(resetToken).digest('hex');
     console.log({ resetToken }, this.passwordResetToken);
-    this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+    this.passwordResetExpires = `${Date.now() + 10 * 60 * 1000}`;
     return resetToken;
   }
 }
@@ -110,7 +112,11 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
   }
 
   async beforeInsert(event: InsertEvent<User>) {
-    event.entity.password = await argon2.hash(event.entity.password);
+    if (event.entity.password && event.entity.password.trim() !== '') {
+      event.entity.password = await argon2.hash(event.entity.password);
+    } else {
+      event.entity.password = null;
+    }
   }
 
   async beforeUpdate(event: UpdateEvent<User>) {

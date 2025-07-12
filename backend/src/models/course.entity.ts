@@ -16,6 +16,7 @@ import {
   CourseCategory,
   Transaction,
   InstructorPayout,
+  User,
 } from './index';
 
 export enum CourseLevel {
@@ -69,7 +70,9 @@ export class Course {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  @OneToMany(() => Lesson, (lesson) => lesson.course, {
+    // onDelete: 'CASCADE',
+  })
   lessons: Lesson[];
 
   @OneToMany(() => Review, (review) => review.course)
@@ -78,7 +81,9 @@ export class Course {
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollments: Enrollment[];
 
-  @ManyToOne(() => CourseCategory, (category) => category.courses, { onDelete: 'SET NULL' })
+  @ManyToOne(() => CourseCategory, (category) => category.courses, {
+    onDelete: 'SET NULL',
+  })
   courseCategory: CourseCategory;
 
   @OneToMany(() => InstructorPayout, (payout) => payout.course)
@@ -87,4 +92,6 @@ export class Course {
   @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
 
+  @ManyToOne(() => User, (user) => user.courses)
+  instructor: User;
 }
