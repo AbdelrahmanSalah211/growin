@@ -3,7 +3,7 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { User, Course } from 'src/models';
-
+import { APIFeatures } from './../../../utils/APIFeatures';
 @Injectable()
 export class CourseService {
   constructor(
@@ -12,9 +12,18 @@ export class CourseService {
   ) {}
 
   async findAll(): Promise<Course[]> {
-    return this.courseRepository.find({
-      relations: ['lessons', 'instructor', 'reviews', 'enrollments'],
-    });
+    return this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.lessons', 'lesson')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('course.reviews', 'review')
+      .leftJoinAndSelect('course.enrollments', 'enrollment')
+      .orderBy('lesson.position', 'DESC')
+      .getMany();
+    // return this.courseRepository.find({
+    //   relations: ['lessons', 'instructor', 'reviews', 'enrollments'],
+
+    // });
   }
 
   async createCourse(
@@ -40,7 +49,6 @@ export class CourseService {
   //     where: { id: courseId },
   //   });
 
-    
   // }
 
   async findAllCoursesByUser(userId: number): Promise<Course[]> {
@@ -50,16 +58,16 @@ export class CourseService {
   }
 
   async findById(id: number): Promise<Course> {
-    const course = await this.courseRepository.findOne({
-      where: { id: id },
-      relations: [
-        'lessons',
-        'instructor',
-        'reviews',
-        'reviews.student',
-        'enrollments',
-      ],
-    });
+    const course = await this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.lessons', 'lesson')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('course.reviews', 'review')
+      .leftJoinAndSelect('review.student', 'student')
+      .leftJoinAndSelect('course.enrollments', 'enrollment')
+      .where('course.id = :id', { id })
+      .orderBy('lesson.position', 'ASC')
+      .getOne();
 
     if (!course) {
       throw new NotFoundException(`Course with ID ${id} not found`);
@@ -99,5 +107,31 @@ export class CourseService {
       where: { instructor: { id: instructorId } },
       relations: ['lessons'],
     });
+  }
+
+  async searchCourses(
+    queryParams: any,
+  ): Promise<{ data: Course[]; hasMore: boolean }> {
+    const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 10;
+
+    const query = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.courseCategory', 'course_category')
+      .where('course.isPublished = :isPublished', { isPublished: true });
+
+    const features = new APIFeatures(query, {
+      ...queryParams,
+      limit: (limit + 1).toString(),
+    })
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const results = await features.execute();
+    const hasMore = results.length > limit;
+    const data = hasMore ? results.slice(0, limit) : results;
+
+    return { data, hasMore };
   }
 }

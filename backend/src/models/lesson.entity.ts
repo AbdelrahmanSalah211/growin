@@ -41,7 +41,7 @@ export class Lesson {
   })
   lessonType: LessonType;
 
-  @Column('text', { nullable: true, array: true })
+  @Column('varchar', { nullable: true})
   fileURL: string;
 
   @CreateDateColumn()

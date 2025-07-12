@@ -45,7 +45,7 @@ export class Course {
   @Column()
   imageDeleteURL: string;
 
-  @Column({
+  @Column('varchar', {
     nullable: true,
   })
   courseCover: string;

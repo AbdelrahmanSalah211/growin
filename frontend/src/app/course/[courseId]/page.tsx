@@ -1,43 +1,17 @@
 "use client";
+import { CourseCard } from "@/components/courseCard";
 import CourseContent from "@/components/CourseContent";
 import CourseInfo from "@/components/CourseInfo";
-import CourseHeader from "@/components/CourseLessonHeader";
+import CourseHeader, { LessonType } from "@/components/CourseLessonHeader";
 import { UserIcon } from "@/components/icons/UserIcon";
+import { Course, CourseReviewItemProps } from "@/interfaces/courses";
 import { formattedDate } from "@/utils/formateDate";
 import axios from "axios";
 import { useParams } from "next/navigation";
 
 import { useEffect, useState } from "react";
-interface Course {
-  id: number;
-  title?: string;
-  description?: string;
-  imageDeleteURL?: string;
-  courseCover: string;
-  lectures?: number;
-  duration?: number;
-  ratingSum?: number;
-  students: number;
-  price: number;
-  enrollments: [];
-  reviews: CourseReviewItemProps[];
-  instructor: {
-    username: string;
-  };
-  lessons: [];
-  updatedAt?: string;
-  level: string;
-}
-interface CourseReviewItemProps {
-  review: {
-    student?: {
-      username?: string;
-    };
-    rating: number;
-    comment: string;
-  };
-  index: number;
-}
+
+
 
 function CourseReviewItem({ review, index }: CourseReviewItemProps) {
   return (
@@ -76,7 +50,6 @@ export default function CoursesPage() {
   const { courseId } = useParams() as { courseId: string };
   const numericId = Number(courseId);
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -89,10 +62,9 @@ export default function CoursesPage() {
             },
           }
         );
-        
+
         setCourse(data);
       } catch (err) {
-        
         console.log(err);
         console.error("Error fetching course:", err);
       } finally {
@@ -102,8 +74,10 @@ export default function CoursesPage() {
 
     fetchCourse();
   }, [numericId]);
-
-
+  const avgRating =
+    Math.round(
+      ((course?.ratingSum ?? 0) / (course?.numberOfReviewers || 1)) * 10
+    ) / 10;
   return (
     <div className="min-h-screen w-full bg-background px-4 py-8 md:px-8 flex justify-center">
       <article className="w-full max-w-[75rem] bg-surface rounded-[3.75rem] shadow-lg overflow-hidden">
@@ -113,7 +87,7 @@ export default function CoursesPage() {
             course?.courseCover ||
             "https://i.ibb.co/2HTV3dh/Default-profile-image.jpg"
           }
-          image={true}
+          lessonType={LessonType.IMAGE}
         />
 
         <div className="p-6 md:p-10 flex flex-col gap-10">
@@ -131,25 +105,32 @@ export default function CoursesPage() {
               </span>
 
               <div className="flex items-center gap-2">
-                <span>4</span>
-                <div className="rating flex gap-[0.125rem]">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <input
-                      key={n}
-                      type="radio"
-                      name="rating"
-                      className="mask mask-star bg-primary-text"
-                      aria-label={`${n} star`}
-                      defaultChecked={n === 2}
-                    />
-                  ))}
-                </div>
+                {(() => {
+                  return (
+                    <>
+                      <span>{avgRating}</span>
+                      <div className="rating flex gap-[0.125rem]">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <input
+                            key={n}
+                            type="radio"
+                            name="rating"
+                            className="mask mask-star bg-primary-text"
+                            aria-label={`${n} star`}
+                            defaultChecked={Math.round(avgRating) === n}
+                            readOnly
+                          />
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               <p className="text-secondary-text">{course?.ratingSum}</p>
               <p className="text-primary-text">
-                {course?.enrollments == 0 ? 0 : course?.enrollments}{" "}
-                <span className="text-secondary-text">students</span>
+                {course?.enrollments?.length ?? 0} 
+                <span className="px-0.5 text-secondary-text">students</span>
               </p>
             </div>
 
@@ -164,7 +145,7 @@ export default function CoursesPage() {
               <p className="text-primary-text font-bold">
                 Last updated:{" "}
                 <span className="font-normal">
-                  {formattedDate(course?.updatedAt)}
+                  {formattedDate(course?.updatedAt ?? '')}
                 </span>
               </p>
             </div>
@@ -197,14 +178,14 @@ export default function CoursesPage() {
 
           {/* Course Content */}
 
-          <CourseContent lessons={course?.lessons} />
+          <CourseContent lessons={course?.lessons} courseId={course?.id || 0} />
 
           <hr className="border-t border-border" />
           {/* reviews section */}
           <section>
             <div className="pb-10">
               <h1 className="text-primary-text font-bold text-[2.25rem]">
-                4.5 Course rating - 50k rewiews
+                {avgRating} Course rating - {course?.reviews.length} rewiews
               </h1>
             </div>
 
