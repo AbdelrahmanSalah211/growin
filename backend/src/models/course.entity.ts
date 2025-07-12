@@ -70,7 +70,9 @@ export class Course {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  @OneToMany(() => Lesson, (lesson) => lesson.course, {
+    // onDelete: 'CASCADE',
+  })
   lessons: Lesson[];
 
   @OneToMany(() => Review, (review) => review.course)
@@ -90,8 +92,6 @@ export class Course {
   @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
 
-  @ManyToOne(() => User, {
-    onDelete: 'SET NULL',
-  })
+  @ManyToOne(() => User, (user) => user.courses)
   instructor: User;
 }

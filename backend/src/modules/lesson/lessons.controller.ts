@@ -8,13 +8,15 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../videos/cloudinary.service';
-
+import { JwtAuthGuard } from '../auth/auth.guard';
+@UseGuards(JwtAuthGuard)
 @Controller('lessons')
 export class LessonsController {
   constructor(
@@ -27,6 +29,17 @@ export class LessonsController {
     return this.lessonsService.create(createLessonDto);
   }
 
+  @Post('bulk')
+  async createBulk(@Body() createLessonDtos: CreateLessonDto[]) {
+    return Promise.all(
+      createLessonDtos.map((dto) => this.lessonsService.create(dto)),
+    );
+  }
+
+  @Get('courseId/:id')
+  getByCourse(@Param('id') courseId: number) {
+    return this.lessonsService.findByCourseId(courseId);
+  }
   @Get()
   findAll() {
     return this.lessonsService.findAll();
@@ -48,17 +61,19 @@ export class LessonsController {
   }
 
   @Post('video/:id')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file')) // max 20 files
   async uploadVideo(
-    @Param('id') id:string,
-    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+    @UploadedFile() files: Express.Multer.File,
   ) {
-    const result = await this.cloudinaryService.uploadVideo(file);
+    console.log(files, 'files on upload');
 
-    if (!result) {
+    const result = await this.cloudinaryService.uploadVideo(files);
+
+    if (!result || result.length === 0) {
       throw new Error('Failed to upload video');
     }
+
     return this.lessonsService.addFileURl(id, result.secure_url);
-    
   }
 }

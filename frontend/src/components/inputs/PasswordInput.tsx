@@ -1,0 +1,72 @@
+"use client";
+
+import {
+  FC,
+  ChangeEvent,
+  ReactNode,
+  InputHTMLAttributes,
+  useState,
+} from "react";
+import { KeySkeletonIcon } from "../icons/KeySkeletonIcon";
+import { EyeIcon } from "../icons/EyeIcon";
+import { EyeClosedIcon } from "../icons/EyeClosedIcon";
+
+export interface PasswordInputProps {
+  title?: string;
+  placeholder?: string;
+  name?: string;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  icon?: ReactNode;
+  hiddenPasswordIcon?: ReactNode;
+  visiblePasswordIcon?: ReactNode;
+  inputProps?: Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "type" | "value" | "onChange" | "name"
+  >;
+}
+
+const PasswordInput: FC<PasswordInputProps> = ({
+  title = "Password",
+  placeholder = "Enter your password",
+  name,
+  value = "",
+  onChange = () => {},
+  icon = <KeySkeletonIcon color="#2C3E50" />,
+  hiddenPasswordIcon = <EyeClosedIcon color="#2C3E50" />,
+  visiblePasswordIcon = <EyeIcon color="#2C3E50" />,
+  inputProps = {},
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleVisibility = () => setIsVisible((prev) => !prev);
+
+  return (
+    <label htmlFor={name} className="block space-y-[0.625rem] w-[23.125rem]">
+      <p className="text-[1.125rem] text-primary-text">{title}</p>
+
+      <div className="bg-background flex items-center p-4 gap-[0.75rem] rounded-[0.75rem] focus-within:ring-2 focus-within:ring-border transition">
+        {icon && <span>{icon}</span>}
+
+        <input
+          className="w-full text-primary-text outline-none ring-0 focus:ring-0 focus:outline-none bg-background"
+          {...inputProps}
+          name={name}
+          value={value}
+          type={isVisible ? "text" : "password"}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
+
+        <button
+          type="button"
+          onClick={toggleVisibility}
+          className="text-primary-text cursor-pointer"
+        >
+          {isVisible ? visiblePasswordIcon : hiddenPasswordIcon}
+        </button>
+      </div>
+    </label>
+  );
+};
+
+export default PasswordInput;
