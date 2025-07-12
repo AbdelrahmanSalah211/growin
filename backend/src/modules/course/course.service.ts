@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from 'src/models/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { User } from 'src/models';
-
+import { APIFeatures } from './../../../utils/APIFeatures';
 @Injectable()
 export class CourseService {
   constructor(
@@ -85,5 +85,26 @@ export class CourseService {
       where: { instructor: { id: instructorId } },
       relations: ['lessons'],
     });
+  }
+
+  async searchCourses(queryParams: any): Promise<{ data: Course[], hasMore: boolean }> {
+    const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 10;
+    
+    const query = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.courseCategory', 'course_category')
+      .where('course.isPublished = :isPublished', { isPublished: true });
+
+    const features = new APIFeatures(query, { ...queryParams, limit: (limit + 1).toString() })
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+    const results = await features.execute();
+    const hasMore = results.length > limit;
+    const data = hasMore ? results.slice(0, limit) : results;
+
+    return { data, hasMore };
   }
 }
