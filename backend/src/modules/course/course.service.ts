@@ -1,9 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Course } from 'src/models/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { User } from 'src/models';
+import { User, Course } from 'src/models';
 
 @Injectable()
 export class CourseService {
@@ -14,7 +13,7 @@ export class CourseService {
 
   async findAll(): Promise<Course[]> {
     return this.courseRepository.find({
-      relations: ['lessons', 'instructor'],
+      relations: ['lessons', 'instructor', 'reviews', 'enrollments'],
     });
   }
 
@@ -36,6 +35,14 @@ export class CourseService {
     return this.courseRepository.save(newCourse);
   }
 
+  // async uploadImage(courseId: number) {
+  //   const course = await this.courseRepository.findOne({
+  //     where: { id: courseId },
+  //   });
+
+    
+  // }
+
   async findAllCoursesByUser(userId: number): Promise<Course[]> {
     return this.courseRepository.find({
       where: { instructor: { id: userId } },
@@ -45,8 +52,15 @@ export class CourseService {
   async findById(id: number): Promise<Course> {
     const course = await this.courseRepository.findOne({
       where: { id: id },
-      relations: ['lessons'],
+      relations: [
+        'lessons',
+        'instructor',
+        'reviews',
+        'reviews.student',
+        'enrollments',
+      ],
     });
+
     if (!course) {
       throw new NotFoundException(`Course with ID ${id} not found`);
     }

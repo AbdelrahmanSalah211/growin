@@ -1,16 +1,16 @@
 interface CourseInfoProps {
-  title: string;
-  subTitle: string;
+  title?: string;
+  description?: string;
 }
 
-export default function CourseInfo({ subTitle, title }: CourseInfoProps) {
+export default function CourseInfo({ description, title }: CourseInfoProps) {
   return (
     <section className="flex flex-col gap-5">
       <h1 className="text-primary-text text-[2rem] sm:text-[2.5rem] font-bold leading-tight max-w-4xl">
         {title}
       </h1>
       <h2 className="text-primary-text text-lg sm:text-xl leading-snug">
-        {subTitle}
+        {description}
       </h2>
       {/* <div className="flex flex-wrap items-center gap-4 text-sm sm:text-base max-w-4xl">
           <span className="bg-background text-primary-text rounded-[0.3125rem] py-1 px-3 font-medium">

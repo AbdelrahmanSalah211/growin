@@ -1,34 +1,33 @@
-import {IsNumber,IsString,IsBoolean,IsEnum, IsInt} from "class-validator"
-import { CourseLevel } from "src/models";
-
-
+import { IsNumber, IsString, IsBoolean, IsEnum, IsInt } from 'class-validator';
+import { CourseLevel } from 'src/models';
 
 export class CreateCourseDto {
-    @IsString()
-    title: string;
-  
-    @IsString()
-    description: string;
-  
-    @IsBoolean()
-    isPublished: boolean;
-  
-    @IsString()
-    language: string;
-  
-    @IsString()
-    imageDeleteURL: string;
+  @IsString()
+  title: string;
 
-  
-    @IsInt()
-    ratingSum: number;
-  
-    @IsEnum(['beginner', 'intermediate', 'advanced'])
-    level: CourseLevel;
-  
-    @IsNumber()
-    price: number;
-  
-    @IsInt()
-    numberOfReviewers: number;
-  }
+  @IsString()
+  description: string;
+
+  @IsBoolean()
+  isPublished: boolean;
+
+  @IsString()
+  language: string;
+
+  @IsString()
+  imageDeleteURL: string;
+
+  @IsString()
+  courseCover: string;
+  @IsInt()
+  ratingSum: number;
+
+  @IsEnum(['beginner', 'intermediate', 'advanced'])
+  level: CourseLevel;
+
+  @IsNumber()
+  price: number;
+
+  @IsInt()
+  numberOfReviewers: number;
+}

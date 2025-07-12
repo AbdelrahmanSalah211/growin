@@ -46,6 +46,11 @@ export class Course {
   imageDeleteURL: string;
 
   @Column({
+    nullable: true,
+  })
+  courseCover: string;
+
+  @Column({
     type: 'enum',
     enum: CourseLevel,
     default: CourseLevel.BEGINNER,
