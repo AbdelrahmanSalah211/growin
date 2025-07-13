@@ -25,6 +25,13 @@
   /* Fonts */
   --font-sans: Inter, sans-serif;
   --font-heading: Poppins, sans-serif;
+
+}
+
+.loading-6xl {
+  width: calc(var(--size-selector, 0.25rem
+        /* 4px */
+      ) * 20);
 }
 
 input:-webkit-autofill {

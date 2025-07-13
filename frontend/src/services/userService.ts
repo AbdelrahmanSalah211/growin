@@ -32,7 +32,10 @@ export async function getUserInfo(accessToken: string) {
   }
 }
 
-export async function updateUserInfo(payload: updateInfoPayload, accessToken: string) {
+export async function updateUserInfo(
+  payload: updateInfoPayload,
+  accessToken: string
+) {
   try {
     const response = await axiosInstance.patch(
       `${API_URL}/users/info`,
@@ -51,7 +54,10 @@ export async function updateUserInfo(payload: updateInfoPayload, accessToken: st
   }
 }
 
-export async function updatePassword(payload: updatePassword, accessToken: string) {
+export async function updatePassword(
+  payload: updatePassword,
+  accessToken: string
+) {
   try {
     const response = await axiosInstance.patch(
       `${API_URL}/users/password`,
@@ -70,7 +76,10 @@ export async function updatePassword(payload: updatePassword, accessToken: strin
   }
 }
 
-export async function createPassword(payload: { password: string }, accessToken: string) {
+export async function createPassword(
+  payload: { password: string },
+  accessToken: string
+) {
   if (!payload.password) {
     throw new Error("Password is required");
   }
@@ -109,12 +118,13 @@ export async function forgetPassword(email: string) {
 }
 
 export async function resetPassword(
-  token: string
+  token: string,
+  newPassword: string
 ): Promise<{ message: string }> {
   try {
     const response = await axiosInstance.patch(
       `${API_URL}/users/reset-password`,
-      { token },
+      { token, newPassword },
       {
         withCredentials: true,
       }
