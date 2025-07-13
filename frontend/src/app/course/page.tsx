@@ -1,5 +1,5 @@
-import { CourseCard } from "@/components/courseCard";
-import { LessonType } from "@/components/CourseLessonHeader";
+import { LessonType } from "@/app/course/component/CourseLessonHeader";
+import { CourseCard } from "./component/courseCard";
 
 export default function Course() {
   return (

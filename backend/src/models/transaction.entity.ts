@@ -8,14 +8,9 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 
-import {
-  User,
-  Course,
-  InstructorPayout,
-} from './index';
+import { User, Course, InstructorPayout } from './index';
 @Entity('transaction')
 export class Transaction {
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,7 +20,7 @@ export class Transaction {
   @Column()
   paymentMethod: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
   @Column()

@@ -1,8 +1,10 @@
 "use client";
-import { CourseCard } from "@/components/courseCard";
-import CourseContent from "@/components/CourseContent";
-import CourseInfo from "@/components/CourseInfo";
-import CourseHeader, { LessonType } from "@/components/CourseLessonHeader";
+// import { CourseCard } from "@/components/courseCard";
+import CourseContent from "@/app/course/component/CourseContent";
+import CourseInfo from "@/app/course/component/CourseInfo";
+import CourseHeader, {
+  LessonType,
+} from "@/app/course/component/CourseLessonHeader";
 import { UserIcon } from "@/components/icons/UserIcon";
 import { Course, CourseReviewItemProps } from "@/interfaces/courses";
 import { formattedDate } from "@/utils/formateDate";
@@ -10,8 +12,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 
 import { useEffect, useState } from "react";
-
-
+import { getCourses } from "@/services/courseService";
 
 function CourseReviewItem({ review, index }: CourseReviewItemProps) {
   return (
@@ -51,25 +52,36 @@ export default function CoursesPage() {
   const numericId = Number(courseId);
   const [loading, setLoading] = useState(true);
 
+  // useEffect(() => {
+  //   const fetchCourse = async () => {
+  //     try {
+  //       const { data } = await axios.get(
+  //         `http://localhost:3000/courses/${numericId}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
+  //           },
+  //         }
+  //       );
+
+  //       setCourse(data);
+  //     } catch (err) {
+  //       console.log(err);
+  //       console.error("Error fetching course:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchCourse();
+  // }, [numericId]);
+
   useEffect(() => {
     const fetchCourse = async () => {
-      try {
-        const { data } = await axios.get(
-          `http://localhost:3000/courses/${numericId}`,
-          {
-            headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
-            },
-          }
-        );
-
-        setCourse(data);
-      } catch (err) {
-        console.log(err);
-        console.error("Error fetching course:", err);
-      } finally {
-        setLoading(false);
-      }
+      return await getCourses(
+        `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
+        courseId
+      );
     };
 
     fetchCourse();
@@ -129,7 +141,7 @@ export default function CoursesPage() {
 
               <p className="text-secondary-text">{course?.ratingSum}</p>
               <p className="text-primary-text">
-                {course?.enrollments?.length ?? 0} 
+                {course?.enrollments?.length ?? 0}
                 <span className="px-0.5 text-secondary-text">students</span>
               </p>
             </div>
@@ -145,7 +157,7 @@ export default function CoursesPage() {
               <p className="text-primary-text font-bold">
                 Last updated:{" "}
                 <span className="font-normal">
-                  {formattedDate(course?.updatedAt ?? '')}
+                  {formattedDate(course?.updatedAt ?? "")}
                 </span>
               </p>
             </div>

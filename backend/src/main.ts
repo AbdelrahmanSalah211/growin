@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
-
+  
   app.use(morgan('combined'));
   app.use(cookieParser());
 
