@@ -3,6 +3,7 @@ import { RedisService } from '../redis/redis.service';
 import { Course } from 'src/models/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CartCourseDto } from './dto/cart.dto';
 
 @Injectable()
 export class CartService {
@@ -15,7 +16,8 @@ export class CartService {
   async addCourseToCart(userId: number, courseId: number) {
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
-      select: ['id', 'title', 'description', 'price', 'language', 'courseCover', 'level', 'ratingSum', 'numberOfReviewers'],
+      select: ['id', 'title', 'description', 'price', 'language', 'courseCover', 'level', 'ratingSum', 'numberOfReviewers', 'instructor'],
+      relations: ['instructor'],
     });
     if (!course) throw new Error('Course not found');
     const key = `cart:${userId}`;
@@ -28,13 +30,13 @@ export class CartService {
 
     const exists = cart.find(c => c.courseId === course.id);
     if (!exists) {
-      cart.push({courseId: course.id, title: course.title, description: course.description, price: course.price, language: course.language, courseCover: course.courseCover, level: course.level, ratingSum: course.ratingSum, numberOfReviewers: course.numberOfReviewers});
+      cart.push({courseId: course.id, title: course.title, description: course.description, price: course.price, language: course.language, courseCover: course.courseCover, level: course.level, ratingSum: course.ratingSum, numberOfReviewers: course.numberOfReviewers, instructor: course.instructor.id});
       await this.redisService.set(key, JSON.stringify(cart));
     }
     return cart;
   }
 
-  async getCart(userId: string): Promise<Course[]> {
+  async getCart(userId: number): Promise<CartCourseDto[]> {
     const key = `cart:${userId}`;
     const existing = await this.redisService.get(key);
     return existing ? JSON.parse(existing) : [];

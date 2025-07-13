@@ -14,7 +14,6 @@ import {
 } from './index';
 
 export enum EnrollmentStatus {
-  PENDING = 'pending',
   COMPLETED = 'completed',
   IN_PROCESS = 'inProcess',
 }
@@ -30,7 +29,7 @@ export class Enrollment {
     @Column({
     type: 'enum',
     enum: EnrollmentStatus,
-    default: EnrollmentStatus.PENDING,
+    default: EnrollmentStatus.IN_PROCESS,
   })
   status: EnrollmentStatus;
 

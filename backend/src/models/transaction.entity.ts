@@ -8,13 +8,16 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 
-import { User, Course, InstructorPayout } from './index';
+import {
+  User,
+  Course,
+} from './index';
 @Entity('transaction')
 export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column(/*{ unique: true }*/)
   transactionId: string;
 
   @Column()
@@ -23,17 +26,11 @@ export class Transaction {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column()
-  paymentStatus: string;
+  @ManyToOne(() => User, (user) => user.transactions)
+  user: User;
 
-  @ManyToOne(() => User, (user) => user.payouts)
-  instructor: User;
-
-  @ManyToOne(() => Course, (course) => course.payouts)
+  @ManyToOne(() => Course, (course) => course.transactions)
   course: Course;
-
-  @ManyToOne(() => InstructorPayout, (payout) => payout.transactions)
-  payout: InstructorPayout;
 
   @CreateDateColumn()
   createdAt: Date;

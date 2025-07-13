@@ -3,13 +3,15 @@ import Image from "next/image";
 export enum LessonType {
   VIDEO = "video",
   DOCUMENT = "document",
-  IMAGE = "image",          
+  QUIZ = "quiz",
+
+  IMAGE = "image",
 }
 
 interface CourseHeaderProps {
   src: string;
   alt: string;
-  lessonType: LessonType;   
+  lessonType: LessonType;
 }
 
 export default function CourseHeader({
@@ -17,23 +19,38 @@ export default function CourseHeader({
   src,
   lessonType,
 }: CourseHeaderProps) {
+  console.log(src, "sadsa");
   switch (lessonType) {
     case LessonType.VIDEO:
       return (
         <video
           src={src}
           controls
-          className="w-full h-[200px] sm:h-[300px] md:h-[450px] object-cover rounded-t-[3.75rem]"
-        />
+          className="w-[75rem] aspect:16/9 object-cover rounded-t-[3.75rem]"
+          />
       );
 
     case LessonType.DOCUMENT:
       return (
         <iframe
-          src={src}
-          title={alt}
-          className="w-full h-[450px] rounded-t-[3.75rem] border-none"
+          src={`https://docs.google.com/gview?url=${encodeURIComponent(
+            src
+          )}&embedded=true`}
+          title="Document Preview"
+          className="w-[75rem] aspect:16/9 object-cover rounded-t-[3.75rem]"
         />
+      );
+
+
+      case LessonType.QUIZ:
+      return (
+        <iframe
+          src={`https://docs.google.com/gview?url=${encodeURIComponent(
+            src
+          )}&embedded=true`}
+          title="Document Preview"
+          className="w-[75rem] h-[42.1875rem] object-cover rounded-t-[3.75rem]"
+          />
       );
 
     case LessonType.IMAGE:
@@ -44,7 +61,7 @@ export default function CourseHeader({
           src={src}
           width={1200}
           height={450}
-          className="w-full h-[200px] sm:h-[300px] md:h-[450px] object-cover rounded-t-[3.75rem]"
+          className="w-[75rem] h aspect:16/9 object-cover rounded-t-[3.75rem]"
         />
       );
   }

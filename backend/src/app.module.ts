@@ -17,6 +17,7 @@ import { CourseCategoryModule } from './modules/course-category/course-category.
 // import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { CartModule } from './modules/cart/cart.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { PaytabsModule } from './modules/paytabs/paytabs.module';
 import {
   User,
   UserSubscriber,
@@ -27,7 +28,7 @@ import {
   Enrollment,
   Review,
   Transaction,
-  InstructorPayout,
+  // InstructorPayout,
 } from './models';
 
 config();
@@ -60,7 +61,7 @@ const sslCaPath = readFileSync(join(__dirname, '../../certs/ca.pem'));
         Enrollment,
         CourseCategory,
         Transaction,
-        InstructorPayout,
+        // InstructorPayout,
       ],
       subscribers: [
         UserSubscriber
@@ -76,6 +77,7 @@ const sslCaPath = readFileSync(join(__dirname, '../../certs/ca.pem'));
     // EnrollmentModule,
     CartModule,
     RedisModule,
+    PaytabsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
