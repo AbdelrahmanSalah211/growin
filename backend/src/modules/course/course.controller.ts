@@ -5,37 +5,55 @@ import {
   Post,
   UseGuards,
   Req,
+  Query,
   Delete,
   Patch,
   Param,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { Course } from 'src/models/course.entity';
+import { Course } from '../../models/index';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { ImageService } from '../image/image.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { APIFeatures } from 'utils/APIFeatures';
+import { Roles } from '../authorization/roles.decorator';
+import { UserMode } from 'src/models';
+import { RolesGuard } from '../authorization/roles.guard';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('courses')
 export class CourseController {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseService: CourseService,
+    private imageService: ImageService,
+  ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<Course[]> {
     return this.courseService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
   @Get('instructor')
   async findAllCoursesByUser(
     @Req() req: { user: { sub: number } },
-  ): Promise<Course[]> {
+  ): Promise<CreateCourseDto[]> {
     return this.courseService.findAllCoursesByUser(req.user.sub);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('deleted')
   async getAllBySoftDeleted(): Promise<Course[]> {
     return this.courseService.getAllBySoftDeleted();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
   @Post()
   async createCourse(
     @Body() course: CreateCourseDto,
@@ -45,6 +63,14 @@ export class CourseController {
     return newCourse;
   }
 
+  @Get('search')
+  async searchCourses(@Query() queryParams: any): Promise<{data: Course[]; hasMore: boolean}> {
+    console.log('APIFeatures:', APIFeatures);
+    return this.courseService.searchCourses(queryParams);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
   @Delete(':id')
   async deleteCourse(@Param('id') id: number): Promise<{ message: string }> {
     return this.courseService.delete(id);
@@ -55,11 +81,23 @@ export class CourseController {
     return this.courseService.findById(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('file'))
   async updateCourse(
     @Param('id') id: number,
     @Body() updatedCourse: Partial<CreateCourseDto>,
-  ): Promise<Course> {
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<CreateCourseDto> {
+    console.log(file);
+
+    if (file) {
+      const result = await this.imageService.uploadImage(file);
+      
+      updatedCourse.imageDeleteURL = result.deleteUrl;
+      updatedCourse.courseCover = result.imageUrl;
+    }
     return this.courseService.updateCourse(id, updatedCourse);
   }
 }

@@ -12,7 +12,7 @@
     "axios": "^1.10.0",
     "cookie": "^1.0.2",
     "daisyui": "^5.0.46",
-    "jwt-decode": "^4.0.0",
+    "framer-motion": "^12.23.3",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

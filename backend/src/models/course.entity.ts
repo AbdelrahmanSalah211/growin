@@ -45,6 +45,11 @@ export class Course {
   @Column()
   imageDeleteURL: string;
 
+  @Column('varchar', {
+    nullable: true,
+  })
+  courseCover: string;
+
   @Column({
     type: 'enum',
     enum: CourseLevel,

@@ -60,19 +60,24 @@ export class LessonsController {
     return this.lessonsService.remove(+id);
   }
 
-  @Post('video/:id')
-  @UseInterceptors(FileInterceptor('file')) // max 20 files
+  @Patch('video/:id')
+  @UseInterceptors(FileInterceptor('file')) 
   async uploadVideo(
-    @Param('id') id: string,
-    @UploadedFile() files: Express.Multer.File,
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File
   ) {
-    console.log(files, 'files on upload');
+    if(!file){
+      throw new Error("no file uploaded")
+    }
+    console.log(file, 'file on upload');
 
-    const result = await this.cloudinaryService.uploadVideo(files);
+    const result = await this.cloudinaryService.uploadVideo(file);
 
     if (!result || result.length === 0) {
       throw new Error('Failed to upload video');
     }
+    console.log(result.secure_url);
+    
 
     return this.lessonsService.addFileURl(id, result.secure_url);
   }
