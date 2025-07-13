@@ -14,7 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LessonsModule } from './modules/lesson/lessons.module';
 // import { UploadModule } from './modules/videos/videos.module';
 import { CourseCategoryModule } from './modules/course-category/course-category.module';
-import { EnrollmentModule } from './modules/enrollment/enrollment.module';
+// import { EnrollmentModule } from './modules/enrollment/enrollment.module';
 import { CartModule } from './modules/cart/cart.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { PaytabsModule } from './modules/paytabs/paytabs.module';
@@ -34,7 +34,6 @@ import {
 config();
 
 const sslCaPath = readFileSync(join(__dirname, '../../certs/ca.pem'));
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -75,7 +74,7 @@ const sslCaPath = readFileSync(join(__dirname, '../../certs/ca.pem'));
     AuthModule,
     // UploadModule,
     CourseCategoryModule,
-    EnrollmentModule,
+    // EnrollmentModule,
     CartModule,
     RedisModule,
     PaytabsModule,

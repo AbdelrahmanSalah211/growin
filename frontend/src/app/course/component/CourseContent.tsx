@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { LinkIcon } from "./icons/LinkIcon";
-import SearchInput from "./ui/inputs/SearchInput";
+import { LinkIcon } from "../../../components/icons/LinkIcon";
+import SearchInput from "../../../components/ui/inputs/SearchInput";
 
 interface CourseContentProps {
   lessons?: Lessons[];

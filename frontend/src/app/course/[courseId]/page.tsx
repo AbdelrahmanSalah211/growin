@@ -1,8 +1,10 @@
 "use client";
-import { CourseCard } from "@/components/courseCard";
-import CourseContent from "@/components/CourseContent";
-import CourseInfo from "@/components/CourseInfo";
-import CourseHeader, { LessonType } from "@/components/CourseLessonHeader";
+// import { CourseCard } from "@/components/courseCard";
+import CourseContent from "@/app/course/component/CourseContent";
+import CourseInfo from "@/app/course/component/CourseInfo";
+import CourseHeader, {
+  LessonType,
+} from "@/app/course/component/CourseLessonHeader";
 import { UserIcon } from "@/components/icons/UserIcon";
 import { Course, CourseReviewItemProps } from "@/interfaces/courses";
 import { formattedDate } from "@/utils/formateDate";
@@ -10,8 +12,8 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 
 import { useEffect, useState } from "react";
-
-
+import { getCourses } from "@/services/courseService";
+import { Button } from "@/components/ui/buttons/button";
 
 function CourseReviewItem({ review, index }: CourseReviewItemProps) {
   return (
@@ -48,14 +50,14 @@ function CourseReviewItem({ review, index }: CourseReviewItemProps) {
 export default function CoursesPage() {
   const [course, setCourse] = useState<Course | null>(null);
   const { courseId } = useParams() as { courseId: string };
-  const numericId = Number(courseId);
+  const numericCourseId = Number(courseId);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         const { data } = await axios.get(
-          `http://localhost:3000/courses/${numericId}`,
+          `http://localhost:3000/courses/${numericCourseId}`,
           {
             headers: {
               Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
@@ -73,7 +75,18 @@ export default function CoursesPage() {
     };
 
     fetchCourse();
-  }, [numericId]);
+  }, [numericCourseId]);
+
+  // useEffect(() => {
+  //   const fetchCourse = async () => {
+  //     return await getCourses(
+  //       `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
+  //       courseId
+  //     );
+  //   };
+
+  //   fetchCourse();
+  // }, [numericId]);
   const avgRating =
     Math.round(
       ((course?.ratingSum ?? 0) / (course?.numberOfReviewers || 1)) * 10
@@ -129,7 +142,7 @@ export default function CoursesPage() {
 
               <p className="text-secondary-text">{course?.ratingSum}</p>
               <p className="text-primary-text">
-                {course?.enrollments?.length ?? 0} 
+                {course?.enrollments?.length ?? 0}
                 <span className="px-0.5 text-secondary-text">students</span>
               </p>
             </div>
@@ -145,7 +158,7 @@ export default function CoursesPage() {
               <p className="text-primary-text font-bold">
                 Last updated:{" "}
                 <span className="font-normal">
-                  {formattedDate(course?.updatedAt ?? '')}
+                  {formattedDate(course?.updatedAt ?? "")}
                 </span>
               </p>
             </div>
@@ -165,12 +178,11 @@ export default function CoursesPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-2 w-full">
-              <button className="text-center w-full sm:w-auto px-[8.375rem] py-[1.06255rem] rounded-[0.625rem] bg-primary-text text-background text-base font-semibold hover:opacity-90 transition">
-                Enroll Now
-              </button>
-              <button className="text-center w-full sm:w-auto px-[1.6875rem]  py-[1.06255rem] rounded-[0.625rem] bg-background text-primary-text text-base font-semibold hover:opacity-90 transition">
-                Share
-              </button>
+              <Button children="Add to cart" />
+              <Button
+                children="Share"
+                className="text-center w-full sm:w-auto px-[1.6875rem]  py-[1.06255rem] rounded-[0.625rem] bg-background text-primary-text text-base font-semibold hover:opacity-90 transition"
+              />
             </div>
           </section>
 
