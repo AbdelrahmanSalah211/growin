@@ -7,11 +7,11 @@ const CloseAccountTab = () => (
       style={{
         fontFamily: 'Inter, sans-serif',
         fontWeight: 700,
-        fontSize: '2.5rem',
+        fontSize: '2.5rem', // 40px
         lineHeight: '100%',
         color: '#2C3E50',
-        width: '21.75rem',
-        height: '3rem',
+        width: '21.75rem', // 348px
+        height: '3rem', // 48px
         marginBottom: '1.5rem',
       }}
     >
@@ -20,10 +20,10 @@ const CloseAccountTab = () => (
     {/* Horizontal line */}
     <div
       style={{
-        width: '56.25rem',
+        width: '48rem', // larger line, more suitable for container
         height: 0,
         borderTop: '1px solid #E0E6EB',
-        marginBottom: '2rem',
+        margin: '0 auto 2rem auto', // center horizontally
       }}
     />
     {/* Warning text */}
@@ -31,11 +31,11 @@ const CloseAccountTab = () => (
       style={{
         fontFamily: 'Inter, sans-serif',
         fontWeight: 700,
-        fontSize: '1.125rem',
+        fontSize: '1.125rem', // 18px
         lineHeight: '100%',
         color: '#2C3E50',
-        width: '43.4375rem',
-        height: '5.5rem',
+        width: '43.4375rem', // 695px
+        height: '5.5rem', // 88px
         marginBottom: '2rem',
       }}
     >
