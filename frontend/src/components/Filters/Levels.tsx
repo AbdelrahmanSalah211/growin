@@ -1,5 +1,5 @@
 import { ChangeEvent, FC } from "react";
-import CheckBox from "../inputs/CheckBox";
+import CheckBox from "../ui/inputs/CheckBox";
 
 export interface LevelsProps {
   values?: { [key: string]: boolean };
@@ -7,7 +7,12 @@ export interface LevelsProps {
 }
 
 const Levels: FC<LevelsProps> = ({ values = {}, onChange = () => {} }) => {
-  const levels: {[key:string]:boolean} = {"All levels":false, "Beginner":false, "Intermediate":false, "Expert":false};
+  const levels: { [key: string]: boolean } = {
+    "All levels": false,
+    Beginner: false,
+    Intermediate: false,
+    Expert: false,
+  };
   return (
     <>
       <div>
@@ -15,7 +20,7 @@ const Levels: FC<LevelsProps> = ({ values = {}, onChange = () => {} }) => {
           Levels
         </h1>
         <div className="gap-[0.625rem] text-primary-text flex flex-col">
-          {Object.entries(values).map(([level,isChecked]) => (
+          {Object.entries(values).map(([level, isChecked]) => (
             <CheckBox
               name={level}
               value={level}
