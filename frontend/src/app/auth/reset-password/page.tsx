@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/inputs/PasswordInput";
 import { FormState } from "@/types/FormState";
 import { Button } from "@/components/ui/buttons/button";
@@ -10,12 +11,18 @@ import {
   validateConfirmPassword,
   ValidationResult,
 } from "@/utils/validate";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function ResetPassword() {
   const [formState, setFormState] = useState<FormState>({
     password: { value: "", isValid: false, errors: [] },
     confirmPassword: { value: "", isValid: false, errors: [] },
   });
+
+  const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const token = searchParams.get("token");
 
   const validationMethods = {
     password: validatePassword,
@@ -50,6 +57,35 @@ export default function ResetPassword() {
     if (!formState.password.isValid || !formState.confirmPassword.isValid)
       return;
   };
+
+  useEffect(() => {
+    if (!token) {
+      router.replace("/404");
+      return;
+    } else {
+      setIsValidToken(true);
+    }
+  }, [token, router]);
+
+  if (isValidToken === false) {
+    return (
+      <div className="flex justify-center items-center h-screen w-full bg-surface p-[5rem]">
+        <p className="text-xl text-primary-text">
+          Invalid or expired reset token.
+        </p>
+      </div>
+    );
+  }
+
+  if (isValidToken === null) {
+    return (
+      <div className="flex justify-center items-center h-screen w-full bg-surface p-[5rem]">
+        <p className="flex justify-center items-center text-primary-text">
+          <span className="loading loading-6xl loading-ring"></span>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex">

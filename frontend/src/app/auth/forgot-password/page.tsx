@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/buttons/button";
 import AnimatedErrorList from "@/components/ui/feedback/AnimatedErrorList";
 import { validateEmail } from "@/utils/validate";
+import { forgetPassword } from "@/services/userService";
 
 type FormField = {
   value: string;
@@ -68,13 +69,20 @@ export default function ForgotPassword() {
     return () => clearTimeout(timerId);
   }, [secondsLeft]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!formState.email.isValid || isSubmitting) return;
 
     setIsSubmitting(true);
     setSecondsLeft(60);
+
+    try {
+      const data = await forgetPassword(formState.email.value);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
