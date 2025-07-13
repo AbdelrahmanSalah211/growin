@@ -1,40 +1,61 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FormContainer } from "@/components/layout/FormContainer";
 import { getCourses } from "@/services/courseService";
-import { getToken } from "@/lib/auth-actions";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 import { useAuthStore } from "@/stores/authStore";
-import { useEffect } from "react";
+import { CourseCard } from "@/components/course/courseCard";
 
 export default function Home() {
   useHydrateAuth();
   const accessToken = useAuthStore((state) => state.token) || "";
 
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true); // 👈 added loading state
 
   useEffect(() => {
     const fetchCourses = async () => {
       if (!accessToken) return;
       try {
         const courses = await getCourses(accessToken);
+        console.log(courses);
         setCourses(courses);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCourses();
-  }, [accessToken]); // re-run whenever token changes
+  }, [accessToken]);
 
   return (
-    <div>
-      <FormContainer />
-      <ul>
-        {courses.map((course: any) => (
-          <li key={course.id}>{course.title}</li>
-        ))}
-      </ul>
+    <div className="space-y-[2rem] px-[7rem] py-[2rem]">
+      <h1 className="text-[2.5rem] text-primary-text font-extrabold">
+        Trending Courses
+      </h1>
+
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[30rem]">
+          <span className="loading loading-ring loading-6xl text-primary-text"></span>
+        </div>
+      ) : (
+        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {courses.map((course: any) => (
+            <CourseCard
+              key={course.id}
+              id={course.id}
+              title={course.title}
+              description={course.description}
+              courseCover={course.courseCover}
+              level={course.level}
+              price={course.price}
+              rating={course.rating}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

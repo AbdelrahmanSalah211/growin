@@ -36,7 +36,7 @@ export async function getCourses(accessToken: string, id?: string) {
   }
 }
 
-async function createCourse(payload: createCoursePayload) {
+export async function createCourse(payload: createCoursePayload) {
   const accessToken = getAccessToken();
   try {
     const response = await axiosInstance.post(`${API_URL}/courses`, payload, {
