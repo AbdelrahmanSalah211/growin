@@ -1,6 +1,6 @@
 "use client";
 import { ChangeEvent, FC } from "react";
-import RadioButton from "../inputs/RadioButton";
+import RadioButton from "../ui/inputs/RadioButton";
 
 export interface RatingProps {
   value?: number;

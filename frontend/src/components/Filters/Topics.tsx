@@ -2,19 +2,14 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ChangeEvent, FC, useState } from "react";
-import CheckBox from "../inputs/CheckBox";
+import CheckBox from "../ui/inputs/CheckBox";
 
 export interface TopicsDTO {
   values?: { [key: string]: boolean };
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Topics: FC<TopicsDTO> = ({
-  values = {
-    
-  },
-  onChange = () => {},
-}) => {
+const Topics: FC<TopicsDTO> = ({ values = {}, onChange = () => {} }) => {
   const [upperBound, setUpperBound] = useState(4);
 
   const showMore = () => {

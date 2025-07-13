@@ -52,13 +52,14 @@ export default function FiltersSidebar() {
       }
       setLevels(newLevels);
     } else {
-      newLevels={...newLevels,[e.target.name]:e.target.checked}
-      setLevels(newLevels)
+      newLevels = { ...newLevels, [e.target.name]: e.target.checked };
+      setLevels(newLevels);
     }
-    let levelArr:string[] =[]
-     Object.entries(newLevels).map(([level,ischecked])=>ischecked===true&&level!="All levels"?levelArr.push(level):"")
-    console.log(levelArr.join(','))
-    
+    let levelArr: string[] = [];
+    Object.entries(newLevels).map(([level, ischecked]) =>
+      ischecked === true && level != "All levels" ? levelArr.push(level) : ""
+    );
+    console.log(levelArr.join(","));
   };
 
   // Price filter
