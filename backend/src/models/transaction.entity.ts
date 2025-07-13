@@ -14,7 +14,6 @@ import {
 } from './index';
 @Entity('transaction')
 export class Transaction {
-
   @PrimaryGeneratedColumn()
   id: number;
 

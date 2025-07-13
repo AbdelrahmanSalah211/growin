@@ -41,10 +41,6 @@ export class PaytabsService {
     }
 
     const amount = courses.reduce((acc, course) => acc + parseFloat(course.price as any), 0);
-    console.log('type profile:', typeof this.profileId);
-    console.log('profileId:', this.profileId);
-    console.log('serverKey:', this.serverKey);
-    console.log('type of amount:', typeof amount);
 
     const payload = {
       profile_id: parseInt(this.profileId!),
@@ -54,8 +50,8 @@ export class PaytabsService {
       cart_description: `cart:${user.id}`,
       cart_currency: 'EGP',
       cart_amount: amount,
-      callback: 'https://webhook.site/504001e2-b3e1-4d08-bb87-c74c2776d550',
-      return: 'https://webhook.site/504001e2-b3e1-4d08-bb87-c74c2776d550',
+      callback: process.env.BACKEND_CALLBACK_URL,
+      return: process.env.FRONTEND_REDIRECT_URL,
       customer_details: {
         name: user.username,
         email: user.email,

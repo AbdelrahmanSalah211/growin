@@ -17,13 +17,18 @@ interface createCoursePayload {
   numberOfReviewers: number;
 }
 
-export async function getCourses(accessToken: string) {
+export async function getCourses(accessToken: string, id?: string) {
   try {
-    const response = await axiosInstance.get(`${API_URL}/courses`, {
+    const url = id ? `${API_URL}/courses/${id}` : `${API_URL}/courses`;
+    console.log(url);
+
+    const response = await axiosInstance.get(`${url}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    console.log(response.data);
+
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;

@@ -34,7 +34,6 @@ import {
 config();
 
 const sslCaPath = readFileSync(join(__dirname, '../../certs/ca.pem'));
-
 @Module({
   imports: [
     ConfigModule.forRoot({
