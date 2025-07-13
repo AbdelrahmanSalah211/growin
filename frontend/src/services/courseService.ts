@@ -1,5 +1,5 @@
-import axios from "axios";
 import { AxiosError } from "axios";
+import axiosInstance from "@/lib/axiosInstance";
 
 import { getAccessToken } from "@/stores/authStore";
 
@@ -16,9 +16,10 @@ interface createCoursePayload {
   price: number;
   numberOfReviewers: number;
 }
+
 export async function getCourses(accessToken: string) {
   try {
-    const response = await axios.get(`${API_URL}/courses`, {
+    const response = await axiosInstance.get(`${API_URL}/courses`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -33,7 +34,7 @@ export async function getCourses(accessToken: string) {
 async function createCourse(payload: createCoursePayload) {
   const accessToken = getAccessToken();
   try {
-    const response = await axios.post(`${API_URL}/courses`, payload, {
+    const response = await axiosInstance.post(`${API_URL}/courses`, payload, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

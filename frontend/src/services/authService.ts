@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axiosInstance"; // assuming your interceptor is here
+import axiosInstance, { CustomAxiosRequestConfig } from "@/lib/axiosInstance";
 import { AxiosError } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -41,8 +41,8 @@ export async function signup(payload: SignupPayload) {
 export async function refreshAccessToken() {
   try {
     const response = await axiosInstance.post("/auth/refresh", null, {
-      skipAuthRefresh: true, // cast to avoid TS error
-    } as any);
+      skipAuthRefresh: true,
+    } as CustomAxiosRequestConfig);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;
