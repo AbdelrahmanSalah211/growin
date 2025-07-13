@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, ChangeEvent } from "react";
-import DualRangeSlider from "../inputs/DualRangeSlider";
+import DualRangeSlider from "../ui/inputs/DualRangeSlider";
 
 export interface PriceProps {
   minValue: number;

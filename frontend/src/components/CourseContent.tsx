@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { LinkIcon } from "./icons/LinkIcon";
-import SearchInput from "./inputs/SearchInput";
+import SearchInput from "./ui/inputs/SearchInput";
 
 interface CourseContentProps {
   lessons?: Lessons[];
