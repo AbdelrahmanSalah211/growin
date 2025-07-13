@@ -11,7 +11,6 @@ import {
 import {
   User,
   Course,
-  InstructorPayout,
 } from './index';
 @Entity('transaction')
 export class Transaction {
@@ -19,26 +18,20 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column(/*{ unique: true }*/)
   transactionId: string;
 
   @Column()
   paymentMethod: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column()
-  paymentStatus: string;
+  @ManyToOne(() => User, (user) => user.transactions)
+  user: User;
 
-  @ManyToOne(() => User, (user) => user.payouts)
-  instructor: User;
-
-  @ManyToOne(() => Course, (course) => course.payouts)
+  @ManyToOne(() => Course, (course) => course.transactions)
   course: Course;
-
-  @ManyToOne(() => InstructorPayout, (payout) => payout.transactions)
-  payout: InstructorPayout;
 
   @CreateDateColumn()
   createdAt: Date;

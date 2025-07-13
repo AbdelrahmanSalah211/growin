@@ -5,7 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { Roles } from '../authorization/roles.decorator';
 import { UserMode } from 'src/models';
 import { RolesGuard } from '../authorization/roles.guard';
-import { addCourseToCartDto, removeCourseFromCartDto } from './dto/addCourseToCart.dto';
+import { addCourseToCartDto, removeCourseFromCartDto } from './dto/cart.dto';
 
 @Controller('cart')
 export class CartController {
@@ -25,7 +25,7 @@ export class CartController {
   @UseGuards(JwtAuthGuard)
   @Roles(UserMode.LEARNER)
   async getCart(
-    @Req() req: { user: { sub: string } },
+    @Req() req: { user: { sub: number } },
   ) {
     return this.cartService.getCart(req.user.sub);
   }

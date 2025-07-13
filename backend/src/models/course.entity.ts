@@ -15,7 +15,7 @@ import {
   Enrollment,
   CourseCategory,
   Transaction,
-  InstructorPayout,
+  // InstructorPayout,
   User,
 } from './index';
 
@@ -57,7 +57,7 @@ export class Course {
   })
   level: CourseLevel;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 350.5 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true , default: 300.5 })
   price: number;
 
   @Column()
@@ -91,8 +91,8 @@ export class Course {
   })
   courseCategory: CourseCategory;
 
-  @OneToMany(() => InstructorPayout, (payout) => payout.course)
-  payouts: InstructorPayout[];
+  // @OneToMany(() => InstructorPayout, (payout) => payout.course)
+  // payouts: InstructorPayout[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
