@@ -14,6 +14,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LessonsModule } from './modules/lesson/lessons.module';
 // import { UploadModule } from './modules/videos/videos.module';
 import { CourseCategoryModule } from './modules/course-category/course-category.module';
+import { EnrollmentModule } from './modules/enrollment/enrollment.module';
+import { CartModule } from './modules/cart/cart.module';
+import { RedisModule } from './modules/redis/redis.module';
 import {
   User,
   UserSubscriber,
@@ -71,6 +74,9 @@ const sslCaPath = readFileSync(join(__dirname, '../../certs/ca.pem'));
     AuthModule,
     // UploadModule,
     CourseCategoryModule,
+    EnrollmentModule,
+    CartModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
