@@ -7,3 +7,13 @@ Accept: application/json
 ### Get all courses
 GET {{ backendUrl }}/courses
 Accept: application/json
+
+### login
+POST {{ backendUrl }}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+    "identifier": "abdelrahmanembaby63@gmail.com",
+    "password": "1234Aaa!"
+}

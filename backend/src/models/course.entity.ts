@@ -57,7 +57,13 @@ export class Course {
   })
   level: CourseLevel;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 300.5,
+  })
   price: number;
 
   @Column()
