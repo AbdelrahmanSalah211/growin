@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -14,14 +14,16 @@ import { LinkIcon } from "../icons/LinkIcon";
 import { CartIcon } from "../icons/CartIcon";
 import Image from "next/image";
 import { UserIcon } from "../icons/UserIcon";
+import { getAllCategories } from "@/services/courseCategoryService";
+import { ICategory } from "@/interfaces/ICategory";
 
-const categories = [
-  "Development",
-  "Business",
-  "Finance",
-  "Accounting",
-  "IT & Software",
-];
+// const categories = [
+//   "Development",
+//   "Business",
+//   "Finance",
+//   "Accounting",
+//   "IT & Software",
+// ];
 
 export default function Navbar() {
   const { user, token, clearAuth } = useAuthStore();
@@ -32,6 +34,21 @@ export default function Navbar() {
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
+
+  const [categories, setCategories] = useState<ICategory[]>([]);
+
+  useEffect(() => {
+    try {
+      const fetchCategories = async () => {
+        if (!token) return;
+        const categories = await getAllCategories(token || "");
+        setCategories(categories);
+      };
+      fetchCategories();
+    } catch (error) {
+      console.log(error);
+    }
+  }, [token]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,12 +65,15 @@ export default function Navbar() {
     clearAuth();
     router.push("/");
   };
+
   return (
     <header className="relative z-50 scale-[0.8291] pt-[1rem] px-[7.5rem] text-primary-text">
       <nav className="flex items-center justify-between bg-surface rounded-[3.75rem] shadow-sm px-[1.875rem] py-[0.625rem]">
         {/* left */}
         <div className="flex items-center space-x-[1.875rem]">
-          <p className="text-[1.5rem] font-extrabold">Growin</p>
+          <Link href="/" className="block">
+            <p className="text-[1.5rem] font-extrabold">Growin</p>
+          </Link>
 
           <div className="dropdown">
             <div role="button" className="m-1">
@@ -68,10 +88,10 @@ export default function Navbar() {
               <li className="px-[1.875rem] mb-[0.4375rem] text-[1.25rem] font-semibold">
                 Explore by Category
               </li>
-              {categories.map((category) => (
-                <Link key={category} href="#" className="block">
+              {Object.values(categories).map((category) => (
+                <Link key={category.id} href="#" className="block">
                   <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
-                    <span>{category}</span>
+                    <span>{category.title}</span>
                     <LinkIcon color="#2C3E50" />
                   </li>
                 </Link>
