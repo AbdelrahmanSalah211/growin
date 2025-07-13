@@ -1,4 +1,6 @@
+import { removeAuth } from "@/lib/auth-actions";
 import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
 
 export default function RootLayout({
   children,
@@ -7,7 +9,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-background max-h-screen">
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }

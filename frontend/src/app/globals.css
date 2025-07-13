@@ -36,3 +36,7 @@ input:-webkit-autofill {
   -ms-transition: background-color 5000s ease-in-out 0s;
   -o-transition: background-color 5000s ease-in-out 0s;
 }
+
+/* nextjs-portal {
+  display: none !important;
+} */
