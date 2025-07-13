@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "@/lib/axiosInstance"; // assuming your interceptor is here
 import { AxiosError } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -22,8 +22,7 @@ export async function login(payload: LoginPayload) {
     throw new Error("Identifier and password are required");
   }
   try {
-    const response = await axios.post(`${API_URL}/auth/login`, payload);
-
+    const response = await axiosInstance.post(`${API_URL}/auth/login`, payload);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;
@@ -35,14 +34,15 @@ export async function signup(payload: SignupPayload) {
   if (!payload.username || !payload.email || !payload.password) {
     throw new Error("Username, email, and password are required");
   }
-  const response = await axios.post(`${API_URL}/auth/signup`, payload);
-
+  const response = await axiosInstance.post(`${API_URL}/auth/signup`, payload);
   return response.data;
 }
 
 export async function refreshAccessToken() {
   try {
-    const response = await axios.post(`${API_URL}/auth/refresh`, null);
+    const response = await axiosInstance.post("/auth/refresh", null, {
+      skipAuthRefresh: true, // cast to avoid TS error
+    } as any);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;
@@ -52,7 +52,7 @@ export async function refreshAccessToken() {
 
 export async function logout(accessToken: string | null) {
   if (!accessToken) return;
-  const res = await axios.post(
+  const res = await axiosInstance.post(
     `${API_URL}/auth/logout`,
     {},
     {
@@ -61,7 +61,6 @@ export async function logout(accessToken: string | null) {
       },
     }
   );
-
   return res.data;
 }
 
@@ -79,11 +78,8 @@ export function googleLogin(): Promise<{ accessToken: string; user: any }> {
     }
 
     const handleMessage = (event: MessageEvent) => {
-      // Optional: check origin here
       if (event.origin !== API_URL) return;
-      
       const { accessToken, user } = event.data;
-
       popup.close();
       window.removeEventListener("message", handleMessage);
       resolve({ accessToken, user });
@@ -92,6 +88,3 @@ export function googleLogin(): Promise<{ accessToken: string; user: any }> {
     window.addEventListener("message", handleMessage);
   });
 }
-
-
-
