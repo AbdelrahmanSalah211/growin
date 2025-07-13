@@ -1,10 +1,10 @@
 "use client";
 // import { CourseCard } from "@/components/courseCard";
-import CourseContent from "@/app/course/component/CourseContent";
-import CourseInfo from "@/app/course/component/CourseInfo";
+import CourseContent from "@/components/course/CourseContent";
+import CourseInfo from "@/components/course/CourseInfo";
 import CourseHeader, {
   LessonType,
-} from "@/app/course/component/CourseLessonHeader";
+} from "@/components/course/CourseLessonHeader";
 import { UserIcon } from "@/components/icons/UserIcon";
 import { Course, CourseReviewItemProps } from "@/interfaces/courses";
 import { formattedDate } from "@/utils/formateDate";

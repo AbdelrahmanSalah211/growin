@@ -4,7 +4,7 @@ import { FormContainer } from "@/components/layout/FormContainer";
 import { getCourses } from "@/services/courseService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 import { useAuthStore } from "@/stores/authStore";
-import { CourseCard } from "@/components/courseCard";
+import { CourseCard } from "@/components/course/courseCard";
 
 export default function Home() {
   useHydrateAuth();

@@ -1,7 +1,9 @@
 "use client";
-import CourseContent from "@/app/course/component/CourseContent";
-import CourseInfo from "@/app/course/component/CourseInfo";
-import CourseHeader, { LessonType } from "@/app/course/component/CourseLessonHeader";
+import CourseContent from "@/components/course/CourseContent";
+import CourseInfo from "@/components/course/CourseInfo";
+import CourseHeader, {
+  LessonType,
+} from "@/components/course/CourseLessonHeader";
 import { Course } from "@/interfaces/courses";
 import axios from "axios";
 import { useParams } from "next/navigation";

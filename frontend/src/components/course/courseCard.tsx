@@ -1,11 +1,11 @@
 "use client";
 
 import { FC } from "react";
-import { LessonType } from "./CourseLessonHeader";
+import { LessonType } from "../../app/course/component/CourseLessonHeader";
 import Link from "next/link";
 
 export interface ICardInterface {
-  id: string,
+  id: string;
   title: string;
   description: string;
   courseCover: string;
