@@ -5,6 +5,6 @@ export class SignInDto {
   identifier: string; 
 
   @IsString()
-  @MinLength(8)
+  // @MinLength(8)
   password: string;
 }

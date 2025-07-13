@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { Lesson } from 'src/models/lesson.entity';
+import { Lesson } from '../../models/index';
 
 @Injectable()
 export class LessonsService {
@@ -26,8 +26,8 @@ export class LessonsService {
     });
     return lessons;
   }
-  addFileURl(id: string, fileURL: string) {
-    return this.lessonRepository.update(id, { fileURL });
+  addFileURl(id: number, fileURL: string) {
+    return this.lessonRepository.update(id, { fileURL: fileURL });
   }
 
   findAll() {
@@ -38,8 +38,20 @@ export class LessonsService {
     return this.lessonRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateLessonDto: UpdateLessonDto) {
-    return this.lessonRepository.update(id, updateLessonDto);
+  async update(id: number, updateLessonDto: UpdateLessonDto) {
+    const lesson = await this.lessonRepository.findOne({ where: { id } });
+  
+    if (!lesson) {
+      throw new Error(`Lesson with ID ${id} not found`);
+    }
+  
+    // Only overwrite fields if they are defined
+    Object.assign(lesson, {
+      ...updateLessonDto,
+      fileURL: updateLessonDto.fileURL !== undefined ? updateLessonDto.fileURL : lesson.fileURL,
+    });
+  
+    return this.lessonRepository.save(lesson);
   }
 
   remove(id: number) {

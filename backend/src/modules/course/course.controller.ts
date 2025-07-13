@@ -9,11 +9,15 @@ import {
   Delete,
   Patch,
   Param,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { Course } from 'src/models/course.entity';
+import { Course } from '../../models/index';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
+import { ImageService } from '../image/image.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { APIFeatures } from 'utils/APIFeatures';
 import { Roles } from '../authorization/roles.decorator';
 import { UserMode } from 'src/models';
@@ -22,7 +26,10 @@ import { RolesGuard } from '../authorization/roles.guard';
 // @UseGuards(JwtAuthGuard)
 @Controller('courses')
 export class CourseController {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseService: CourseService,
+    private imageService: ImageService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -35,7 +42,7 @@ export class CourseController {
   @Get('instructor')
   async findAllCoursesByUser(
     @Req() req: { user: { sub: number } },
-  ): Promise<Course[]> {
+  ): Promise<CreateCourseDto[]> {
     return this.courseService.findAllCoursesByUser(req.user.sub);
   }
 
@@ -77,10 +84,20 @@ export class CourseController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserMode.INSTRUCTOR)
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('file'))
   async updateCourse(
     @Param('id') id: number,
     @Body() updatedCourse: Partial<CreateCourseDto>,
-  ): Promise<Course> {
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<CreateCourseDto> {
+    console.log(file);
+
+    if (file) {
+      const result = await this.imageService.uploadImage(file);
+      
+      updatedCourse.imageDeleteURL = result.deleteUrl;
+      updatedCourse.courseCover = result.imageUrl;
+    }
     return this.courseService.updateCourse(id, updatedCourse);
   }
 }
