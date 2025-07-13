@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/buttons/button";
 import { GoogleColorIcon } from "@/components/icons/GoogleColorIcon";
 import AnimatedErrorList from "@/components/ui/feedback/AnimatedErrorList";
 import { validateEmail } from "@/utils/validate";
-import { login, LoginPayload } from "@/services/authService";
+import { googleLogin, login, LoginPayload } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
 import { setToken, setUser } from "@/lib/auth-actions";
 import { useRouter } from "next/navigation";
@@ -67,6 +67,19 @@ export default function Login() {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const data = await googleLogin();
+      setToken(data.accessToken);
+      setUser(JSON.stringify(data.user));
+      setAuth(data.accessToken, data.user);
+      router.push("/");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -162,7 +175,7 @@ export default function Login() {
               </Link>
             </p>
 
-            <Button type="button">
+            <Button type="button" onClick={handleGoogleLogin}>
               <span className="flex items-center justify-center gap-[0.625rem]">
                 <GoogleColorIcon />
                 Log in with Google

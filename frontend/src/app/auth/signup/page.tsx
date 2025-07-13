@@ -16,7 +16,7 @@ import {
   validateConfirmPassword,
   ValidationResult,
 } from "@/utils/validate";
-import { googleLogin } from "@/services/authService";
+import { signup, googleLogin } from "@/services/authService";
 import { setToken, setUser } from "@/lib/auth-actions";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
@@ -61,10 +61,11 @@ export default function Signup() {
   };
 
   const { setAuth } = useAuthStore();
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: FormEvent) => {
+  const [submitText, setSubmitText] = useState<string>("Sign Up");
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (
       !formState.username.isValid ||
@@ -73,14 +74,30 @@ export default function Signup() {
       !formState.confirmPassword.isValid
     )
       return;
-    // Submit logic here
+
+    setLoading(true);
+    const payload = {
+      username: formState.username.value,
+      email: formState.email.value,
+      password: formState.password.value,
+    };
+    try {
+      const data = await signup(payload);
+      setSubmitText(data.message);
+      setTimeout(() => {
+        router.push("/auth/login");
+      },1500);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const data = await googleLogin();
-      console.log(data)
       setToken(data.accessToken);
       setUser(JSON.stringify(data.user));
       setAuth(data.accessToken, data.user);
@@ -209,7 +226,14 @@ export default function Signup() {
                   Previous
                 </Button>
                 <Button type="submit" buttonProps={{ disabled: !canSubmit }}>
-                  Sign Up
+                  {loading ? (
+                    <p className="flex items-center justify-center gap-[0.625rem]">
+                      <span className="loading loading-infinity loading-md"></span>
+                      Signing up
+                    </p>
+                  ) : (
+                    <>{submitText}</>
+                  )}
                 </Button>
               </div>
             )}
