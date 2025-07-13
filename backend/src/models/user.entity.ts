@@ -17,7 +17,7 @@ import {
   Review,
   Enrollment,
   Transaction,
-  InstructorPayout,
+  // InstructorPayout,
   Course,
 } from './index';
 
@@ -69,8 +69,9 @@ export class User {
     onDelete: 'CASCADE',
   })
   lessonProgress: LessonProgress[];
-  @OneToMany(() => InstructorPayout, (payout) => payout.instructor)
-  payouts: InstructorPayout[];
+  
+  // @OneToMany(() => InstructorPayout, (payout) => payout.instructor)
+  // payouts: InstructorPayout[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
