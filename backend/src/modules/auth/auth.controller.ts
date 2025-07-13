@@ -17,26 +17,25 @@ import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   async login(
     @Body() dto: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { user, accessToken, refreshToken } = await this.authService.signIn(dto);
+    const { user, accessToken, refreshToken } =
+      await this.authService.signIn(dto);
     response.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     return {
       message: 'Login Successful',
       accessToken,
-      user
+      user,
     };
   }
 
@@ -49,20 +48,20 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refreshAccessToken(
-    @Req() req: Request,
-  ) {
+  async refreshAccessToken(@Req() req: Request) {
     const refreshToken = req.cookies?.refreshToken;
 
-    if(!refreshToken){
+    if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    const { accessToken } = await this.authService.refreshAccessToken({ refreshToken });
+    const { accessToken } = await this.authService.refreshAccessToken({
+      refreshToken,
+    });
 
-    return { 
+    return {
       accessToken,
-      message: 'Access token refreshed successfully'
+      message: 'Access token refreshed successfully',
     };
   }
 
@@ -72,7 +71,7 @@ export class AuthController {
     @Req() req: { user: { sub: number } },
     @Res({ passthrough: true }) response: Response,
   ) {
-    await this.authService.logout(req.user.sub)
+    await this.authService.logout(req.user.sub);
     response.clearCookie('refreshToken');
     return { message: 'Logged out successfully' };
   }
@@ -85,20 +84,36 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleCallback(
-    @Req() req: Request & { user: { email: string; name: string; photo: string } },
-    @Res({ passthrough: true }) response: Response,
+    @Req()
+    req: Request & { user: { email: string; name: string; photo: string } },
+    @Res() res: Response,
   ) {
-    const { user, accessToken, refreshToken } = await this.authService.loginWithOAuth(req.user);
-    response.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    const { user, accessToken, refreshToken } =
+      await this.authService.loginWithOAuth(req.user);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return {
-      message: 'Google authentication successful',
-      user,
-      accessToken
-    };
+
+    res.send(`
+    <html>
+      <body>
+        <script>
+          window.opener.postMessage(
+            ${JSON.stringify({
+              accessToken,
+              user,
+              source: 'google-auth',
+            })},
+            "*"
+          );
+          window.close();
+        </script>
+      </body>
+    </html>
+  `);
   }
 }
