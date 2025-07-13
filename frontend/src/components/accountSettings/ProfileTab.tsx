@@ -1,22 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ImageUploadIcon } from "../icons/ImageUploadIcon";
 import TextInput from "../ui/inputs/TextInput";
 import TextArea from "../ui/inputs/TextArea";
 import { UserIcon } from "../icons/UserIcon";
 import { EmailAddressSignAtIcon } from "../icons/EmailAddressSignAtIcon";
-import { updateUserInfo } from "@/services/userService";
+import { updateUserInfo, getUserInfo } from "@/services/userService";
 import { useAuthStore } from "@/stores/authStore";
 
 const ProfileTab = () => {
-  const [username, setUsername] = useState("AbdelrahmanEmbaby");
+  const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [originalUsername, setOriginalUsername] = useState("AbdelrahmanEmbaby");
+  const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState("");
+  const [originalUsername, setOriginalUsername] = useState("");
   const [originalBio, setOriginalBio] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [originalProfileImage, setOriginalProfileImage] = useState("");
   const [saving, setSaving] = useState(false);
-  const email = "you@example.com";
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const { token } = useAuthStore();
 
   const hasChanges = username !== originalUsername || bio !== originalBio;
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!token) {
+        setError("You must be logged in to view your profile.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const userData = await getUserInfo(token);
+        
+        // Update state with fetched data
+        setUsername(userData.username || "");
+        setBio(userData.bio || "");
+        setEmail(userData.email || "");
+        setProfileImage(userData.profileImage || "");
+        
+        // Set original values for comparison
+        setOriginalUsername(userData.username || "");
+        setOriginalBio(userData.bio || "");
+        setOriginalEmail(userData.email || "");
+        setOriginalProfileImage(userData.profileImage || "");
+        
+        setError("");
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        setError("Failed to load user data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
 
   const handleSave = async () => {
     if (!token) {
@@ -46,6 +88,26 @@ const ProfileTab = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="loading loading-spinner loading-lg"></div>
+        <span className="ml-4 text-[#2C3E50]">Loading profile...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-red-500 text-center">
+          <p className="text-lg font-semibold mb-2">Error</p>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Profile Heading */}
@@ -65,12 +127,19 @@ const ProfileTab = () => {
           <div className="text-[#2C3E50] font-normal text-[1.125rem] leading-none mb-4 font-inter">
             Image Preview
           </div>
-          <div className="w-[15rem] h-[15rem] rounded-lg bg-gray-200 flex flex-col items-center justify-center">
-            {/* Placeholder avatar icon */}
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-              <path d="M12.1992 12C14.9606 12 17.1992 9.76142 17.1992 7C17.1992 4.23858 14.9606 2 12.1992 2C9.43779 2 7.19922 4.23858 7.19922 7C7.19922 9.76142 9.43779 12 12.1992 12Z" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-              <path d="M3 22C3.57038 20.0332 4.74796 18.2971 6.3644 17.0399C7.98083 15.7827 9.95335 15.0687 12 15C16.12 15 19.63 17.91 21 22" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
+          <div className="w-[15rem] h-[15rem] rounded-lg bg-gray-200 flex flex-col items-center justify-center overflow-hidden">
+            {profileImage ? (
+              <img 
+                src={profileImage} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+                <path d="M12.1992 12C14.9606 12 17.1992 9.76142 17.1992 7C17.1992 4.23858 14.9606 2 12.1992 2C9.43779 2 7.19922 4.23858 7.19922 7C7.19922 9.76142 9.43779 12 12.1992 12Z" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                <path d="M3 22C3.57038 20.0332 4.74796 18.2971 6.3644 17.0399C7.98083 15.7827 9.95335 15.0687 12 15C16.12 15 19.63 17.91 21 22" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+              </svg>
+            )}
           </div>
         </div>
         {/* Add/Change Image & Drag-and-Drop Area */}
@@ -94,6 +163,18 @@ const ProfileTab = () => {
       {/* Basic Section */}
       <div className="text-[#2C3E50] font-semibold text-[1.5rem] leading-none mb-6 font-inter">
         Basic
+      </div>
+      {/* Email Input Field (Read-only) */}
+      <div className="mb-6">
+        <TextInput
+          title="Email"
+          name="email"
+          value={email}
+          onChange={() => {}} // Read-only
+          placeholder="Enter your email"
+          icon={<EmailAddressSignAtIcon size={20} color="#2C3E50" />}
+          inputProps={{ disabled: true }}
+        />
       </div>
       {/* Username Input Field */}
       <div className="mb-6">
@@ -137,5 +218,5 @@ const ProfileTab = () => {
     </>
   );
 };
-
-export default ProfileTab; 
+  
+  export default ProfileTab; 

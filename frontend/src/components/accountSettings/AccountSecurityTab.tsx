@@ -1,20 +1,22 @@
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { EmailAddressSignAtIcon } from "../icons/EmailAddressSignAtIcon";
 import TextInput from "../ui/inputs/TextInput";
 import PasswordInput from "../ui/inputs/PasswordInput";
 import { Button } from "../ui/buttons/button";
 import { FormState } from "@/types/FormState";
 import { validatePassword, validateConfirmPassword, ValidationResult, validateEmail } from "@/utils/validate";
-import { updatePassword, updateUserInfo } from "@/services/userService";
+import { updatePassword, updateUserInfo, getUserInfo } from "@/services/userService";
 import { useAuthStore } from "@/stores/authStore";
 
 const AccountSecurityTab = () => {
-  const [email, setEmail] = useState<string>("you@example.com"); // verified email
-  const [inputEmail, setInputEmail] = useState<string>(email); // editable input
+  const [email, setEmail] = useState<string>(""); // verified email
+  const [inputEmail, setInputEmail] = useState<string>(""); // editable input
   const [editingEmail, setEditingEmail] = useState<boolean>(false);
   const [showPasswordForm, setShowPasswordForm] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [savingEmail, setSavingEmail] = useState<boolean>(false);
+  const [dataLoading, setDataLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
   const { token } = useAuthStore();
 
   const [passwordFormState, setPasswordFormState] = useState<FormState>({
@@ -27,6 +29,35 @@ const AccountSecurityTab = () => {
     },
     confirmPassword: { value: "", isValid: false, errors: [] },
   });
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!token) {
+        setError("You must be logged in to view your account security settings.");
+        setDataLoading(false);
+        return;
+      }
+
+      try {
+        setDataLoading(true);
+        const userData = await getUserInfo(token);
+        
+        // Update state with fetched data
+        setEmail(userData.email || "");
+        setInputEmail(userData.email || "");
+        
+        setError("");
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        setError("Failed to load user data. Please try again.");
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputEmail(e.target.value);
@@ -144,6 +175,38 @@ const AccountSecurityTab = () => {
     }
   };
 
+  if (dataLoading) {
+    return (
+      <div className="p-8">
+        <div className="text-[#2C3E50] font-bold text-[2.5rem] leading-none mb-6 font-inter">
+          Account Security
+        </div>
+        <div className="w-full h-[0.0625rem] bg-[#E0E6EB] mb-8"></div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="loading loading-spinner loading-lg"></div>
+          <span className="ml-4 text-[#2C3E50]">Loading account security...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="text-[#2C3E50] font-bold text-[2.5rem] leading-none mb-6 font-inter">
+          Account Security
+        </div>
+        <div className="w-full h-[0.0625rem] bg-[#E0E6EB] mb-8"></div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-red-500 text-center">
+            <p className="text-lg font-semibold mb-2">Error</p>
+            <p>{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8">
       <div className="text-[#2C3E50] font-bold text-[2.5rem] leading-none mb-6 font-inter">
@@ -165,7 +228,7 @@ const AccountSecurityTab = () => {
             value={inputEmail}
             onChange={handleEmailChange}
             icon={<EmailAddressSignAtIcon size={20} color="#2C3E50" />}
-            placeholder="you@example.com"
+            placeholder="Enter your email"
             title=""
           />
         </div>
