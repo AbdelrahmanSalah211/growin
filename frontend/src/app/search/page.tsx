@@ -130,7 +130,7 @@ export default function SearchPage() {
       });
       setMinValue(min);
       setMaxValue(max);
-      router.replace("", { scroll: false });
+      router.replace("?", { scroll: false });
     } catch (err) {
       console.error(err);
     }
@@ -281,7 +281,7 @@ export default function SearchPage() {
         ))}
       </div>
 
-      {numOfPages > 0 ? (
+      {numOfPages > 1 && (
         <div className="flex justify-center py-[0.5rem]">
           <Pagination
             pageNum={pageNum}
@@ -290,7 +290,8 @@ export default function SearchPage() {
             numOfPages={numOfPages}
           />
         </div>
-      ) : (
+      )}
+      {courses.length<1&&(
         <p className="w-full text-center text-primary-text text-4xl py-[20rem]">
           No courses found.
         </p>
