@@ -8,6 +8,7 @@ import SearchInput from "../ui/inputs/SearchInput";
 interface CourseContentProps {
   lessons?: Lessons[];
   courseId: number;
+  isEnrolled: boolean;
 }
 
 interface Lessons {
@@ -19,6 +20,7 @@ interface Lessons {
 export default function CourseContent({
   lessons = [],
   courseId,
+  isEnrolled
 }: CourseContentProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -44,22 +46,24 @@ export default function CourseContent({
 
       <div className="flex flex-col bg-background rounded-[1.25rem] w-full p-6">
         {filteredLessons.map((lesson, key) => (
-          <Link
-            href={`/course/${courseId}/lesson/${lesson.id}`}
-            key={key}
-            scroll={false}
-          >
-            <div className="flex justify-between cursor-pointer items-center">
+          <div key={key}> 
+            <div className="flex justify-between  items-center">
               <div className="flex gap-[0.625rem] py-[1.875rem] items-center">
                 <h2 className="text-primary-text text-[1.75rem] font-semibold">
                   {lesson.title}
                 </h2>
-                <LinkIcon />
-              </div>
+               {isEnrolled? <Link
+                  href={`/courses/${courseId}/lesson/${lesson.id}`}
+                  key={key}
+                  scroll={false}
+                >
+                  <LinkIcon />
+                </Link>
+ :""}              </div>
               <p>{lesson.duration} min</p>
             </div>
             <hr className="border-t border-border" />
-          </Link>
+          </div>
         ))}
       </div>
 

@@ -44,14 +44,14 @@ export default function Home() {
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {enrolledCourses.map((course: any) => (
                         <CourseCard
-                            key={course.id}
-                            id={course.id}
-                            title={course.title}
-                            description={course.description}
-                            courseCover={course.courseCover}
-                            level={course.level}
-                            price={course.price}
-                            rating={course.rating}
+                            key={course.course.courseId}
+                            id={course.course.courseId}
+                            title={course.course.title}
+                            description={course.course.description}
+                            courseCover={course.course.courseCover}
+                            level={course.course.level}
+                            price={course.course.price}
+                            rating={course.course.rating}
                         />
                     ))}
                 </ul>
