@@ -2,12 +2,13 @@
 
 import { FC } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export interface ICardInterface {
   id: string;
   title: string;
   description: string;
-  courseCover: string;
+  courseCover: string | null;
   level: string;
   price: number;
   rating?: number;
@@ -23,13 +24,17 @@ export const CourseCard: FC<ICardInterface> = ({
   rating = 0,
 }) => {
   return (
-    <Link href={`/course/${id}`}>
+    // <Link href={`/course/${id}`}>
       <div className="card rounded-[1.25rem] h-[26rem] w-[26rem] bg-surface shadow-sm">
-        <figure className="w-full">
-          <img
-            src={courseCover}
+        <figure className="w-full h-[10rem] relative">
+          <Image
+            src={
+              courseCover || "https://via.placeholder.com/400x160?text=No+Image"
+            }
             alt={title}
-            className="w-full h-[10rem] object-cover rounded-t-[1.25rem]"
+            fill
+            className="object-cover rounded-t-[1.25rem]"
+            unoptimized
           />
         </figure>
 
@@ -47,7 +52,6 @@ export const CourseCard: FC<ICardInterface> = ({
                 {Math.round(rating * 10) / 10}
               </span>
 
-              {/* Clean, proper half-star rating */}
               <div className="rating flex gap-[0.125rem] pointer-events-none select-none">
                 {[1, 2, 3, 4, 5].map((n) => {
                   const starValue = n;
@@ -55,7 +59,6 @@ export const CourseCard: FC<ICardInterface> = ({
 
                   return (
                     <div key={n} className="flex">
-                      {/* Left half */}
                       <input
                         type="radio"
                         className={`mask mask-star-2 mask-half-1 ${
@@ -64,7 +67,6 @@ export const CourseCard: FC<ICardInterface> = ({
                         readOnly
                         checked={rating >= halfValue}
                       />
-                      {/* Right half */}
                       <input
                         type="radio"
                         className={`mask mask-star-2 mask-half-2 ${
@@ -90,6 +92,6 @@ export const CourseCard: FC<ICardInterface> = ({
           </div>
         </div>
       </div>
-    </Link>
+    // </Link>
   );
 };
