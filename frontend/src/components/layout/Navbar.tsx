@@ -149,9 +149,95 @@ export default function Navbar() {
                         className="rounded-full"
                       />
                     ) : (
-                      <UserIcon color="#2C3E50" size={32} />
+                        <>
+                            <Link
+                                href="/me/learning"
+                                className="text-[1.25rem] hover:underline"
+                            >
+                                My Learning
+                            </Link>
+                            <div className="dropdown">
+                                <div role="button" className="m-1">
+                                    <Button className="flex items-center justify-center !rounded-[50%] !w-[3.125rem] aspect-square !py-[0] text-[1.125rem] !font-normal text-primary-text bg-transparent hover:text-primary-text hover:!bg-background">
+                                        {user?.profileImage ? (
+                                            <Image
+                                                src={user.profileImage}
+                                                alt={user.username}
+                                                width={50}
+                                                height={50}
+                                                className="rounded-full"
+                                            />
+                                        ) : (
+                                            <UserIcon
+                                                color="#2C3E50"
+                                                size={32}
+                                            />
+                                        )}
+                                    </Button>
+                                </div>
+                                <ul
+                                    tabIndex={0}
+                                    className="dropdown-content fixed z-20 w-[15.9375rem] bg-surface -mx-42 my-4 py-[1.5625rem] rounded-[1.875rem] shadow-sm"
+                                >
+                                    <Link href="#" className="block">
+                                        <li className="flex items-center justify-between space-x-[0.9375rem] px-[1.5625rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
+                                            {user?.profileImage ? (
+                                                <Image
+                                                    src={user.profileImage}
+                                                    alt={user.username}
+                                                    width={70}
+                                                    height={70}
+                                                    className="rounded-full"
+                                                />
+                                            ) : (
+                                                <div className="p-5 aspect-square rounded-full shadow-sm">
+                                                    <UserIcon
+                                                        color="#2C3E50"
+                                                        size={32}
+                                                    />
+                                                </div>
+                                            )}
+                                            <p className="flex flex-col">
+                                                <span className="font-bold text-base">
+                                                    {user?.username}
+                                                </span>
+                                                <span className="text-sm truncate max-w-[8rem] block">
+                                                    {user?.email}
+                                                </span>
+                                            </p>
+                                        </li>
+                                    </Link>
+                                    <Link href="#" className="block">
+                                        <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
+                                            My Learning
+                                        </li>
+                                    </Link>
+                                    <Link href="#" className="block">
+                                        <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
+                                            My Cart
+                                        </li>
+                                    </Link>
+
+                                    <hr className="my-[0.9375rem] text-border" />
+
+                                    <Link href="#" className="block">
+                                        <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
+                                            Account Settings
+                                        </li>
+                                    </Link>
+                                    <Link
+                                        href="#"
+                                        className="block"
+                                        onClick={handleLogout}
+                                    >
+                                        <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
+                                            Log out
+                                        </li>
+                                    </Link>
+                                </ul>
+                            </div>
+                        </>
                     )}
-                  </Button>
                 </div>
                 <ul
                   tabIndex={0}

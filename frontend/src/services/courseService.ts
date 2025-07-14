@@ -24,7 +24,7 @@ export async function getCourses(accessToken: string, id?: string) {
 
     const response = await axiosInstance.get(`${url}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${getAccessToken}`,
       },
     });
     console.log(response.data);
@@ -40,6 +40,22 @@ export async function createCourse(payload: createCoursePayload) {
   const accessToken = getAccessToken();
   try {
     const response = await axiosInstance.post(`${API_URL}/courses`, payload, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+}
+export async function searchCourse(accessToken: string, queryparams?: string) {
+  try {
+    const url = `${API_URL}/courses/search?${queryparams}`;
+    console.log(url);
+
+    const response = await axiosInstance.get(`${url}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
