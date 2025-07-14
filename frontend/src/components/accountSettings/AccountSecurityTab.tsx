@@ -9,8 +9,8 @@ import { updatePassword, updateUserInfo } from "@/services/userService";
 import { useAuthStore } from "@/stores/authStore";
 
 const AccountSecurityTab = () => {
-  const [email, setEmail] = useState<string>("you@example.com"); // verified email
-  const [inputEmail, setInputEmail] = useState<string>(email); // editable input
+  const [email, setEmail] = useState<string>("");
+  const [inputEmail, setInputEmail] = useState<string>(email);
   const [editingEmail, setEditingEmail] = useState<boolean>(false);
   const [showPasswordForm, setShowPasswordForm] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -145,7 +145,7 @@ const AccountSecurityTab = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen">
       <div className="text-[#2C3E50] font-bold text-[2.5rem] leading-none mb-6 font-inter">
         Account Security
       </div>
@@ -172,7 +172,9 @@ const AccountSecurityTab = () => {
         <button
           type="button"
           onClick={handleSaveEmail}
-          disabled={savingEmail || !editingEmail || !validateEmail(inputEmail).isValid}
+          disabled={
+            savingEmail || !editingEmail || !validateEmail(inputEmail).isValid
+          }
           className="ml-2 bg-[#F2F5F7] hover:bg-[#E0E6EB] text-[#2C3E50] font-bold rounded-lg px-3 py-2 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {savingEmail ? (
@@ -190,8 +192,10 @@ const AccountSecurityTab = () => {
       </div>
       {/* Description text */}
       <div className="font-inter font-normal text-[1.125rem] leading-none text-[#2C3E50] max-w-2xl mb-8">
-        To set or change your password, you'll first need to verify your identity using your email address{' '}
-        <span className="font-bold">{email}</span>. We'll send a verification link to this address.
+        To set or change your password, you'll first need to verify your
+        identity using your email address{" "}
+        <span className="font-bold">{email}</span>. We'll send a verification
+        link to this address.
       </div>
       <div className="w-[22.9375rem] h-[3.4375rem] rounded-lg bg-[#F2F5F7] flex items-center justify-center">
         <button
@@ -214,8 +218,20 @@ const AccountSecurityTab = () => {
                 onClick={() => setShowPasswordForm(false)}
                 className="text-[#2C3E50] hover:text-gray-600"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" width="1.5rem" height="1.5rem">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  width="1.5rem"
+                  height="1.5rem"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -249,14 +265,15 @@ const AccountSecurityTab = () => {
               />
 
               {/* Error messages */}
-              {Object.entries(passwordFormState).map(([fieldName, field]) => 
-                field.errors.length > 0 && (
-                  <div key={fieldName} className="text-red-500 text-sm">
-                    {field.errors.map((error, index) => (
-                      <p key={index}>{error}</p>
-                    ))}
-                  </div>
-                )
+              {Object.entries(passwordFormState).map(
+                ([fieldName, field]) =>
+                  field.errors.length > 0 && (
+                    <div key={fieldName} className="text-red-500 text-sm">
+                      {field.errors.map((error, index) => (
+                        <p key={index}>{error}</p>
+                      ))}
+                    </div>
+                  )
               )}
 
               <div className="flex gap-4 pt-4">
@@ -271,10 +288,11 @@ const AccountSecurityTab = () => {
                   type="submit"
                   className="flex-1"
                   buttonProps={{
-                    disabled: !passwordFormState.currentPassword.isValid ||
-                              !passwordFormState.newPassword.isValid ||
-                              !passwordFormState.confirmPassword.isValid ||
-                              loading,
+                    disabled:
+                      !passwordFormState.currentPassword.isValid ||
+                      !passwordFormState.newPassword.isValid ||
+                      !passwordFormState.confirmPassword.isValid ||
+                      loading,
                   }}
                 >
                   {loading ? (

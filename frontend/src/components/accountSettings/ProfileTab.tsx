@@ -1,122 +1,167 @@
+"use client";
+
 import React, { useState } from "react";
-import { ImageUploadIcon } from "../icons/ImageUploadIcon";
+import FileInput from "../ui/inputs/FileInput";
 import TextInput from "../ui/inputs/TextInput";
 import TextArea from "../ui/inputs/TextArea";
 import { UserIcon } from "../icons/UserIcon";
-import { EmailAddressSignAtIcon } from "../icons/EmailAddressSignAtIcon";
 import { updateUserInfo } from "@/services/userService";
 import { useAuthStore } from "@/stores/authStore";
+import toast from "react-hot-toast";
 
 const ProfileTab = () => {
-  const [username, setUsername] = useState("AbdelrahmanEmbaby");
-  const [bio, setBio] = useState("");
-  const [originalUsername, setOriginalUsername] = useState("AbdelrahmanEmbaby");
-  const [originalBio, setOriginalBio] = useState("");
-  const [saving, setSaving] = useState(false);
-  const email = "you@example.com";
   const { token } = useAuthStore();
 
-  const hasChanges = username !== originalUsername || bio !== originalBio;
+  const [profile, setProfile] = useState({
+    username: "",
+    bio: "",
+    image: null as string | null,
+  });
+
+  const [originalProfile, setOriginalProfile] = useState({
+    username: "",
+    bio: "",
+    image: null as string | null,
+  });
+
+  const [saving, setSaving] = useState(false);
+
+  const hasChanges =
+    profile.username !== originalProfile.username ||
+    profile.bio !== originalProfile.bio ||
+    profile.image !== originalProfile.image;
+
+  const handleChange = (key: "username" | "bio", value: string) => {
+    setProfile((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleImageChange = (files: FileList) => {
+    const file = files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile((prev) => ({ ...prev, image: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSave = async () => {
     if (!token) {
-      alert("You must be logged in to update your profile.");
+      toast.error("You must be logged in to update your profile.");
+      return;
+    }
+
+    const payload: any = {};
+
+    if (profile.username !== originalProfile.username) {
+      payload.username = profile.username;
+    }
+
+    if (profile.bio !== originalProfile.bio) {
+      payload.bio = profile.bio;
+    }
+
+    if (profile.image !== originalProfile.image && profile.image) {
+      payload.profileImage = profile.image;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      toast("No changes to save.");
       return;
     }
 
     setSaving(true);
     try {
-      await updateUserInfo(
-        {
-          username: username,
-          email: email,
-          bio: bio,
-        },
-        token
-      );
-      
-      setOriginalUsername(username);
-      setOriginalBio(bio);
-      alert("Profile updated successfully!");
-    } catch (error) {
-      alert("Failed to update profile. Please try again.");
+      await updateUserInfo(payload, token);
+
+      setOriginalProfile({
+        username: profile.username,
+        bio: profile.bio,
+        image: profile.image,
+      });
+
+      toast.success("Profile updated successfully!");
+    } catch (error: any) {
       console.error(error);
+      const errorMsg =
+        error.message || "Failed to update profile. Please try again.";
+      toast.error(
+        Array.isArray(error.message) ? error.message.join(", ") : errorMsg
+      );
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <>
-      {/* Profile Heading */}
-      <div className="text-[#2C3E50] font-bold text-[2.5rem] leading-none mb-6 font-inter">
+    <div className="min-h-screen">
+      <div className="text-[#2C3E50] font-bold text-[2.5rem] mb-6 font-inter">
         Profile
       </div>
-      {/* Horizontal Line */}
-      <div className="w-full h-[0.0625rem] bg-[#E0E6EB] mb-8"></div>
-      {/* Profile Image Section */}
-      <div className="text-[#2C3E50] font-semibold text-[1.5rem] leading-none mb-6 font-inter">
+      <div className="w-full h-px bg-[#E0E6EB] mb-8"></div>
+
+      <div className="text-[#2C3E50] font-semibold text-[1.5rem] mb-6 font-inter">
         Profile Image
       </div>
-      {/* Image Preview and Upload Area */}
+
       <div className="flex gap-8 mb-8">
-        {/* Image Preview Area */}
         <div>
-          <div className="text-[#2C3E50] font-normal text-[1.125rem] leading-none mb-4 font-inter">
+          <p className="text-[#2C3E50] font-normal text-[1.125rem] mb-4 font-inter">
             Image Preview
-          </div>
-          <div className="w-[15rem] h-[15rem] rounded-lg bg-gray-200 flex flex-col items-center justify-center">
-            {/* Placeholder avatar icon */}
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-              <path d="M12.1992 12C14.9606 12 17.1992 9.76142 17.1992 7C17.1992 4.23858 14.9606 2 12.1992 2C9.43779 2 7.19922 4.23858 7.19922 7C7.19922 9.76142 9.43779 12 12.1992 12Z" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-              <path d="M3 22C3.57038 20.0332 4.74796 18.2971 6.3644 17.0399C7.98083 15.7827 9.95335 15.0687 12 15C16.12 15 19.63 17.91 21 22" stroke="#2C3E50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
+          </p>
+          <div className="w-60 h-60 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+            {profile.image ? (
+              <img
+                src={profile.image}
+                alt="Profile"
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <UserIcon size={100} color="#2C3E50" />
+            )}
           </div>
         </div>
-        {/* Add/Change Image & Drag-and-Drop Area */}
+
         <div className="flex flex-col flex-1">
-          <div className="text-[#2C3E50] font-normal text-[1.125rem] leading-none mb-4 font-inter">
+          <p className="text-[#2C3E50] font-normal text-[1.125rem] mb-4 font-inter">
             Add / Change Image
-          </div>
-          <div className="bg-white border-2 border-[#E0E6EB] rounded-lg flex flex-col items-center justify-center py-8 px-4 h-full min-h-[15rem]">
-            <ImageUploadIcon size={48} color="#2C3E50" className="mb-4" />
-            <div className="text-center text-[#2C3E50] font-normal text-[1.125rem] mb-2">Drag & Drop your image here</div>
-            <div className="text-center text-[#5D6D7E] font-normal text-[0.75rem] mb-4">OR</div>
-            <label className="bg-[#F2F5F7] rounded-lg flex items-center justify-center cursor-pointer px-8 py-3 font-bold text-[#2C3E50] text-[1.125rem]">
-              Browse Files
-              <input id="profile-image-upload" type="file" className="hidden" />
-            </label>
-          </div>
+          </p>
+          <FileInput
+            multiple={false}
+            onFilesChange={handleImageChange}
+            acceptedFileType="image/*"
+          />
         </div>
       </div>
-      {/* Horizontal Line */}
-      <div className="w-full h-[0.0625rem] bg-[#E0E6EB] mb-8 mt-8"></div>
-      {/* Basic Section */}
-      <div className="text-[#2C3E50] font-semibold text-[1.5rem] leading-none mb-6 font-inter">
+
+      <div className="w-full h-px bg-[#E0E6EB] mb-8 mt-8"></div>
+
+      <div className="text-[#2C3E50] font-semibold text-[1.5rem] mb-6 font-inter">
         Basic
       </div>
-      {/* Username Input Field */}
+
       <div className="mb-6">
         <TextInput
           title="Username"
           name="username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
+          value={profile.username}
+          onChange={(e) => handleChange("username", e.target.value)}
           placeholder="Enter your username"
           icon={<UserIcon size={20} color="#2C3E50" />}
         />
       </div>
-      {/* Bio Section */}
+
       <div className="mb-6">
         <TextArea
           title="Bio"
           name="bio"
-          value={bio}
-          onChange={e => setBio(e.target.value)}
-          placeholder="Type Here..."
+          value={profile.bio}
+          onChange={(e) => handleChange("bio", e.target.value)}
+          placeholder="Type here..."
         />
       </div>
-      {/* Save Button */}
+
       <div className="mt-8">
         <button
           type="button"
@@ -134,8 +179,8 @@ const ProfileTab = () => {
           )}
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
-export default ProfileTab; 
+export default ProfileTab;

@@ -40,7 +40,7 @@ export default function Home() {
         <div className="flex justify-center items-center min-h-[30rem]">
           <span className="loading loading-ring loading-6xl text-primary-text"></span>
         </div>
-      ) : (
+      ) : courses.length > 0 ? (
         <ul className="grid grid-cols-1 items-center justify-center md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4">
           {courses.map((course: any) => (
             <CourseCard
@@ -51,10 +51,12 @@ export default function Home() {
               courseCover={course.courseCover}
               level={course.level}
               price={course.price}
-              rating={course.rating}
+              rating={4.5}
             />
           ))}
         </ul>
+      ) : (
+        <p className="w-full text-center text-primary-text text-4xl py-[20rem]">No courses found.</p>
       )}
     </div>
   );

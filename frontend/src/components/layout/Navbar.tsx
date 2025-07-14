@@ -109,7 +109,7 @@ export default function Navbar() {
 
         {/* right */}
         <div className="flex items-center space-x-[1.875rem]">
-          <Link href="/cart">
+          <Link href="/me/cart">
             <Button className="flex items-center justify-center !w-[3.125rem] aspect-square !py-[0] text-[1.125rem] !font-normal text-primary-text bg-transparent hover:text-primary-text hover:!bg-background">
               <CartIcon color="#2C3E50" size={32} />
             </Button>
@@ -157,7 +157,7 @@ export default function Navbar() {
                   tabIndex={0}
                   className="dropdown-content fixed z-20 w-[15.9375rem] bg-surface -mx-42 my-4 py-[1.5625rem] rounded-[1.875rem] shadow-sm"
                 >
-                  <Link href="#" className="block">
+                  <Link href="/me/settings" className="block">
                     <li className="flex items-center justify-between space-x-[0.9375rem] px-[1.5625rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
                       {user?.profileImage ? (
                         <Image
@@ -182,12 +182,12 @@ export default function Navbar() {
                       </p>
                     </li>
                   </Link>
-                  <Link href="#" className="block">
+                  <Link href="/me/learning" className="block">
                     <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
                       My Learning
                     </li>
                   </Link>
-                  <Link href="#" className="block">
+                  <Link href="/me/cart" className="block">
                     <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
                       My Cart
                     </li>
@@ -195,7 +195,7 @@ export default function Navbar() {
 
                   <hr className="my-[0.9375rem] text-border" />
 
-                  <Link href="#" className="block">
+                  <Link href="/me/settings" className="block">
                     <li className="flex items-center justify-between px-[1.875rem] py-[0.8125rem] text-[1.25rem] hover:bg-background transition-colors">
                       Account Settings
                     </li>
