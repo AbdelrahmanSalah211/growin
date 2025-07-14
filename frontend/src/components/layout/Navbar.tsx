@@ -67,7 +67,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="relative z-50 scale-[0.8291] pt-[1rem] px-[7.5rem] text-primary-text">
+    <header className="relative z-50 pt-[1rem] px-[7.5rem] text-primary-text">
       <nav className="flex items-center justify-between bg-surface rounded-[3.75rem] shadow-sm px-[1.875rem] py-[0.625rem]">
         {/* left */}
         <div className="flex items-center space-x-[1.875rem]">

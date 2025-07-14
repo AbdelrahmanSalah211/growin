@@ -41,7 +41,7 @@ export default function Home() {
           <span className="loading loading-ring loading-6xl text-primary-text"></span>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <ul className="grid grid-cols-1 items-center justify-center md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4">
           {courses.map((course: any) => (
             <CourseCard
               key={course.id}
