@@ -6,10 +6,27 @@ import { useAuthStore } from "@/stores/authStore";
 import { CartItem } from "../../../components/cartItem";
 import Link from "next/link";
 import EmptyCart from "@/components/emptyCart";
+import { checkout } from "@/services/checkoutService";
 
 interface CartPageProps {
     onClose: () => void;
 }
+
+const handleCheckout = async () => {
+    const accessToken = useAuthStore.getState().token;
+    if (!accessToken) {
+        alert("You must be logged in.");
+        return;
+    }
+
+    try {
+        const { redirect_url } = await checkout(accessToken);
+        window.location.href = redirect_url;
+    } catch (err) {
+        console.log("Checkout failed:", err);
+        alert("Checkout failed. Please try again.");
+    }
+};
 
 export default function CartPage({ onClose }: CartPageProps) {
     const accessToken = useAuthStore((state) => state.token) || "";
@@ -133,7 +150,10 @@ export default function CartPage({ onClose }: CartPageProps) {
                                         </div>
                                     </div>
 
-                                    <button className="w-full mt-6 bg-primary text-white py-3 rounded-lg hover:bg-accent transition-colors font-medium font-sans shadow-md">
+                                    <button
+                                        onClick={handleCheckout}
+                                        className="w-full mt-6 bg-primary text-white py-3 rounded-lg hover:bg-accent transition-colors font-medium font-sans shadow-md"
+                                    >
                                         Proceed to Checkout
                                     </button>
 
