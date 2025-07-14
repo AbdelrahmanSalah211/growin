@@ -14,6 +14,9 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getCourses } from "@/services/courseService";
 import { Button } from "@/components/ui/buttons/button";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
+import { useAuthStore } from "@/stores/authStore";
+import { checkEnrollment } from "@/services/enrollments";
 
 function CourseReviewItem({ review, index }: CourseReviewItemProps) {
   return (
@@ -48,10 +51,15 @@ function CourseReviewItem({ review, index }: CourseReviewItemProps) {
   );
 }
 export default function CoursesPage() {
+  useHydrateAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const { courseId } = useParams() as { courseId: string };
   const numericCourseId = Number(courseId);
   const [loading, setLoading] = useState(true);
+  const [userEnrolled, setUserEnrolled] = useState(false);
+
+  const { token, user } = useAuthStore();
+  console.log(token);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -60,7 +68,7 @@ export default function CoursesPage() {
           `http://localhost:3000/courses/${numericCourseId}`,
           {
             headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -73,19 +81,16 @@ export default function CoursesPage() {
         setLoading(false);
       }
     };
-
+    const enrolled = async () => {
+      const response = await checkEnrollment(numericCourseId);
+      setUserEnrolled(response);
+    };
     fetchCourse();
+    enrolled();
   }, [numericCourseId]);
 
   // useEffect(() => {
-  //   const fetchCourse = async () => {
-  //     return await getCourses(
-  //       `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6Im9tYXJmb3VhZDE1ZUBnbWFpbC5jb20iLCJ1c2VyTW9kZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3NTE5ODY5NTAsImV4cCI6MTc1MjU5MTc1MH0.xXiEC0VSuWVyWzYDnvBfqQ_-9RmoiGt-Jk--PdoO_XU`,
-  //       courseId
-  //     );
-  //   };
-
-  //   fetchCourse();
+  
   // }, [numericId]);
   const avgRating =
     Math.round(
@@ -190,7 +195,11 @@ export default function CoursesPage() {
 
           {/* Course Content */}
 
-          <CourseContent lessons={course?.lessons} courseId={course?.id || 0} />
+          <CourseContent
+            isEnrolled={userEnrolled}
+            lessons={course?.lessons}
+            courseId={course?.id || 0}
+          />
 
           <hr className="border-t border-border" />
           {/* reviews section */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { LessonType } from "../../app/course/component/CourseLessonHeader";
+// import { LessonType } from "../../app/course/component/CourseLessonHeader";
 import Link from "next/link";
 
 export interface ICardInterface {

@@ -56,12 +56,12 @@ export default function CourseHeader({
     case LessonType.IMAGE:
     default:
       return (
-        <Image
+        <img
           alt={alt}
           src={src}
           width={1200}
           height={450}
-          className="w-[75rem] h aspect:16/9 object-cover rounded-t-[3.75rem]"
+          className="w-[75rem] h aspect:16/9 object-contain rounded-t-[3.75rem]"
         />
       );
   }
