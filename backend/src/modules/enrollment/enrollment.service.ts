@@ -22,7 +22,19 @@ export class EnrollmentService {
       withDeleted: true,
     });
   }
-
+  async isUserEnrolled(
+    studentId: number,
+    courseId: number,
+    /** include soft‑deleted rows too? */
+    includeDeleted = false,
+  ): Promise<boolean> {
+    const count = await this.enrollmentRepository.count({
+      where: { studentId, courseId },
+      withDeleted: includeDeleted,
+    });
+  
+    return count > 0;
+  }
   async createEnrollment(body: any): Promise<any> {
     const tranRef = body.tran_ref;
     try {
