@@ -3,7 +3,7 @@
 import { useHydrateCart } from "@/hooks/useHydrateCart";
 import { useCartStore } from "@/stores/cartStore";
 import { useAuthStore } from "@/stores/authStore";
-import { CartItem } from "../../components/cartItem";
+import { CartItem } from "../../../components/cartItem";
 import Link from "next/link";
 import EmptyCart from "@/components/emptyCart";
 import { checkout } from "@/services/checkoutService";
