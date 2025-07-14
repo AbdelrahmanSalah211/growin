@@ -24,7 +24,7 @@ export async function getCourses(accessToken: string, id?: string) {
 
     const response = await axiosInstance.get(`${url}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${getAccessToken}`,
       },
     });
     console.log(response.data);
