@@ -30,7 +30,7 @@ const TextInput: FC<TextInputProps> = ({
   const inputId = id || name;
 
   return (
-    <label htmlFor={inputId} className="block space-y-[0.625rem] w-[23.125rem]">
+    <label htmlFor={inputId} className="block space-y-[0.625rem]">
       <p className="text-[1.125rem] text-primary-text">{title}</p>
       <div className="bg-background flex items-center p-4 gap-[0.75rem] rounded-[0.75rem] focus-within:ring-2 focus-within:ring-border transition">
         <span>{icon}</span>
