@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from "react";
-import ProfileTab from "../../components/accountSettings/ProfileTab";
-import AccountSecurityTab from "../../components/accountSettings/AccountSecurityTab";
-import CloseAccountTab from "../../components/accountSettings/CloseAccountTab";
+import ProfileTab from "../../../components/accountSettings/ProfileTab";
+import AccountSecurityTab from "../../../components/accountSettings/AccountSecurityTab";
+import CloseAccountTab from "../../../components/accountSettings/CloseAccountTab";
 
 export default function AccountSettingsLayout() {
   const [selectedTab, setSelectedTab] = useState<string>("Profile");
