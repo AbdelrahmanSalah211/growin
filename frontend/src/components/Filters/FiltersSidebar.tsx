@@ -1,113 +1,54 @@
 "use client";
 
-import Levels from "@/components/Filters/Levels";
-import Price from "@/components/Filters/Price";
-import Ratings from "@/components/Filters/Rating";
-import Topics from "@/components/Filters/Topics";
-import React, { ChangeEvent, useState } from "react";
+import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Ratings from "./Rating";
+import Categories from "./Categories";
+import Levels from "./Levels";
+import Price from "./Price";
 
-export default function FiltersSidebar() {
-  // Rating filter
-  const [rating, setRating] = useState(0);
-  const changeRating = (e: ChangeEvent<HTMLInputElement>) => {
-    setRating(+e.target.value);
-  };
+interface FiltersSidebarProps {
+  isSidebarOpen: boolean;
+  changeSidebarOpen: (tof: boolean) => void;
+  resetFilters: () => void;
+  rating: number;
+  changeRating: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  categories: string[];
+  selectedCategory: string;
+  changeCategory: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  levels: { [key: string]: boolean };
+  changeLevels: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  minValue: number;
+  maxValue: number;
+  min: number;
+  max: number;
+  handleMinChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleMaxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-  // Topics filter
-  const [topics, setTopics] = useState({
-    python: false,
-    "machine learning": false,
-    django: false,
-    "data science": false,
-    Javascript: false,
-    php: false,
-    "c++": false,
-    "c ": false,
-    laravel: false,
-    react: false,
-    angular: false,
-    "version control": false,
-    "version control2": false,
-  });
-  const changeTopics = (e: ChangeEvent<HTMLInputElement>) => {
-    setTopics((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.checked,
-    }));
-  };
-
-  // Levels filter
-  const [levels, setLevels] = useState({
-    "All levels": false,
-    Beginner: false,
-    Intermediate: false,
-    Advanced: false,
-  });
-  const changeLevels = (e: ChangeEvent<HTMLInputElement>) => {
-    let newLevels = { ...levels };
-    if (e.target.name === "All levels" && !levels["All levels"]) {
-      for (let level of Object.keys(newLevels)) {
-        newLevels[level as keyof typeof newLevels] = true;
-      }
-      setLevels(newLevels);
-    } else {
-      newLevels = { ...newLevels, [e.target.name]: e.target.checked };
-      setLevels(newLevels);
-    }
-    let levelArr: string[] = [];
-    Object.entries(newLevels).map(([level, ischecked]) =>
-      ischecked === true && level != "All levels" ? levelArr.push(level) : ""
-    );
-    console.log(levelArr.join(","));
-  };
-
-  // Price filter
-  const min = 0;
-  const max = 2000;
-  const [minValue, setMinValue] = useState(min);
-  const [maxValue, setMaxValue] = useState(max);
-
-  const handleMinChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    setMinValue(value >= maxValue ? maxValue - 1 : value);
-  };
-
-  const handleMaxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    setMaxValue(value <= minValue ? minValue + 1 : value);
-  };
-
-  // Reset Filters
-  const resetFilters = () => {
-    //reset Levels
-    let newLevels = { ...levels };
-    for (let level of Object.keys(newLevels)) {
-      newLevels[level as keyof typeof newLevels] = false;
-    }
-    setLevels(newLevels);
-    //reset Topics
-    let newTopics = { ...topics };
-    for (let topic of Object.keys(newTopics)) {
-      newTopics[topic as keyof typeof newTopics] = false;
-    }
-    setTopics(newTopics);
-
-    //reset Price
-    setMaxValue(max);
-    setMinValue(min);
-    //reset Rating
-    setRating(0);
-  };
-
-  // Sidebar
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+export default function FiltersSidebar({
+  isSidebarOpen,
+  changeSidebarOpen,
+  resetFilters,
+  rating,
+  changeRating,
+  categories,
+  selectedCategory,
+  changeCategory,
+  levels,
+  changeLevels,
+  minValue,
+  maxValue,
+  min,
+  max,
+  handleMinChange,
+  handleMaxChange,
+}: FiltersSidebarProps) {
   return (
     <>
       {!isSidebarOpen && (
         <button
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={() => changeSidebarOpen(true)}
           className="flex items-center gap-[0.3125rem] bg-surface w-[11.875rem] h-[4.375rem] px-[2rem] py-[1.1875rem] rounded-[3.75rem] shadow-sm cursor-pointer"
         >
           <svg
@@ -124,7 +65,7 @@ export default function FiltersSidebar() {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="text-[1.25rem] text-primary-text  font-bold ">
+          <span className="text-[1.25rem] text-primary-text font-bold">
             All Filters
           </span>
         </button>
@@ -149,11 +90,11 @@ export default function FiltersSidebar() {
                   className="cursor-pointer text-sm text-secondary-text"
                   onClick={resetFilters}
                 >
-                  X Clear all filters
+                  ✕ Clear all filters
                 </span>
               </div>
               <button
-                onClick={() => setIsSidebarOpen(false)}
+                onClick={() => changeSidebarOpen(false)}
                 className="text-2xl text-secondary-text hover:text-primary-text transition cursor-pointer"
               >
                 ✕
@@ -163,7 +104,11 @@ export default function FiltersSidebar() {
             {/* Scrollable Filters */}
             <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-6">
               <Ratings value={rating} onChange={changeRating} />
-              <Topics values={topics} onChange={changeTopics} />
+              <Categories
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onChange={changeCategory}
+              />
               <Levels values={levels} onChange={changeLevels} />
               <Price
                 minValue={minValue}

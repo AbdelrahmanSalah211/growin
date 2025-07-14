@@ -8,7 +8,7 @@ export async function getAllCategories(accessToken: string) {
     throw new Error("Access token is required argument");
   }
   try {
-    const response = await axiosInstance.get(`${API_URL}/courseCategories`, {
+    const response = await axiosInstance.get(`${API_URL}/course-categories`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
