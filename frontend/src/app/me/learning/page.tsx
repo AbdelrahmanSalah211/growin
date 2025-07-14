@@ -11,6 +11,8 @@ export default function Home() {
     const accessToken = useAuthStore((state) => state.token) || "";
 
     const [enrolledCourses, setEnrolledCourses] = useState([]);
+    console.log(enrolledCourses);
+
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -18,7 +20,6 @@ export default function Home() {
             if (!accessToken) return;
             try {
                 const courses = await getUserEnrollments(accessToken);
-                console.log(courses);
                 setEnrolledCourses(courses);
             } catch (err) {
                 console.log(err);
@@ -42,16 +43,16 @@ export default function Home() {
                 </div>
             ) : (
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {enrolledCourses.map((course: any) => (
+                    {enrolledCourses.map((enrollment: any) => (
                         <CourseCard
-                            key={course.id}
-                            id={course.id}
-                            title={course.title}
-                            description={course.description}
-                            courseCover={course.courseCover}
-                            level={course.level}
-                            price={course.price}
-                            rating={course.rating}
+                            key={enrollment.course.id}
+                            id={enrollment.course.id}
+                            title={enrollment.course.title}
+                            description={enrollment.course.description}
+                            courseCover={enrollment.course.courseCover}
+                            level={enrollment.course.level}
+                            price={enrollment.course.price}
+                            rating={enrollment.course.rating}
                         />
                     ))}
                 </ul>
