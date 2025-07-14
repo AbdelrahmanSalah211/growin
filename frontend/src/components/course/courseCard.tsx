@@ -25,7 +25,7 @@ export const CourseCard: FC<ICardInterface> = ({
   rating = 0,
 }) => {
   return (
-    // <Link href={`/course/${id}`}>
+    <Link href={`/course/${id}`}>
       <div className="card rounded-[1.25rem] h-[26rem] w-[26rem] bg-surface shadow-sm">
         <figure className="w-full h-[10rem] relative">
           <Image
@@ -53,7 +53,7 @@ export const CourseCard: FC<ICardInterface> = ({
                 {Math.round(rating * 10) / 10}
               </span>
 
-              <div className="rating flex gap-[0.125rem] pointer-events-none select-none">
+              <div className="rating flex gap-[0.125rem] pointer-events-none select-none ">
                 {[1, 2, 3, 4, 5].map((n) => {
                   const starValue = n;
                   const halfValue = n - 0.5;
@@ -93,6 +93,6 @@ export const CourseCard: FC<ICardInterface> = ({
           </div>
         </div>
       </div>
-    // </Link>
+    </Link>
   );
 };

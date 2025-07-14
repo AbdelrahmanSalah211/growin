@@ -4,8 +4,8 @@ import axiosInstance from "@/lib/axiosInstance";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface updateInfoPayload {
-  username: string;
-  email: string;
+  username?: string;
+  email?: string;
   profileImage?: string;
   imageDeleteURL?: string;
   bio?: string;
