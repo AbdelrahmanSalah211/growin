@@ -1,7 +1,6 @@
 "use client";
 
 import { FC } from "react";
-import { LessonType } from "../../app/course/component/CourseLessonHeader";
 import Link from "next/link";
 
 export interface ICardInterface {
@@ -24,7 +23,7 @@ export const CourseCard: FC<ICardInterface> = ({
   rating = 0,
 }) => {
   return (
-    <Link href={`/courses/${id}`}>
+    <Link href={`/course/${id}`}>
       <div className="card rounded-[1.25rem] h-[26rem] w-[26rem] bg-surface shadow-sm">
         <figure className="w-full">
           <img

@@ -10,7 +10,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-background max-h-screen">
+      <body className="bg-background">
         <Navbar />
         {children}
         <Footer />

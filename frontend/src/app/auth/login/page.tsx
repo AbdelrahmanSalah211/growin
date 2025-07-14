@@ -99,7 +99,7 @@ export default function Login() {
       </section>
 
       {/* Form Section */}
-      <section className="scale-[0.8291] sm:scale-[1] flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[3.8rem] px-6 py-6">
+      <section className="sm:scale-[1] flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[3.8rem] px-6 py-6">
         <div className="space-y-[2.5rem]">
           <h1 className="text-[2rem] sm:text-[3rem] font-black text-primary-text">
             Log In

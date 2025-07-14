@@ -11,7 +11,6 @@ import {
   validateConfirmPassword,
   ValidationResult,
 } from "@/utils/validate";
-import axiosInstance from "@/lib/axiosInstance";
 
 export default function ResetPassword() {
   const [formState, setFormState] = useState<FormState>({
@@ -104,7 +103,7 @@ export default function ResetPassword() {
 
       {/* Form Section */}
       <section className="flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[5.8125rem] px-6 py-6">
-        <div className="scale-[0.8291] sm:scale-[1] w-full space-y-[2.5rem]">
+        <div className="sm:scale-[1] w-full space-y-[2.5rem]">
           <h1 className="text-[2rem] sm:text-[3rem]/[3rem] font-black text-primary-text">
             Reset Password
           </h1>
