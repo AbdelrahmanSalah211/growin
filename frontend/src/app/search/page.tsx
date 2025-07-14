@@ -3,8 +3,7 @@ import { getAllCategories } from "@/services/courseCategoryService";
 import { useAuthStore } from "@/stores/authStore";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { getCourses } from "@/services/courseService";
+import { getCourses, searchCourse } from "@/services/courseService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 import { Icourse } from "./Icourse";
 import FiltersSidebar from "@/components/Filters/FiltersSidebar";
@@ -37,12 +36,11 @@ export default function SearchPage() {
 
   const fetchFilteredCourses = async (params: URLSearchParams) => {
     try {
-      const { data } = await axios.get(
-        `http://localhost:3000/courses/search?${params.toString()}`
-      );
+      if(!accessToken) return;
+      const  {data}  = await searchCourse(accessToken,params.toString())
       setLoadingCategories(false)
       setLoadingCourses(false)
-      setCourses(data.data);
+      setCourses(data);
       setPageNum(1);
     } catch (err) {
       console.error(err);
