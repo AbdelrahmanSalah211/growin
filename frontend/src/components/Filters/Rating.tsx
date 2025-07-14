@@ -27,10 +27,10 @@ const Ratings: FC<RatingProps> = ({
             <RadioButton
               key={ratingValue.toString()}
               title={`${ratingValue} & up`}
-              name={name} // same for all to group them
+              name={name} 
               value={ratingValue.toString()}
               checked={ratingValue === value}
-              id={`rating-${ratingValue}`} // unique ID
+              id={`rating-${ratingValue}`} 
               onChange={onChange}
             />
           ))}
