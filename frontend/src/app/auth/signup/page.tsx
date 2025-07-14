@@ -86,7 +86,7 @@ export default function Signup() {
       setSubmitText(data.message);
       setTimeout(() => {
         router.push("/auth/login");
-      },1500);
+      }, 1500);
     } catch (error) {
       console.log(error);
     } finally {

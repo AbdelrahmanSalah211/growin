@@ -63,7 +63,7 @@ export default function Navbar() {
     await logout(token);
     await removeAuth();
     clearAuth();
-    router.push("/");
+    router.push("/auth/login");
   };
 
   return (
