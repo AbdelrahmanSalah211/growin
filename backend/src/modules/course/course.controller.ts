@@ -23,7 +23,6 @@ import { Roles } from '../authorization/roles.decorator';
 import { UserMode } from 'src/models';
 import { RolesGuard } from '../authorization/roles.guard';
 
-// @UseGuards(JwtAuthGuard)
 @Controller('courses')
 export class CourseController {
   constructor(
@@ -31,7 +30,6 @@ export class CourseController {
     private imageService: ImageService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<Course[]> {
     return this.courseService.findAll();
