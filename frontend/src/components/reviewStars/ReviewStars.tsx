@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, MouseEvent, useState } from "react";
+import {  FC, MouseEvent, useState } from "react";
 
 interface ReviewStarsProps {
   name?: string;
