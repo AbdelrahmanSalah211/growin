@@ -38,7 +38,7 @@ const RatingForm = () => {
   return (
     <section className="sm:scale-[1] flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[3.8rem] px-6 py-6 overflow-hidden">
       <h3 className="font-bold text-[1.875rem] text-primary-text ">
-        Enter your rating
+        Enter your rating {""}
       </h3>
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="text-center space-x-3">
