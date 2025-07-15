@@ -8,7 +8,7 @@ import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 import FiltersSidebar from "@/components/Filters/FiltersSidebar";
 import { CourseCard } from "@/components/course/courseCard";
 import Pagination from "@/components/pagination/Pagination";
-import { Icourse } from "./Icourse";
+import { Icourse } from "../../interfaces/ICourse";
 
 export default function SearchPage() {
   useHydrateAuth();
@@ -268,7 +268,7 @@ export default function SearchPage() {
       />
 
       {pageCourses.map((course: Icourse, index) => {
-        console.log("Rendered course:", course); 
+        console.log("Rendered course:", course);
         return <CourseCard key={index} course={course} />;
       })}
 
