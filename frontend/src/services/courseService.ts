@@ -48,7 +48,7 @@ async function createCourse(payload: createCoursePayload) {
 export async function searchCourse(accessToken: string, queryparams?: string) {
   try {
     const url = `${API_URL}/courses/search?${queryparams}`;
-    console.log(url);
+    // console.log(url);
 
     const response = await axiosInstance.get(`${url}`, {
       headers: {

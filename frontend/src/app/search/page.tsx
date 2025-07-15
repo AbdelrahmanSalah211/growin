@@ -236,7 +236,7 @@ export default function SearchPage() {
   };
 
   const pageCourses = courses.slice(start, end);
-  console.log(loadingCategories, loadingCourses);
+  // console.log(loadingCategories, loadingCourses);
   if (loadingCategories || loadingCourses) {
     return (
       <div className="flex justify-center items-center min-h-[30rem]">
