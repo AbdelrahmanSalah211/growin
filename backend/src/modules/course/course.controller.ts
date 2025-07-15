@@ -30,7 +30,6 @@ export class CourseController {
     private imageService: ImageService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<Course[]> {
     return this.courseService.findAll();
