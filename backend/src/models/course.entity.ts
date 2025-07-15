@@ -36,7 +36,7 @@ export class Course {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ default: true })
   isPublished: boolean;
 
   @Column()
