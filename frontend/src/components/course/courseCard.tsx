@@ -11,7 +11,7 @@ import { Icourse } from "@/app/search/Icourse";
 interface CourseCardProps {
   course: Icourse;
 }
-
+// new branch
 export const CourseCard: FC<CourseCardProps> = ({ course }) => {
   
   return (
