@@ -5,10 +5,10 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getCourses, searchCourse } from "@/services/courseService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
-import { Icourse } from "./Icourse";
 import FiltersSidebar from "@/components/Filters/FiltersSidebar";
-import { CourseCard } from "@/components/courseCard";
+import { CourseCard } from "@/components/course/courseCard";
 import Pagination from "@/components/pagination/Pagination";
+import { Icourse } from "./Icourse";
 
 export default function SearchPage() {
   useHydrateAuth();
@@ -36,10 +36,10 @@ export default function SearchPage() {
 
   const fetchFilteredCourses = async (params: URLSearchParams) => {
     try {
-      if(!accessToken) return;
-      const  {data}  = await searchCourse(accessToken,params.toString())
-      setLoadingCategories(false)
-      setLoadingCourses(false)
+      if (!accessToken) return;
+      const { data } = await searchCourse(accessToken, params.toString());
+      setLoadingCategories(false);
+      setLoadingCourses(false);
       setCourses(data);
       setPageNum(1);
     } catch (err) {
@@ -236,7 +236,8 @@ export default function SearchPage() {
   };
 
   const pageCourses = courses.slice(start, end);
-  console.log(loadingCategories, loadingCourses);
+  // console.log(loadingCategories, loadingCourses);
+
   if (loadingCategories || loadingCourses) {
     return (
       <div className="flex justify-center items-center min-h-[30rem]">
@@ -266,18 +267,10 @@ export default function SearchPage() {
         handleMaxChange={handleMaxChange}
       />
 
-      <div className="px-[1.875rem] grid grid-cols-3 gap-[2.5rem] py-[2.5rem]">
-        {pageCourses.map((course) => (
-          <CourseCard
-            title={course.title}
-            description={course.description}
-            courseCover={course.courseCover}
-            level={course.level}
-            price={course.price}
-            key={course.id}
-          />
-        ))}
-      </div>
+      {pageCourses.map((course: Icourse, index) => {
+        console.log("Rendered course:", course); 
+        return <CourseCard key={index} course={course} />;
+      })}
 
       {numOfPages > 1 && (
         <div className="flex justify-center py-[0.5rem]">
@@ -289,7 +282,7 @@ export default function SearchPage() {
           />
         </div>
       )}
-      {courses.length<1&&(
+      {courses.length < 1 && (
         <p className="w-full text-center text-primary-text text-4xl py-[20rem]">
           No courses found.
         </p>

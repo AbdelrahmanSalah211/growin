@@ -1,8 +1,9 @@
 export interface Icourse {
-    id:number;
+  id: string;
   title: string;
   description: string;
-  courseCover: string;
+  courseCover: string | null;
   level: string;
   price: number;
+  rating?: number;
 }
