@@ -42,21 +42,14 @@ export default function Home() {
         </div>
       ) : courses.length > 0 ? (
         <ul className="grid grid-cols-1 items-center justify-center md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4">
-          {courses.map((course: any) => (
-            <CourseCard
-              key={course.id}
-              id={course.id}
-              title={course.title}
-              description={course.description}
-              courseCover={course.courseCover}
-              level={course.level}
-              price={course.price}
-              rating={4.5}
-            />
+          {courses.map((course: any, index) => (
+            <CourseCard course={course} key={index} />
           ))}
         </ul>
       ) : (
-        <p className="w-full text-center text-primary-text text-4xl py-[20rem]">No courses found.</p>
+        <p className="w-full text-center text-primary-text text-4xl py-[20rem]">
+          No courses found.
+        </p>
       )}
     </div>
   );
