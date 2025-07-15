@@ -56,6 +56,9 @@ export class User {
   @Column({ nullable: true })
   bio: string;
 
+  @Column({ default: true })
+  isPasswordPresent: boolean;
+
   @Column({ type: 'varchar', nullable: true })
   passwordResetToken: string | null;
 
