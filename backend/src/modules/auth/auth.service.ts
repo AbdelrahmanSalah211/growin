@@ -90,6 +90,7 @@ export class AuthService {
         email,
         password: '',
         profileImage: photo,
+        isPasswordPresent: false,
       });
     }
     const { accessToken } = await this.generateAccessToken(user);

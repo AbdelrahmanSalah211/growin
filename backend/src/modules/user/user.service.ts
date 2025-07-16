@@ -29,14 +29,14 @@ export class UserService {
   async findByUserId(id: number): Promise<User | null> {
       return this.userRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'username', 'profileImage', 'userMode', 'bio'],
+      select: ['id', 'email', 'username', 'profileImage', 'userMode', 'bio', 'isPasswordPresent'],
     });
   }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'username', 'profileImage', 'userMode', 'bio'],
+      select: ['id', 'email', 'username', 'profileImage', 'userMode', 'bio', 'isPasswordPresent'],
     });
   }
   
@@ -92,6 +92,7 @@ export class UserService {
       throw new Error('Password already exists');
     }
     user.password = password;
+    user.isPasswordPresent = true;
     return this.userRepository.save(user);
   }
 

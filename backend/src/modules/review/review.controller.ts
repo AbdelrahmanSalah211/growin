@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../authorization/roles.guard';
 import { Roles } from '../authorization/roles.decorator';
 import { UserMode } from 'src/models';
-import { ReviewDto } from './dto/review.dto';
+import { createReviewDto, UpdateReviewDto } from './dto/review.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('reviews')
@@ -16,7 +16,7 @@ export class ReviewController {
   @Post(':courseId')
   async createReview(
     @Param('courseId') courseId: number,
-    @Body() dto: ReviewDto,
+    @Body() dto: createReviewDto,
     @Req() req: { user: { sub: number } }
   ): Promise<Review | undefined> {
     return this.reviewService.createReview(req.user.sub, courseId, dto);
@@ -26,7 +26,7 @@ export class ReviewController {
   @Patch(':courseId')
   async updateReview(
     @Param('courseId') courseId: number,
-    @Body() dto: ReviewDto,
+    @Body() dto: UpdateReviewDto,
     @Req() req: { user: { sub: number } },
   ): Promise<Review | undefined> {
     return this.reviewService.updateReview(req.user.sub, courseId, dto);

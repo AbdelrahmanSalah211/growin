@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsOptional,
   IsString,
@@ -30,6 +31,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   bio?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPasswordPresent?: boolean;
 }
 
 export class UpdateUserDto  {
