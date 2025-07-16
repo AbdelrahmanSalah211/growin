@@ -21,7 +21,7 @@ export class Review {
   @Column()
   comment: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 2, scale: 1, nullable: true })
   rating: number;
 
   @Column()

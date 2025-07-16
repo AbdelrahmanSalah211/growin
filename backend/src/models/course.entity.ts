@@ -60,7 +60,7 @@ export class Course {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true , default: 300.5 })
   price: number;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 4, nullable: true })
   ratingSum: number;
 
   @Column()
