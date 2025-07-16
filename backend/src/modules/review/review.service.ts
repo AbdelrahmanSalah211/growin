@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Review } from 'src/models/review.entity';
-import { ReviewDto } from './dto/review.dto';
+import { createReviewDto, UpdateReviewDto } from './dto/review.dto';
 import { Course } from 'src/models';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class ReviewService {
     private dataSource: DataSource
   ) {}
 
-  async createReview(id: number, courseId: number, dto: ReviewDto): Promise<Review | undefined> {
+  async createReview(id: number, courseId: number, dto: createReviewDto): Promise<Review | undefined> {
     const review = await this.dataSource.transaction('SERIALIZABLE', async transactionalEntityManager => {
       const existing = await transactionalEntityManager.findOne(Review, {
         where: { studentId: id, courseId }
@@ -35,7 +35,7 @@ export class ReviewService {
     return review;
   }
 
-  async updateReview(id: number, courseId: number, dto: ReviewDto): Promise<Review | undefined> {
+  async updateReview(id: number, courseId: number, dto: UpdateReviewDto): Promise<Review | undefined> {
     const review = await this.dataSource.transaction('SERIALIZABLE', async transactionalEntityManager => {
       const review = await this.reviewRepository.findOne(
         { where: { studentId: id, courseId } }
