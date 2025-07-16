@@ -5,7 +5,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getCourses, searchCourse } from "@/services/courseService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
-import FiltersSidebar from "@/components/Filters/FiltersSidebar";
+import FiltersSidebar from "@/components/filters/FiltersSidebar";
 import { CourseCard } from "@/components/course/courseCard";
 import Pagination from "@/components/pagination/Pagination";
 import { Icourse } from "../../interfaces/ICourse";
