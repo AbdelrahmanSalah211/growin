@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Param } from '@nestjs/common';
 import { EnrollmentService } from './enrollment.service';
 import { Enrollment } from 'src/models/enrollment.entity';
 import { JwtAuthGuard } from '../auth/auth.guard';
@@ -21,17 +21,20 @@ export class EnrollmentController {
     return this.enrollmentService.findUserEnrollments(req.user.sub);
   }
 
-@Get('is-enrolled')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserMode.LEARNER)
-async isUserEnrolled(
-  @Req() req: { user: { sub: number } },
-  @Query('courseId', ParseIntPipe) courseId: number,
-): Promise<{ enrolled: boolean }> {
-  const userId = req.user.sub;
-  const enrolled = await this.enrollmentService.isUserEnrolled(userId, courseId);
-  return { enrolled };
-}
+  @Get('is-enrolled/:courseId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.LEARNER)
+  async isUserEnrolled(
+    @Req() req: { user: { sub: number } },
+    @Param('courseId') courseId: number,
+  ): Promise<{ enrolled: boolean }> {
+    const enrollment = await this.enrollmentService.isUserEnrolled(req.user.sub, courseId);
+    if (!enrollment) {
+      return { enrolled: false };
+    }
+    return { enrolled: true };
+  }
+
   @Post()
   async create(
     @Body() body: any,
