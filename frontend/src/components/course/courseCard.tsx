@@ -4,16 +4,13 @@ import { FC } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
-import { Icourse } from "@/app/search/Icourse";
-
-
+import { ICourse } from "@/interfaces/ICourse";
 
 interface CourseCardProps {
-  course: Icourse;
+  course: ICourse;
 }
 // new branch
 export const CourseCard: FC<CourseCardProps> = ({ course }) => {
-  
   return (
     <Link href={`/course/${course.id}`}>
       <div className="card rounded-[1.25rem] h-[26rem] w-[26rem] bg-surface shadow-sm">
