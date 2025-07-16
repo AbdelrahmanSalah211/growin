@@ -1,6 +1,6 @@
-import { IsBoolean, IsNumber, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
-export class ReviewDto {
+export class createReviewDto {
   @IsNumber()
   @Max(5)
   @Min(1)
@@ -9,6 +9,22 @@ export class ReviewDto {
   @IsString()
   comment: string;
 
+  @IsBoolean()
+  helpful: boolean;
+}
+
+export class UpdateReviewDto {
+  @IsOptional()
+  @IsNumber()
+  @Max(5)
+  @Min(1)
+  rating: number;
+
+  @IsOptional()
+  @IsString()
+  comment: string;
+
+  @IsOptional()
   @IsBoolean()
   helpful: boolean;
 }
