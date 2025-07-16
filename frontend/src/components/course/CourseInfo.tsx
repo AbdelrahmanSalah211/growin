@@ -1,52 +1,69 @@
-interface CourseInfoProps {
-  title?: string;
-  description?: string;
-}
+import React from "react";
+import { Course } from "@/interfaces/courses";
+import ReviewStars from "../reviewStars/ReviewStars";
 
-export default function CourseInfo({ description, title }: CourseInfoProps) {
+interface CourseInfoProps {
+  course: Course;
+}
+////
+const CourseInfo: React.FC<CourseInfoProps> = ({ course }) => {
+  const title = course.title || "";
+  const description = course.description || "";
+  const level = course.level || "";
+  const rating = course.ratingSum && course.numberOfReviewers ? course.ratingSum / course.numberOfReviewers : 0;
+  const numberOfReviewers = course.numberOfReviewers || 0;
+  const students = course.students || 0;
+  const instructors = Array.isArray(course.instructor)
+    ? course.instructor.map((i: any) => i.username).join(", ")
+    : course.instructor?.username || "";
+  const lastUpdated = course.updatedAt ? new Date(course.updatedAt).toLocaleDateString("en-US", { month: "numeric", year: "numeric" }) : "-";
+
   return (
-    <section className="flex flex-col gap-5">
-      <h1 className="text-primary-text text-[2rem] sm:text-[2.5rem] font-bold leading-tight max-w-4xl">
+    <div className="w-full max-w-5xl mx-auto">
+      {/* Title */}
+      <h1 className="font-inter font-bold text-[2.25rem] leading-none text-primary-text mb-4">
         {title}
       </h1>
-      <h2 className="text-primary-text text-lg sm:text-xl leading-snug">
+      {/* Description */}
+      <div className="font-inter font-normal text-[1.25rem] leading-none text-primary-text mb-6">
         {description}
-      </h2>
-      {/* <div className="flex flex-wrap items-center gap-4 text-sm sm:text-base max-w-4xl">
-          <span className="bg-background text-primary-text rounded-[0.3125rem] py-1 px-3 font-medium">
-            Intermediate
+      </div>
+      {/* Level, Rating, Reviews, Students */}
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        {/* Level */}
+        <div className="bg-background rounded-[0.3125rem] px-4 py-1 min-w-[7.3125rem] h-[1.875rem] flex items-center">
+          <span className="font-inter font-normal text-[1rem] text-secondary-text leading-none">
+            {level}
           </span>
-          <div className="flex items-center gap-2">
-            <span>4</span>
-            <div className="rating flex gap-[0.125rem]">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <input
-                  key={n}
-                  type="radio"
-                  name="rating"
-                  className="mask mask-star bg-primary-text"
-                  aria-label={`${n} star`}
-                  defaultChecked={n === 2}
-                />
-              ))}
-            </div>
-          </div>
-          <p className="text-secondary-text">49.723</p>
-          <p className="text-primary-text">
-            285,016 <span className="text-secondary-text">students</span>
-          </p>
         </div>
-        <div className="flex flex-col gap-2 text-base sm:text-lg">
-          <p className="text-primary-text font-bold">
-            Created by:{" "}
-            <span className="font-normal">
-              Julian Melanson, Benza Maman, Leap Year Learning
-            </span>
-          </p>
-          <p className="text-primary-text font-bold">
-            Last updated: <span className="font-normal">7/2025</span>
-          </p>
-        </div> */}
-    </section>
+        {/* Rating */}
+        <span className="font-inter font-normal text-[1rem] text-primary-text">
+          {rating.toFixed(1)}
+        </span>
+        {/* Stars */}
+        <div className="h-[1.125rem] flex items-center">
+          <ReviewStars value={rating} disabled />
+        </div>
+        {/* Number of reviewers */}
+        <span className="font-inter font-normal text-[1rem] text-secondary-text">
+          ({numberOfReviewers.toLocaleString()})
+        </span>
+        {/* Students */}
+        <span className="font-inter font-normal text-[1rem] text-primary-text">
+          {students.toLocaleString()} students
+        </span>
+      </div>
+      {/* Created by and Last updated */}
+      <div className="flex flex-col gap-2 mt-2">
+        <div className="font-inter font-bold text-[1.125rem] text-primary-text">
+          Created by: <span className="font-inter font-normal">{instructors}</span>
+        </div>
+        <div className="font-inter font-bold text-[1.125rem] text-primary-text">
+          Last updated: <span className="font-inter font-normal">{lastUpdated}</span>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default CourseInfo;
