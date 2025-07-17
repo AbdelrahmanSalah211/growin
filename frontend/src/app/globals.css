@@ -25,13 +25,10 @@
   /* Fonts */
   --font-sans: Inter, sans-serif;
   --font-heading: Poppins, sans-serif;
-
 }
 
 .loading-6xl {
-  width: calc(var(--size-selector, 0.25rem
-        /* 4px */
-      ) * 20);
+  width: calc(var(--size-selector, 0.25rem) * 20);
 }
 
 input:-webkit-autofill {
@@ -44,6 +41,26 @@ input:-webkit-autofill {
   -o-transition: background-color 5000s ease-in-out 0s;
 }
 
-/* nextjs-portal {
-  display: none !important;
-} */
+/* Slide-fade animation */
+@layer utilities {
+  .scroll-lock {
+    overflow: hidden !important;
+    height: 100vh !important;
+  }
+
+  @keyframes slide-fade-in {
+    0% {
+      opacity: 0;
+      transform: translateX(1rem);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-fade-in {
+    animation: slide-fade-in 0.4s ease-out both;
+  }
+}

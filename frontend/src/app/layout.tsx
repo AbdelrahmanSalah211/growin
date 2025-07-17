@@ -9,7 +9,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-background">
+      <body
+        id="__body"
+        className="bg-background flex flex-col gap-[1.875rem] transition-[overflow]"
+      >
         <Navbar />
         {children}
         <Footer />
