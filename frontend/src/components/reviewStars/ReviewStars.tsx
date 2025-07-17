@@ -1,4 +1,6 @@
-import { ChangeEvent, FC, MouseEvent, useState } from "react";
+"use client";
+
+import { FC, useState, MouseEvent } from "react";
 
 interface ReviewStarsProps {
   name?: string;
@@ -14,53 +16,35 @@ const ReviewStars: FC<ReviewStarsProps> = ({
   onChange = () => {},
 }) => {
   const ratingValues = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
-  const [stars, setStars] = useState(0);
-  const [starsPreview, setStarsPreview] = useState(0);
 
-  const onMouseOver = (e: MouseEvent<HTMLInputElement>) => {
-    if (!disabled) {
-      setStarsPreview(+e.currentTarget.value);
-    }
-  };
+  const [stars, setStars] = useState(value);
+  const [preview, setPreview] = useState(0);
 
-  const onMouseOut = () => {
-    if (!disabled) {
-      setStarsPreview(0);
-    }
-  };
+  const currentValue = disabled ? value : preview || stars;
 
   const handleClick = (e: MouseEvent<HTMLInputElement>) => {
     const val = +e.currentTarget.value;
-    if (val === stars) {
-      setStars(0);
-      onChange(0);
-    } else {
-      setStars(val);
-      console.log("valueee")
-      onChange(val)
+    if (!disabled) {
+      setStars(val === stars ? 0 : val);
+      onChange(val === stars ? 0 : val);
     }
   };
 
   return (
-    <div className="rating rating-lg rating-half">
-      {ratingValues.map((starValue, idx) => (
+    <div className="rating rating-sm rating-half">
+      {ratingValues.map((val, idx) => (
         <input
-          key={starValue}
+          key={val}
           type="radio"
           name={name}
-          className={`mask mask-star ${
+          className={`mask mask-star-2 ${
             idx % 2 === 0 ? "mask-half-1" : "mask-half-2"
           } bg-secondary-text`}
-          aria-label={`${starValue} star`}
+          value={val}
           disabled={disabled}
-          value={starValue}
-          checked={
-            disabled
-              ? starValue === value
-              : starValue === (starsPreview > 0 ? starsPreview : stars)
-          }
-          onMouseOut={onMouseOut}
-          onMouseOver={onMouseOver}
+          checked={val === currentValue}
+          onMouseOver={() => !disabled && setPreview(val)}
+          onMouseOut={() => !disabled && setPreview(0)}
           onClick={handleClick}
           onChange={() => {}}
         />

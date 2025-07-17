@@ -1,53 +1,29 @@
-"use client";
-import { useState, useEffect } from "react";
-import { FormContainer } from "@/components/layout/FormContainer";
 import { getCourses } from "@/services/courseService";
-import { useHydrateAuth } from "@/hooks/useHydrateAuth";
-import { useAuthStore } from "@/stores/authStore";
 import { CourseCard } from "@/components/course/courseCard";
+import { ICourse } from "@/interfaces/ICourse";
 
-export default function Home() {
-  useHydrateAuth();
-  const accessToken = useAuthStore((state) => state.token) || "";
-
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true); // 👈 added loading state
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      if (!accessToken) return;
-      try {
-        const courses = await getCourses(accessToken);
-        console.log(courses);
-        setCourses(courses);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+export default async function Home() {
+  const courses = await getCourses();
+  console.log(courses.map((course: ICourse) => {
+    return {
+      id: course.id,
+      title: course.title,
+      ratingSum: course.ratingSum,
+      numberOfReviewers: course.numberOfReviewers,
     };
-
-    fetchCourses();
-  }, [accessToken]);
-
+  }));
   return (
-    <div className="space-y-[2rem] px-[7rem] py-[2rem]">
-      <h1 className="text-[2.5rem] text-primary-text font-extrabold">
-        Trending Courses
-      </h1>
+    <div className="space-y-[2rem] mx-[7.5rem] p-[3rem] bg-surface rounded-[1.25rem]">
+      <h1 className="text-4xl text-primary-text font-bold">Trending Courses</h1>
 
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[30rem]">
-          <span className="loading loading-ring loading-6xl text-primary-text"></span>
-        </div>
-      ) : courses.length > 0 ? (
+      {courses.length > 0 ? (
         <ul className="grid grid-cols-1 items-center justify-center md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4">
-          {courses.map((course: any, index) => (
+          {courses.map((course: ICourse, index: number) => (
             <CourseCard course={course} key={index} />
           ))}
         </ul>
       ) : (
-        <p className="w-full text-center text-primary-text text-4xl py-[20rem]">
+        <p className="w-full text-center text-primary-text text-2xl py-[20rem]">
           No courses found.
         </p>
       )}

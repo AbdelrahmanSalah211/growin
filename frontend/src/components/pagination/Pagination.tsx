@@ -1,21 +1,46 @@
 import { FC } from "react";
 
-interface pagincationProps {
-  numOfPages: number;
-  pageNum: number;
-  next:()=>void
-  previous:()=>void
-}
+const Pagination: FC<{
+  currentPage: number;
+  totalPages: number;
+  onPrevious: () => void;
+  onNext: () => void;
+  onPageChange: (page: number) => void;
+}> = ({ currentPage, totalPages, onPrevious, onNext, onPageChange }) => {
+  if (totalPages <= 1) return null;
 
-const Pagination: FC<pagincationProps> = ({ numOfPages,pageNum,next,previous }) => {
   return (
-    <>
-      <div className="join gap-[0.3rem]">
-        <button className="join-item btn btn-primary border-[0.01rem] border-primary-text rounded-2xl" onClick={previous}>«</button>
-        <button className="join-item btn btn-primary border-[0.01rem] border-primary-text rounded-2xl cursor-text">{pageNum}</button>
-        <button className="join-item btn btn-primary border-[0.01rem] border-primary-text rounded-2xl" onClick={next}>»</button>
-      </div>
-    </>
+    <nav className="flex items-center justify-center gap-2 mt-6">
+      <button
+        onClick={onPrevious}
+        disabled={currentPage === 1}
+        className="cursor-pointer px-3 py-2 rounded-md border bg-surface text-primary-text border-border hover:bg-primary-text hover:text-white disabled:opacity-40"
+      >
+        Prev
+      </button>
+
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        <button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`cursor-pointer w-9 h-9 rounded-full border ${
+            page === currentPage
+              ? "bg-primary-text text-white border-primary-text"
+              : "bg-surface text-primary-text border-border hover:bg-primary-text hover:text-white"
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button
+        onClick={onNext}
+        disabled={currentPage === totalPages}
+        className="cursor-pointer px-3 py-2 rounded-md border bg-surface text-primary-text border-border hover:bg-primary-text hover:text-white disabled:opacity-40"
+      >
+        Next
+      </button>
+    </nav>
   );
 };
 
