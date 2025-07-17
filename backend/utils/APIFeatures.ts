@@ -166,6 +166,10 @@ export class APIFeatures<Entity extends ObjectLiteral> {
     return await this.query.getCount();
   }
 
+  async getFilteredCount(): Promise<number> {
+    return await this.query.getCount();
+  }
+
   async execute(): Promise<Entity[]> {
     return await this.query.getMany();
   }
