@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { Course } from '../../models/index';
-import { CreateCourseDto } from './dto/create-course.dto';
+import { CreateCourseDto } from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { ImageService } from '../image/image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -29,6 +29,24 @@ export class CourseController {
     private readonly courseService: CourseService,
     private imageService: ImageService,
   ) {}
+
+
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
+  @UseInterceptors(FileInterceptor('file'))
+  async createCourse(
+    @Body() course: CreateCourseDto,
+    @Req() req: { user: { sub: number } },
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Course> {
+    if (file) {
+      const result = await this.imageService.uploadImage(file);
+      course.courseCover = result.imageUrl;
+      course.imageDeleteURL = result.deleteUrl;
+    }
+    return this.courseService.createCourse(req.user.sub, course);
+  }
 
   @Get()
   async findAll(): Promise<Course[]> {
@@ -50,19 +68,19 @@ export class CourseController {
     return this.courseService.getAllBySoftDeleted();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserMode.INSTRUCTOR)
-  @Post()
-  async createCourse(
-    @Body() course: CreateCourseDto,
-    @Req() req: { user: { sub: number } },
-  ): Promise<Course> {
-    const newCourse = this.courseService.createCourse(req.user.sub, course);
-    return newCourse;
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserMode.INSTRUCTOR)
+  // @Post()
+  // async createCourse(
+  //   @Body() course: CreateCourseDto,
+  //   @Req() req: { user: { sub: number } },
+  // ): Promise<Course> {
+  //   const newCourse = this.courseService.createCourse(req.user.sub, course);
+  //   return newCourse;
+  // }
 
   @Get('search')
-  async searchCourses(@Query() queryParams: any): Promise<{data: Course[]; hasMore: boolean}> {
+  async searchCourses(@Query() queryParams: any): Promise<{data: Course[]; hasMore: boolean; matches: number}> {
     console.log('APIFeatures:', APIFeatures);
     return this.courseService.searchCourses(queryParams);
   }

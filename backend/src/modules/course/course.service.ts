@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCourseDto } from './dto/create-course.dto';
+import { CreateCourseDto } from './dto/course.dto';
 import { User, Course } from 'src/models';
 import { APIFeatures } from './../../../utils/APIFeatures';
 @Injectable()
@@ -10,6 +10,15 @@ export class CourseService {
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
   ) {}
+
+
+  async createCourse(instructorId: number, courseDto: CreateCourseDto): Promise<Course> {
+    const newCourse = this.courseRepository.create({
+      ...courseDto,
+      instructor: { id: instructorId } as User,
+    });
+    return this.courseRepository.save(newCourse);
+  }
 
   async findAll(): Promise<Course[]> {
     return this.courseRepository
@@ -26,23 +35,24 @@ export class CourseService {
     // });
   }
 
-  async createCourse(
-    instructor_id: number,
-    course: CreateCourseDto,
-  ): Promise<Course> {
-    const newCourse = new Course();
-    newCourse.title = course.title;
-    newCourse.instructor = { id: instructor_id } as User;
-    newCourse.description = course.description;
-    newCourse.isPublished = course.isPublished;
-    newCourse.language = course.language;
-    newCourse.imageDeleteURL = course.imageDeleteURL;
-    newCourse.ratingSum = course.ratingSum;
-    newCourse.level = course.level;
-    newCourse.price = course.price;
-    newCourse.numberOfReviewers = course.numberOfReviewers;
-    return this.courseRepository.save(newCourse);
-  }
+  // // to be deleted
+  // async createCourse(
+  //   instructor_id: number,
+  //   course: CreateCourseDto,
+  // ): Promise<Course> {
+  //   const newCourse = new Course();
+  //   newCourse.title = course.title;
+  //   newCourse.instructor = { id: instructor_id } as User;
+  //   newCourse.description = course.description;
+  //   newCourse.isPublished = course.isPublished;
+  //   newCourse.language = course.language;
+  //   newCourse.imageDeleteURL = course.imageDeleteURL;
+  //   newCourse.ratingSum = course.ratingSum;
+  //   newCourse.level = course.level;
+  //   newCourse.price = course.price;
+  //   newCourse.numberOfReviewers = course.numberOfReviewers;
+  //   return this.courseRepository.save(newCourse);
+  // }
 
   // async uploadImage(courseId: number) {
   //   const course = await this.courseRepository.findOne({
@@ -111,27 +121,36 @@ export class CourseService {
 
   async searchCourses(
     queryParams: any,
-  ): Promise<{ data: Course[]; hasMore: boolean }> {
-    const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 10;
+  ): Promise<{ data: Course[]; hasMore: boolean; matches: number }> {
+    const limit = queryParams.limit ? parseInt(queryParams.limit.toString(), 10) : 10;
+    const page = queryParams.page ? parseInt(queryParams.page.toString(), 10) : 1;
 
-    const query = this.courseRepository
+    const baseQuery = this.courseRepository
       .createQueryBuilder('course')
       .leftJoinAndSelect('course.courseCategory', 'course_category')
       .where('course.isPublished = :isPublished', { isPublished: true });
 
-    const features = new APIFeatures(query, {
-      ...queryParams,
-      limit: (limit + 1).toString(),
-    })
+    const countFeatures = new APIFeatures(baseQuery, queryParams)
+      .filter()
+      .limitFields();
+
+    const total = await countFeatures.getFilteredCount();
+
+    const dataQuery = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.courseCategory', 'course_category')
+      .where('course.isPublished = :isPublished', { isPublished: true });
+
+    const dataFeatures = new APIFeatures(dataQuery, queryParams)
       .filter()
       .sort()
       .limitFields()
       .paginate();
 
-    const results = await features.execute();
-    const hasMore = results.length > limit;
-    const data = hasMore ? results.slice(0, limit) : results;
+    const results = await dataFeatures.execute();
+    const totalPages = Math.ceil(total / limit);
+    const hasMore = page < totalPages;
 
-    return { data, hasMore };
+    return { data: results, hasMore, matches: total };
   }
 }

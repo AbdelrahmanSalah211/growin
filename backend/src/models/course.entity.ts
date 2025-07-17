@@ -36,7 +36,7 @@ export class Course {
   @Column()
   description: string;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isPublished: boolean;
 
   @Column()
@@ -60,10 +60,10 @@ export class Course {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true , default: 300.5 })
   price: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 4, nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 4, nullable: true, default: 0.0 })
   ratingSum: number;
 
-  @Column()
+  @Column({ default: 0 })
   numberOfReviewers: number;
 
   @CreateDateColumn()
