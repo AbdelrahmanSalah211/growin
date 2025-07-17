@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { Course } from '../../models/index';
-import { CreateCourseDto } from './dto/course.dto';
+import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { ImageService } from '../image/image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -29,7 +29,6 @@ export class CourseController {
     private readonly courseService: CourseService,
     private imageService: ImageService,
   ) {}
-
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -48,36 +47,15 @@ export class CourseController {
     return this.courseService.createCourse(req.user.sub, course);
   }
 
-  @Get()
-  async findAll(): Promise<Course[]> {
-    return this.courseService.findAll();
-  }
-
+  @Patch('publish/:courseId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserMode.INSTRUCTOR)
-  @Get('instructor')
-  async findAllCoursesByUser(
+  async publishCourse(
+    @Param('courseId') courseId: number,
     @Req() req: { user: { sub: number } },
-  ): Promise<CreateCourseDto[]> {
-    return this.courseService.findAllCoursesByUser(req.user.sub);
+  ): Promise<{ message: string }> {
+    return this.courseService.publishCourse(courseId, req.user.sub);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('deleted')
-  async getAllBySoftDeleted(): Promise<Course[]> {
-    return this.courseService.getAllBySoftDeleted();
-  }
-
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserMode.INSTRUCTOR)
-  // @Post()
-  // async createCourse(
-  //   @Body() course: CreateCourseDto,
-  //   @Req() req: { user: { sub: number } },
-  // ): Promise<Course> {
-  //   const newCourse = this.courseService.createCourse(req.user.sub, course);
-  //   return newCourse;
-  // }
 
   @Get('search')
   async searchCourses(@Query() queryParams: any): Promise<{data: Course[]; hasMore: boolean; matches: number}> {
@@ -85,35 +63,47 @@ export class CourseController {
     return this.courseService.searchCourses(queryParams);
   }
 
+  @Patch(':courseId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserMode.INSTRUCTOR)
-  @Delete(':id')
-  async deleteCourse(@Param('id') id: number): Promise<{ message: string }> {
-    return this.courseService.delete(id);
-  }
-
-  @Get(':id')
-  async getOne(@Param('id') id: number): Promise<Course> {
-    return this.courseService.findById(id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserMode.INSTRUCTOR)
-  @Patch(':id')
   @UseInterceptors(FileInterceptor('file'))
   async updateCourse(
-    @Param('id') id: number,
-    @Body() updatedCourse: Partial<CreateCourseDto>,
+    @Param('courseId') courseId: number,
+    @Req() req: { user: { sub: number } },
+    @Body() updatedCourse: UpdateCourseDto,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<CreateCourseDto> {
-    console.log(file);
-
+  ): Promise<Course> {
     if (file) {
       const result = await this.imageService.uploadImage(file);
-      
-      updatedCourse.imageDeleteURL = result.deleteUrl;
       updatedCourse.courseCover = result.imageUrl;
+      updatedCourse.imageDeleteURL = result.deleteUrl;
     }
-    return this.courseService.updateCourse(id, updatedCourse);
+    return this.courseService.updateCourse(courseId, req.user.sub, updatedCourse);
+  }
+
+  @Get('instructor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
+  async getInstructorCourses(
+    @Req() req: { user: { sub: number } },
+  ): Promise<Course[]> {
+    return this.courseService.getInstructorCourses(req.user.sub);
+  }
+
+  @Get()
+  async getAllCourses(): Promise<Course[]> {
+    return this.courseService.getAllCourses();
+  }
+
+  @Get(':courseId')
+  async getCourse(@Param('courseId') courseId: number): Promise<Course | null> {
+    return this.courseService.getCourse(courseId);
+  }
+
+  @Delete(':courseId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
+  async deleteCourse(@Param('courseId') courseId: number): Promise<void> {
+    return this.courseService.deleteCourse(courseId);
   }
 }
