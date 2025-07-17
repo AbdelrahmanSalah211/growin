@@ -23,6 +23,11 @@ import { useRouter } from "next/navigation";
 
 export default function Signup() {
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [submitText, setSubmitText] = useState("Sign Up");
+  const router = useRouter();
+  const { setAuth } = useAuthStore();
+
   const [formState, setFormState] = useState<FormState>({
     username: { value: "", isValid: false, errors: [] },
     email: { value: "", isValid: false, errors: [] },
@@ -40,16 +45,16 @@ export default function Signup() {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormState((prevState) => {
-      const field = prevState[name];
-      if (!field) return prevState;
+    setFormState((prev) => {
+      const field = prev[name];
+      if (!field) return prev;
       const validation = validationMethods[
         name as keyof typeof validationMethods
       ]
         ? validationMethods[name as keyof typeof validationMethods](value)
         : { isValid: true, messages: [] };
       return {
-        ...prevState,
+        ...prev,
         [name]: {
           ...field,
           value,
@@ -60,11 +65,6 @@ export default function Signup() {
     });
   };
 
-  const { setAuth } = useAuthStore();
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  const [submitText, setSubmitText] = useState<string>("Sign Up");
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (
@@ -76,19 +76,16 @@ export default function Signup() {
       return;
 
     setLoading(true);
-    const payload = {
-      username: formState.username.value,
-      email: formState.email.value,
-      password: formState.password.value,
-    };
     try {
-      const data = await signup(payload);
+      const data = await signup({
+        username: formState.username.value,
+        email: formState.email.value,
+        password: formState.password.value,
+      });
       setSubmitText(data.message);
-      setTimeout(() => {
-        router.push("/auth/login");
-      }, 1500);
-    } catch (error) {
-      console.log(error);
+      setTimeout(() => router.push("/auth/login"), 1500);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -102,158 +99,157 @@ export default function Signup() {
       setUser(JSON.stringify(data.user));
       setAuth(data.accessToken, data.user);
       router.push("/");
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const canProceedToNext =
-    formState.username.isValid && formState.email.isValid;
+  const hasErrors = Object.values(formState).some((f) => f.errors.length > 0);
+  const errorEntries = Object.fromEntries(
+    Object.entries(formState)
+      .filter(([, f]) => f.errors.length > 0)
+      .map(([k, f]) => [k, f.errors])
+  );
+
+  const canNext = formState.username.isValid && formState.email.isValid;
   const canSubmit =
     formState.password.isValid && formState.confirmPassword.isValid;
 
   return (
-    <div className="flex">
-      <section className="hidden lg:flex flex-1 justify-center relative items-center px-[5.71875rem] py-[5.8125rem]">
-        <div className="absolute top-1/5 left-1/2 -translate-y-1/5 -translate-x-1/2">
-          <AnimatedErrorList
-            errors={Object.fromEntries(
-              Object.entries(formState)
-                .filter(([_, field]) => field.errors.length > 0)
-                .map(([key, field]) => [key, field.errors])
-            )}
-          />
-        </div>
-      </section>
-
-      <section className="sm:scale-[1] flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[3.8rem] px-6 py-6 overflow-hidden">
-        <div className="max-w-sm lg:w-full space-y-[2.5rem]">
-          <h1 className="text-[2rem] sm:text-[3rem] font-black text-primary-text">
-            Sign Up
+    <div
+      className={`flex w-full items-start transition-all duration-500 ${
+        hasErrors ? "gap-[0.625rem]" : "gap-0"
+      }`}
+    >
+      {/* Form Column */}
+      <section className="bg-surface flex flex-col justify-center p-[3.125rem] space-y-[1.5625rem] rounded-[1.25rem] transition-all duration-500">
+        <div className="space-y-[0.625rem]">
+          <h1 className="text-3xl font-bold text-primary-text">
+            Create Account!
           </h1>
+          <p className="text-base text-primary-text">
+            Already have an account?{" "}
+            <Link href="/auth/login" className="hover:underline">
+              Log in
+            </Link>
+          </p>
+        </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="relative overflow-hidden">
-              <div
-                className={`flex w-[200%] transition-transform duration-500 ease-in-out ${
-                  step === 1 ? "translate-x-0" : "-translate-x-1/2"
-                }`}
-              >
-                {/* Step 1 */}
-                <div className="w-1/2 flex-shrink-0 space-y-[2.07275rem]">
-                  <div className="space-y-1">
-                    <TextInput
-                      id="username"
-                      name="username"
-                      title="Username"
-                      value={formState.username.value}
-                      onChange={handleChange}
-                      placeholder="Enter username"
-                      inputProps={{ required: true }}
-                    />
-                    <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                      {formState.username.errors.map((error) => (
-                        <span key={error}>{error}</span>
-                      ))}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <EmailInput
-                      id="email"
-                      name="email"
-                      value={formState.email.value}
-                      onChange={handleChange}
-                      placeholder="example@example.com"
-                      inputProps={{ required: true }}
-                    />
-                    <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                      {formState.email.errors.map((error) => (
-                        <span key={error}>{error}</span>
-                      ))}
-                    </p>
-                  </div>
+        <form className="space-y-[1.5625rem]" onSubmit={handleSubmit}>
+          <div className="relative overflow-hidden w-[28rem] min-h-[13.5rem]">
+            {step === 1 && (
+              <div className="space-y-[1.5625rem] animate-slide-fade-in">
+                <div className="space-y-1">
+                  <TextInput
+                    id="username"
+                    name="username"
+                    title="Username"
+                    placeholder="Enter username"
+                    value={formState.username.value}
+                    onChange={handleChange}
+                    inputProps={{ required: true }}
+                  />
+                  <p className="block lg:hidden text-base text-primary-text">
+                    {formState.username.errors.map((err) => (
+                      <span key={err}>{err}</span>
+                    ))}
+                  </p>
                 </div>
-
-                {/* Step 2 */}
-                <div className="w-1/2 flex-shrink-0 space-y-[2.07275rem]">
-                  <div className="space-y-1">
-                    <PasswordInput
-                      id="password"
-                      name="password"
-                      value={formState.password.value}
-                      onChange={handleChange}
-                      placeholder="Enter password"
-                      inputProps={{ required: true }}
-                    />
-                    <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                      {formState.password.errors.map((error) => (
-                        <span key={error}>{error}</span>
-                      ))}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <PasswordInput
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formState.confirmPassword.value}
-                      onChange={handleChange}
-                      placeholder="Confirm password"
-                      inputProps={{ required: true }}
-                    />
-                    <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                      {formState.confirmPassword.errors.map((error) => (
-                        <span key={error}>{error}</span>
-                      ))}
-                    </p>
-                  </div>
+                <div className="space-y-1">
+                  <EmailInput
+                    id="email"
+                    name="email"
+                    placeholder="example@example.com"
+                    value={formState.email.value}
+                    onChange={handleChange}
+                    inputProps={{ required: true }}
+                  />
+                  <p className="block lg:hidden text-base text-primary-text">
+                    {formState.email.errors.map((err) => (
+                      <span key={err}>{err}</span>
+                    ))}
+                  </p>
                 </div>
               </div>
-            </div>
+            )}
 
+            {step === 2 && (
+              <div className="space-y-[1.5625rem] absolute top-0 left-0 w-full animate-slide-fade-in">
+                <div className="space-y-1">
+                  <PasswordInput
+                    id="password"
+                    name="password"
+                    placeholder="Enter password"
+                    value={formState.password.value}
+                    onChange={handleChange}
+                    inputProps={{ required: true }}
+                  />
+                  <p className="block lg:hidden text-base text-primary-text">
+                    {formState.password.errors.map((err) => (
+                      <span key={err}>{err}</span>
+                    ))}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <PasswordInput
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm password"
+                    value={formState.confirmPassword.value}
+                    onChange={handleChange}
+                    inputProps={{ required: true }}
+                  />
+                  <p className="block lg:hidden text-base text-primary-text">
+                    {formState.confirmPassword.errors.map((err) => (
+                      <span key={err}>{err}</span>
+                    ))}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-[0.625rem]">
             {step === 1 ? (
               <Button
                 type="button"
-                buttonProps={{ disabled: !canProceedToNext }}
+                buttonProps={{ disabled: !canNext }}
                 onClick={() => setStep(2)}
               >
                 Next
               </Button>
             ) : (
-              <div className="flex flex-col gap-3">
+              <>
                 <Button type="button" onClick={() => setStep(1)}>
                   Previous
                 </Button>
-                <Button type="submit" buttonProps={{ disabled: !canSubmit }}>
+                <Button
+                  type="submit"
+                  buttonProps={{ disabled: !canSubmit || loading }}
+                >
                   {loading ? (
                     <p className="flex items-center justify-center gap-[0.625rem]">
-                      <span className="loading loading-infinity loading-md"></span>
+                      <span className="loading loading-infinity loading-md" />
                       Signing up
                     </p>
                   ) : (
-                    <>{submitText}</>
+                    submitText
                   )}
                 </Button>
-              </div>
+              </>
             )}
-
-            <p className="text-base text-primary-text">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="hover:underline">
-                Log in
-              </Link>
-            </p>
-
             <Button type="button" onClick={handleGoogleLogin}>
               <span className="flex items-center justify-center gap-[0.625rem]">
                 <GoogleColorIcon />
                 Sign up with Google
               </span>
             </Button>
-          </form>
-        </div>
+          </div>
+        </form>
       </section>
+
+      {/* Error Panel */}
+      <AnimatedErrorList errors={errorEntries} visible={hasErrors} />
     </div>
   );
 }

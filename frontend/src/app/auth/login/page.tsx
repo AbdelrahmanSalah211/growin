@@ -83,72 +83,75 @@ export default function Login() {
     }
   };
 
+  const hasErrors = Object.values(formState).some(
+    (field) => field.errors.length > 0
+  );
+  const errorEntries = Object.fromEntries(
+    Object.entries(formState)
+      .filter(([_, field]) => field.errors.length > 0)
+      .map(([key, field]) => [key, field.errors])
+  );
+
   return (
-    <div className="flex">
-      {/* Left Section */}
-      <section className="hidden lg:flex flex-1 justify-center relative items-center px-[5.71875rem] py-[5.8125rem]">
-        <div className="absolute top-1/5 left-1/2 -translate-y-1/5 -translate-x-1/2">
-          <AnimatedErrorList
-            errors={Object.fromEntries(
-              Object.entries(formState)
-                .filter(([_, field]) => field.errors.length > 0)
-                .map(([key, field]) => [key, field.errors])
-            )}
-          />
-        </div>
-      </section>
-
+    <div
+      className={`flex w-full items-start transition-all duration-500 ${
+        hasErrors ? "gap-[0.625rem]" : "gap-0"
+      }`}
+    >
       {/* Form Section */}
-      <section className="sm:scale-[1] flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[3.8rem] px-6 py-6">
-        <div className="space-y-[2.5rem]">
-          <h1 className="text-[2rem] sm:text-[3rem] font-black text-primary-text">
-            Log In
+      <section className="bg-surface flex flex-col justify-center p-[3.125rem] space-y-[1.5625rem] rounded-[1.25rem] transition-all duration-500">
+        <div className="space-y-[0.625rem]">
+          <h1 className="max-w-1/3 text-3xl font-bold text-primary-text">
+            Welcome Back!
           </h1>
+          <p className="text-base text-primary-text">
+            Don't have an account?{" "}
+            <Link href="/auth/signup" className="hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-[2.07275rem]">
-              <div className="space-y-1">
-                <EmailInput
-                  id="email"
-                  name="email"
-                  value={formState.email.value}
-                  onChange={handleChange}
-                  placeholder="example@example.com"
-                  inputProps={{ required: true }}
-                />
-                <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                  {formState.email.errors.map((error) => (
-                    <span key={error}>{error}</span>
-                  ))}
-                </p>
-              </div>
+        <form className="space-y-[1.5625rem]" onSubmit={handleSubmit}>
+          <div className="space-y-1">
+            <EmailInput
+              id="email"
+              name="email"
+              value={formState.email.value}
+              onChange={handleChange}
+              placeholder="example@example.com"
+              inputProps={{ required: true }}
+            />
+            <p className="block space-y-1 lg:hidden text-base text-primary-text">
+              {formState.email.errors.map((error) => (
+                <span key={error}>{error}</span>
+              ))}
+            </p>
+          </div>
 
-              <div className="space-y-1">
-                <PasswordInput
-                  id="password"
-                  name="password"
-                  value={formState.password.value}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  inputProps={{ required: true }}
-                />
-                <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                  {formState.password.errors.map((error) => (
-                    <span key={error}>{error}</span>
-                  ))}
-                </p>
-              </div>
-            </div>
+          <div className="space-y-1">
+            <PasswordInput
+              id="password"
+              name="password"
+              value={formState.password.value}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              inputProps={{ required: true }}
+            />
+            <p className="block space-y-1 lg:hidden text-base text-primary-text">
+              {formState.password.errors.map((error) => (
+                <span key={error}>{error}</span>
+              ))}
+            </p>
+          </div>
 
-            <div>
-              <Link
-                href="/auth/forgot-password"
-                className="text-base text-primary-text hover:underline"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-
+          <div className="flex flex-col gap-[0.625rem]">
+            <Link
+              href="/auth/forgot-password"
+              className="text-base text-primary-text hover:underline"
+            >
+              Forgot your password?
+            </Link>
             <Button
               type="submit"
               buttonProps={{
@@ -168,22 +171,18 @@ export default function Login() {
               )}
             </Button>
 
-            <p className="text-base text-primary-text">
-              Don't have an account?{" "}
-              <Link href="/auth/signup" className="hover:underline">
-                Sign up
-              </Link>
-            </p>
-
             <Button type="button" onClick={handleGoogleLogin}>
               <span className="flex items-center justify-center gap-[0.625rem]">
                 <GoogleColorIcon />
                 Log in with Google
               </span>
             </Button>
-          </form>
-        </div>
+          </div>
+        </form>
       </section>
+
+      {/* Error panel (flex child that animates open) */}
+      <AnimatedErrorList errors={errorEntries} visible={hasErrors} />
     </div>
   );
 }

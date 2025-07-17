@@ -45,15 +45,15 @@ const PasswordInput: FC<PasswordInputProps> = ({
   const inputId = id || name;
 
   return (
-    <label htmlFor={inputId} className="block space-y-[0.625rem] w-[23.125rem]">
-      <p className="text-[1.125rem] text-primary-text">{title}</p>
+    <label htmlFor={inputId} className="block space-y-[0.625rem] max-w-md">
+      <p className="text-base text-primary-text">{title}</p>
 
       <div className="bg-background flex items-center p-4 gap-[0.75rem] rounded-[0.75rem] focus-within:ring-2 focus-within:ring-border transition">
         {icon && <span>{icon}</span>}
 
         <input
           id={inputId}
-          className="w-full text-primary-text outline-none ring-0 focus:ring-0 focus:outline-none bg-background"
+          className="w-full text-lg text-primary-text outline-none ring-0 focus:ring-0 focus:outline-none bg-background"
           {...inputProps}
           name={name}
           value={value}
