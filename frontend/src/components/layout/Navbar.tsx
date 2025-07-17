@@ -16,8 +16,10 @@ import Image from "next/image";
 import { UserIcon } from "../icons/UserIcon";
 import { getAllCategories } from "@/services/courseCategoryService";
 import { ICategory } from "@/interfaces/ICategory";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 
 export default function Navbar() {
+  useHydrateAuth();
   const { user, token, clearAuth } = useAuthStore();
   const isGuest = !isLoggedIn();
   const router = useRouter();
@@ -33,7 +35,6 @@ export default function Navbar() {
     try {
       const fetchCategories = async () => {
         const categories = await getAllCategories();
-        console.log(categories);
         setCategories(categories);
       };
       fetchCategories();
@@ -45,10 +46,10 @@ export default function Navbar() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (search) {
-      const params = new URLSearchParams({ q: search });
-      router.push(`/search?${params.toString()}`);
-    }
+    const params = new URLSearchParams();
+    search && params.set("title", search);
+    params.set("page", "1");
+    router.push(`/search?${params.toString()}`);
   };
 
   const handleLogout = async () => {
@@ -59,7 +60,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="relative z-50 text-primary-text flex items-center justify-between bg-surface rounded-[0.625rem] shadow-sm px-[1.875rem] py-[0.625rem] my-[1.875rem] mx-[7.5rem]">
+    <nav className="relative z-50 text-primary-text flex items-center justify-between bg-surface rounded-[0.625rem] shadow-sm px-[1.875rem] py-[0.625rem] mt-[1.875rem] mx-[7.5rem]">
       {/* left */}
       <div className="flex items-center space-x-[1.875rem]">
         <Link href="/" className="block">
@@ -116,10 +117,7 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link
-              href="/me/learning"
-              className="text-base hover:underline"
-            >
+            <Link href="/me/learning" className="text-base hover:underline">
               My Learning
             </Link>
             <div className="dropdown">
@@ -180,7 +178,7 @@ export default function Navbar() {
 
                 <hr className="my-[0.9375rem] text-border" />
 
-                <Link href="/me/settings" className="block">
+                <Link href="/me/settings/profile" className="block">
                   <li className="flex items-center justify-between px-[1.875rem] py-[0.5625rem] text-base hover:bg-background transition-colors">
                     Account Settings
                   </li>
