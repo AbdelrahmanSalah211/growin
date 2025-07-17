@@ -141,7 +141,6 @@ export class CourseService {
       .leftJoinAndSelect('course.courseCategory', 'course_category')
       .where('course.isPublished = :isPublished', { isPublished: true });
 
-    // Don't modify the limit - use the original queryParams
     const dataFeatures = new APIFeatures(dataQuery, queryParams)
       .filter()
       .sort()
@@ -149,8 +148,6 @@ export class CourseService {
       .paginate();
 
     const results = await dataFeatures.execute();
-    
-    // Calculate hasMore based on total and current page
     const totalPages = Math.ceil(total / limit);
     const hasMore = page < totalPages;
 
