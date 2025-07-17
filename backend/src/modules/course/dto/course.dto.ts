@@ -26,6 +26,9 @@ export class CreateCourseDto {
   @IsString()
   @IsNotEmpty()
   imageDeleteURL?: string;
+
+  @IsNumber()
+  courseCategoryId: number;
 }
 export class UpdateCourseDto {
   @IsOptional()
@@ -61,4 +64,8 @@ export class UpdateCourseDto {
   @IsOptional()
   @IsNotEmpty()
   imageDeleteURL?: string;
+
+  @IsNumber()
+  @IsOptional()
+  courseCategoryId?: number;
 }
