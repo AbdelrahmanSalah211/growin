@@ -85,48 +85,50 @@ export default function ForgotPassword() {
     }
   };
 
-  return (
-    <div className="flex">
-      <section className="hidden lg:flex flex-1 justify-center relative items-center px-[5.71875rem] py-[5.8125rem]">
-        <div className="absolute top-1/5 left-1/2 -translate-y-1/5 -translate-x-1/2">
-          <AnimatedErrorList
-            errors={Object.fromEntries(
-              Object.entries(formState)
-                .filter(([_, field]) => field.errors.length > 0)
-                .map(([key, field]) => [key, field.errors])
-            )}
-          />
-        </div>
-      </section>
+  const hasErrors = Object.values(formState).some(
+    (field) => field.errors.length > 0
+  );
+  const errorEntries = Object.fromEntries(
+    Object.entries(formState)
+      .filter(([_, field]) => field.errors.length > 0)
+      .map(([key, field]) => [key, field.errors])
+  );
 
-      <section className="sm:scale-[1] flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[3.8rem] px-6 py-6">
-        <div className="max-w-sm lg:w-full space-y-[2.5rem]">
-          <div className="space-y-[0.625rem]">
-            <h1 className="text-[2rem] sm:text-[3rem]/[3rem] font-black text-primary-text">
-              Forgot Password
-            </h1>
-            <p className="text-[1.125rem] text-primary-text">
-              Don&apos;t worry, we will send you a link to reset your password.
+  return (
+    <div
+      className={`flex w-full items-start transition-all duration-500 ${
+        hasErrors ? "gap-[0.625rem]" : "gap-0"
+      }`}
+    >
+      {/* Form Section */}
+      <section className="bg-surface flex flex-col justify-center p-[3.125rem] space-y-[1.5625rem] rounded-[1.25rem] transition-all duration-500">
+        <div className="space-y-[0.625rem]">
+          <h1 className="text-3xl font-bold text-primary-text">
+            Forgot Password
+          </h1>
+          <p className="text-base text-primary-text">
+            Don&apos;t worry, we will send you a link to reset your password.
+          </p>
+        </div>
+
+        <form className="space-y-[1.5625rem]" onSubmit={handleSubmit}>
+          <div className="space-y-1">
+            <EmailInput
+              id="email"
+              name="email"
+              value={formState.email.value}
+              onChange={handleChange}
+              placeholder="example@example.com"
+              inputProps={{ required: true }}
+            />
+            <p className="block space-y-1 lg:hidden text-base text-primary-text">
+              {formState.email.errors.map((error) => (
+                <span key={error}>{error}</span>
+              ))}
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-[2.07275rem]">
-              <EmailInput
-                id="email"
-                name="email"
-                value={formState.email.value}
-                onChange={handleChange}
-                placeholder="example@example.com"
-                inputProps={{ required: true }}
-              />
-              <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                {formState.email.errors.map((error) => (
-                  <span key={error}>{error}</span>
-                ))}
-              </p>
-            </div>
-
+          <div className="flex flex-col gap-[0.625rem]">
             <Button
               type="submit"
               buttonProps={{
@@ -141,9 +143,12 @@ export default function ForgotPassword() {
                 in {secondsLeft} second{secondsLeft !== 1 ? "s" : ""}
               </p>
             )}
-          </form>
-        </div>
+          </div>
+        </form>
       </section>
+
+      {/* Error panel */}
+      <AnimatedErrorList errors={errorEntries} visible={hasErrors} />
     </div>
   );
 }

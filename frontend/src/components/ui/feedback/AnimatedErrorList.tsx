@@ -4,40 +4,50 @@ import { FC } from "react";
 
 export interface AnimatedErrorListProps {
   errors: Record<string, string[]>;
+  visible: boolean;
 }
 
-export const AnimatedErrorList: FC<AnimatedErrorListProps> = ({ errors }) => {
-  const hasErrors = Object.values(errors).some((arr) => arr.length > 0);
-
+export const AnimatedErrorList: FC<AnimatedErrorListProps> = ({
+  errors,
+  visible,
+}) => {
   return (
-    <div
-      className={`bg-white/80 backdrop-blur hidden
-        lg:flex flex-col gap-2 rounded-[0.625rem]
-        transition-all duration-500
-        opacity-0 w-80 max-h-[90vh] overflow-y-auto
-        scrollbar
-        z-10
-        ${hasErrors ? "p-6 opacity-100" : ""}
+    <section
+      className={`
+        bg-surface flex flex-col gap-4 rounded-[1.25rem]
+        overflow-y-auto max-h-[90vh] scrollbar z-10
+        transition-all duration-300 ease-in-out
+        ${
+          visible
+            ? "opacity-100 max-w-[20rem] p-[1.5625rem]"
+            : "opacity-0 max-w-0 p-0 overflow-hidden"
+        }
       `}
+      style={{ minWidth: visible ? "20rem" : "0" }}
     >
-      {Object.entries(errors).map(
-        ([field, messages]) =>
-          messages.length > 0 && (
-            <div key={field} className="relative">
-              <p className="capitalize text-lg text-primary-text font-semibold">
-                {field.replace(/_/g, " ")}
-              </p>
-              <ul className="flex flex-col gap-2 px-4 py-2 before:content-['-'] before:absolute before:left-0 before:text-primary-text">
-                {messages.map((message, index) => (
-                  <li className="text-base text-primary-text" key={index}>
-                    {message}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-      )}
-    </div>
+      <div className="flex flex-col gap-[0.625rem]">
+        <h1 className="max-w-2/3 text-3xl font-bold text-primary-text">
+          Check Your Entries!
+        </h1>
+        {Object.entries(errors).map(
+          ([field, messages]) =>
+            messages.length > 0 && (
+              <div key={field} className="relative">
+                <p className="capitalize text-base text-primary-text font-semibold">
+                  {field.replace(/_/g, " ")}
+                </p>
+                <ul className="flex flex-col gap-2 px-4 py-2">
+                  {messages.map((message, index) => (
+                    <li className="text-sm text-primary-text" key={index}>
+                      {message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+        )}
+      </div>
+    </section>
   );
 };
 

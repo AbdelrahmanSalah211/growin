@@ -9,8 +9,8 @@ export default async function AuthLayout({
 }>) {
   if (await isLoggedIn()) redirect("/");
   return (
-    <div className="p-[3rem] flex justify-center items-center">
-      <FormContainer className="">{children}</FormContainer>
+    <div className="flex justify-center items-center">
+      <div className="">{children}</div>
     </div>
   );
 }

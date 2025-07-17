@@ -55,16 +55,27 @@ export default function ResetPassword() {
     e.preventDefault();
     if (!formState.password.isValid || !formState.confirmPassword.isValid)
       return;
+
+    // TODO: Reset logic (API call)
   };
 
   useEffect(() => {
     if (!token) {
       router.replace("/404");
-      return;
     } else {
+      // TODO: Optionally validate token via API
       setIsValidToken(true);
     }
   }, [token, router]);
+
+  const hasErrors = Object.values(formState).some(
+    (field) => field.errors.length > 0
+  );
+  const errorEntries = Object.fromEntries(
+    Object.entries(formState)
+      .filter(([_, field]) => field.errors.length > 0)
+      .map(([key, field]) => [key, field.errors])
+  );
 
   if (isValidToken === false) {
     return (
@@ -78,7 +89,7 @@ export default function ResetPassword() {
 
   if (isValidToken === null) {
     return (
-      <div className="flex justify-center items-center h-screen w-full bg-surface p-[5rem]">
+      <div className="bg-surface flex flex-col justify-center p-[15rem] rounded-[1.25rem]">
         <p className="flex justify-center items-center text-primary-text">
           <span className="loading loading-6xl loading-ring"></span>
         </p>
@@ -87,63 +98,51 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="flex">
-      {/* Left Section */}
-      <section className="hidden lg:flex relative flex-1 justify-center items-center px-[5.71875rem] py-[5.8125rem]">
-        <div className="absolute top-1/5 left-1/2 -translate-y-1/5 -translate-x-1/2">
-          <AnimatedErrorList
-            errors={Object.fromEntries(
-              Object.entries(formState)
-                .filter(([_, field]) => field.errors.length > 0)
-                .map(([key, field]) => [key, field.errors])
-            )}
-          />
-        </div>
-      </section>
+    <div
+      className={`flex w-full items-start transition-all duration-500 ${
+        hasErrors ? "gap-[0.625rem]" : "gap-0"
+      }`}
+    >
+      {/* Error Panel */}
+      <AnimatedErrorList errors={errorEntries} visible={hasErrors} />
 
       {/* Form Section */}
-      <section className="flex-1 flex flex-col justify-center items-center sm:px-[5.71875rem] sm:py-[5.8125rem] px-6 py-6">
-        <div className="sm:scale-[1] w-full space-y-[2.5rem]">
-          <h1 className="text-[2rem] sm:text-[3rem]/[3rem] font-black text-primary-text">
-            Reset Password
-          </h1>
+      <section className="bg-surface flex flex-col justify-center p-[3.125rem] space-y-[1.5625rem] rounded-[1.25rem] transition-all duration-500">
+        <h1 className="text-3xl font-bold text-primary-text">Reset Password</h1>
+        <form className="space-y-[1.5625rem]" onSubmit={handleSubmit}>
+          <div className="space-y-1">
+            <PasswordInput
+              id="password"
+              name="password"
+              value={formState.password.value}
+              onChange={handleChange}
+              placeholder="Enter new password"
+              inputProps={{ required: true }}
+            />
+            <p className="block space-y-1 lg:hidden text-base text-primary-text">
+              {formState.password.errors.map((error) => (
+                <span key={error}>{error}</span>
+              ))}
+            </p>
+          </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-[2.07275rem]">
-              <div className="space-y-1">
-                <PasswordInput
-                  id="password"
-                  name="password"
-                  value={formState.password.value}
-                  onChange={handleChange}
-                  placeholder="Enter new password"
-                  inputProps={{ required: true }}
-                />
-                <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                  {formState.password.errors.map((error) => (
-                    <span key={error}>{error}</span>
-                  ))}
-                </p>
-              </div>
+          <div className="space-y-1">
+            <PasswordInput
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formState.confirmPassword.value}
+              onChange={handleChange}
+              placeholder="Confirm new password"
+              inputProps={{ required: true }}
+            />
+            <p className="block space-y-1 lg:hidden text-base text-primary-text">
+              {formState.confirmPassword.errors.map((error) => (
+                <span key={error}>{error}</span>
+              ))}
+            </p>
+          </div>
 
-              <div className="space-y-1">
-                <PasswordInput
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  title="Confirm Password"
-                  value={formState.confirmPassword.value}
-                  onChange={handleChange}
-                  placeholder="Confirm new password"
-                  inputProps={{ required: true }}
-                />
-                <p className="block space-y-1 lg:hidden text-base text-primary-text">
-                  {formState.confirmPassword.errors.map((error) => (
-                    <span key={error}>{error}</span>
-                  ))}
-                </p>
-              </div>
-            </div>
-
+          <div className="flex flex-col gap-[0.625rem]">
             <Button
               type="submit"
               buttonProps={{
@@ -154,8 +153,8 @@ export default function ResetPassword() {
             >
               Reset Password
             </Button>
-          </form>
-        </div>
+          </div>
+        </form>
       </section>
     </div>
   );
