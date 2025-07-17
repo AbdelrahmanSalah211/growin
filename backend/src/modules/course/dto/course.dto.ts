@@ -1,4 +1,4 @@
-import { IsString, IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsEnum, IsNumber, IsOptional, IsNotEmpty, IsBoolean } from 'class-validator';
 import { CourseLevel } from 'src/models';
 
 export class CreateCourseDto {
@@ -19,9 +19,46 @@ export class CreateCourseDto {
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   courseCover?: string;
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  imageDeleteURL?: string;
+}
+export class UpdateCourseDto {
+  @IsOptional()
+  @IsString()
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  description: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPublished: boolean;
+
+  @IsOptional()
+  @IsString()
+  language: string;
+
+  @IsOptional()
+  @IsEnum(['beginner', 'intermediate', 'advanced'])
+  level: CourseLevel;
+
+  @IsOptional()
+  @IsNumber()
+  price: number;
+
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  courseCover?: string;
+
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
   imageDeleteURL?: string;
 }
