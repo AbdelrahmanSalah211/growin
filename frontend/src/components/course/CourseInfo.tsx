@@ -1,22 +1,22 @@
 import React from "react";
-import { Course } from "@/interfaces/courses";
+import { ICourse } from "@/interfaces/ICourse";
 import ReviewStars from "../reviewStars/ReviewStars";
 
 interface CourseInfoProps {
-  course: Course;
+  course: ICourse;
 }
 ////
 const CourseInfo: React.FC<CourseInfoProps> = ({ course }) => {
-  const title = course.title || "";
-  const description = course.description || "";
-  const level = course.level || "";
-  const rating = course.ratingSum && course.numberOfReviewers ? course.ratingSum / course.numberOfReviewers : 0;
-  const numberOfReviewers = course.numberOfReviewers || 0;
-  const students = course.students || 0;
-  const instructors = Array.isArray(course.instructor)
-    ? course.instructor.map((i: any) => i.username).join(", ")
-    : course.instructor?.username || "";
-  const lastUpdated = course.updatedAt ? new Date(course.updatedAt).toLocaleDateString("en-US", { month: "numeric", year: "numeric" }) : "-";
+  const title = course?.title || "";
+  const description = course?.description || "";
+  const level = course?.level || "";
+  const rating = course?.ratingSum && course?.numberOfReviewers ? Number(course?.ratingSum) / course?.numberOfReviewers : 0;
+  const numberOfReviewers = course?.numberOfReviewers || 0;
+  const students = course?.enrollments?.length || 0;
+  const instructors = Array.isArray(course?.instructor)
+    ? course?.instructor.map((i: any) => i.username).join(", ")
+    : course?.instructor?.username || "";
+  const lastUpdated = course?.updatedAt ? new Date(course?.updatedAt).toLocaleDateString("en-US", { month: "numeric", year: "numeric" }) : "-";
 
   return (
     <div className="w-full max-w-5xl mx-auto">

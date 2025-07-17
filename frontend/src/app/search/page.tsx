@@ -1,292 +1,267 @@
 "use client";
-import { getAllCategories } from "@/services/courseCategoryService";
-import { useAuthStore } from "@/stores/authStore";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getCourses, searchCourse } from "@/services/courseService";
+import { debounce } from "lodash";
+import { getAllCategories } from "@/services/courseCategoryService";
+import { searchCourse } from "@/services/courseService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
-import FiltersSidebar from "@/components/filters/FiltersSidebar";
 import { CourseCard } from "@/components/course/courseCard";
 import Pagination from "@/components/pagination/Pagination";
-import { Icourse } from "../../interfaces/ICourse";
+import FiltersSidebar from "@/components/filters/FiltersSidebar";
+import FiltersToggler from "@/components/filters/FiltersToggler";
+import type { ICourse } from "../../interfaces/ICourse";
+
+const PAGE_SIZE = 12;
+const MIN_PRICE = 0;
+const MAX_PRICE = 2000;
 
 export default function SearchPage() {
-  useHydrateAuth();
-  const accessToken = useAuthStore((state) => state.token) || "";
   const router = useRouter();
   const searchParams = useSearchParams();
+  const prevParams = useRef<string>(null);
+  useHydrateAuth();
 
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loadingCourses, setLoadingCourses] = useState(true);
-  const [courses, setCourses] = useState<Icourse[]>([]);
-
-  const [rating, setRating] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<ICourse[]>([]);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [levels, setLevels] = useState({
-    "All levels": false,
-    Beginner: false,
-    Intermediate: false,
-    Advanced: false,
-  });
-  const min = 0;
-  const max = 2000;
-  const [minValue, setMinValue] = useState(min);
-  const [maxValue, setMaxValue] = useState(max);
-
-  const fetchFilteredCourses = async (params: URLSearchParams) => {
-    try {
-      if (!accessToken) return;
-      const { data } = await searchCourse(accessToken, params.toString());
-      setLoadingCategories(false);
-      setLoadingCourses(false);
-      setCourses(data);
-      setPageNum(1);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const updateFilter = async (key: string, value: string | null) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value && value !== "") {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    router.replace(`?${params.toString()}`, { scroll: false });
-    await fetchFilteredCourses(params);
-  };
-
-  const changeRating = async (e: ChangeEvent<HTMLInputElement>) => {
-    const newRating = +e.target.value;
-    setRating(newRating);
-    await updateFilter("minRating", newRating > 0 ? String(newRating) : null);
-  };
-
-  const changeCategory = async (e: ChangeEvent<HTMLInputElement>) => {
-    const category = e.target.value;
-    setSelectedCategory(category);
-    await updateFilter("category", category);
-  };
-
-  const changeLevels = async (e: ChangeEvent<HTMLInputElement>) => {
-    const updatedLevels = { ...levels };
-    if (e.target.name === "All levels") {
-      const value = !levels["All levels"];
-      Object.keys(updatedLevels).forEach(
-        (level) => (updatedLevels[level as keyof typeof updatedLevels] = value)
-      );
-    } else {
-      updatedLevels[e.target.name as keyof typeof updatedLevels] =
-        e.target.checked;
-    }
-    setLevels(updatedLevels);
-
-    const selectedLevels = Object.entries(updatedLevels)
-      .filter(([level, checked]) => checked && level !== "All levels")
-      .map(([level]) => level);
-
-    await updateFilter(
-      "level",
-      selectedLevels.length > 0 ? selectedLevels.join(",").toLowerCase() : null
-    );
-  };
-
-  const handleMinChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    const adjustedValue = value >= maxValue ? maxValue - 1 : value;
-    setMinValue(adjustedValue);
-    await updateFilter(
-      "minPrice",
-      adjustedValue > 0 ? String(adjustedValue) : null
-    );
-  };
-
-  const handleMaxChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    const adjustedValue = value <= minValue ? minValue + 1 : value;
-    setMaxValue(adjustedValue);
-    await updateFilter(
-      "maxPrice",
-      adjustedValue > 0 ? String(adjustedValue) : null
-    );
-  };
-
-  const resetFilters = async () => {
-    if (!accessToken) return;
-    try {
-      const resetCourses = await getCourses(accessToken);
-      setCourses(resetCourses);
-      setRating(0);
-      setSelectedCategory("");
-      setLevels({
-        "All levels": false,
-        Beginner: false,
-        Intermediate: false,
-        Advanced: false,
-      });
-      setMinValue(min);
-      setMaxValue(max);
-      router.replace("?", { scroll: false });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const changeSidebarOpen = (tof: boolean) => setIsSidebarOpen(tof);
+  const [pageNum, setPageNum] = useState(1);
+  const [filters, setFilters] = useState({
+    rating: 0,
+    selectedCategory: "",
+    levels: {
+      "All levels": false,
+      Beginner: false,
+      Intermediate: false,
+      Advanced: false,
+    },
+    priceRange: [MIN_PRICE, MAX_PRICE] as [number, number],
+  });
 
-  useEffect(() => {
-    const fetchCategories = async () => {
+  const fetchFilteredCourses = useCallback(
+    async (params: URLSearchParams) => {
       try {
-        if (!accessToken) {
-          setLoadingCategories(false);
-          return;
-        }
-        const dbCategories = await getAllCategories(accessToken);
-        const categoryTitles = dbCategories.map((cat: any) => cat.title);
-        setCategories(categoryTitles);
+        setLoading(courses.length === 0);
+        params.set("limit", PAGE_SIZE.toString());
+        const { data, hasMore, matches } = await searchCourse(
+          params.toString()
+        );
+        setCourses(data);
+        setHasMore(hasMore);
+        setTotalCourses(matches);
       } catch (err) {
-        console.error(err);
+        console.error("Search error:", err);
       } finally {
-        setLoadingCategories(false);
+        setLoading(false);
       }
-    };
-    fetchCategories();
-  }, [accessToken]);
+    },
+    [courses.length]
+  );
 
+  const updateFilter = useCallback(
+    debounce(async (key: string, value: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      value ? params.set(key, value) : params.delete(key);
+      params.delete("page");
+      router.replace(`?${params.toString()}`, { scroll: false });
+      setPageNum(1);
+      await fetchFilteredCourses(params);
+    }, 300),
+    [searchParams, router, fetchFilteredCourses]
+  );
+
+  const updatePageParam = useCallback(
+    async (page: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      page === 1 ? params.delete("page") : params.set("page", String(page));
+      router.replace(`?${params.toString()}`, { scroll: false });
+      setPageNum(page);
+      await fetchFilteredCourses(params);
+    },
+    [searchParams, router, fetchFilteredCourses]
+  );
+
+  // Initialize and filter handlers
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (!accessToken) return;
-
-    // Check if filters exist
-    const hasFilters =
-      params.has("minRating") ||
-      params.has("category") ||
-      params.has("level") ||
-      params.has("minPrice") ||
-      params.has("maxPrice");
-
-    // Only fetch all courses if there are no filters
-    if (hasFilters) {
-      fetchFilteredCourses(params);
-      return;
-    }
-
-    const fetchCourses = async () => {
+    const loadCategories = async () => {
       try {
-        const dbCourses = await getCourses(accessToken);
-        setCourses(dbCourses);
-        setLoadingCourses(false);
+        const dbCategories = await getAllCategories();
+        setCategories(dbCategories.map((cat: any) => cat.title));
       } catch (err) {
-        console.error(err);
+        console.error("Categories error:", err);
       }
     };
-
-    fetchCourses();
-  }, [accessToken, searchParams]);
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
-    if (params.toString() === "") return;
+    const paramsString = params.toString();
 
-    const minRating = params.get("minRating");
-    if (minRating) setRating(Number(minRating));
+    if (paramsString !== prevParams.current) {
+      fetchFilteredCourses(params);
+      prevParams.current = paramsString;
 
-    const category = params.get("category");
-    if (category) setSelectedCategory(category);
+      // Sync filters from URL
+      const urlFilters = {
+        rating: Number(params.get("minRating")) || 0,
+        selectedCategory: params.get("category") || "",
+        levels: parseLevels(params.get("level")),
+        priceRange: [
+          Number(params.get("minPrice")) || MIN_PRICE,
+          Number(params.get("maxPrice")) || MAX_PRICE,
+        ] as [number, number],
+      };
+      setFilters(urlFilters);
+      setPageNum(Number(params.get("page")) || 1);
+    }
+  }, [searchParams, fetchFilteredCourses]);
 
-    const levelParam = params.get("level");
-    if (levelParam) {
-      const levelArr = levelParam.split(",");
-      const updatedLevels = {
+  const resetFilters = useCallback(() => {
+    setFilters({
+      rating: 0,
+      selectedCategory: "",
+      levels: {
         "All levels": false,
         Beginner: false,
         Intermediate: false,
         Advanced: false,
-      };
-      levelArr.forEach((lvl) => {
-        const normalized = lvl[0].toUpperCase() + lvl.slice(1).toLowerCase();
-        if (normalized in updatedLevels) {
-          updatedLevels[normalized as keyof typeof updatedLevels] = true;
-        }
-      });
-      setLevels(updatedLevels);
-    }
+      },
+      priceRange: [MIN_PRICE, MAX_PRICE],
+    });
+    setPageNum(1);
+    router.replace("?", { scroll: false });
+  }, [router]);
 
-    const minPrice = params.get("minPrice");
-    if (minPrice) setMinValue(Number(minPrice));
-    const maxPrice = params.get("maxPrice");
-    if (maxPrice) setMaxValue(Number(maxPrice));
-    fetchFilteredCourses(params);
-  }, [searchParams]);
+  const numOfPages = Math.ceil(totalCourses / PAGE_SIZE);
+  const memoizedCourses = useMemo(() => courses, [courses]);
 
-  const pageitems = 6;
-  const numOfPages = Math.ceil(courses.length / pageitems);
-  const [pageNum, setPageNum] = useState(1);
-  const start = (pageNum - 1) * pageitems;
-  const end = start + pageitems;
-
-  const nextPage = () => {
-    if (pageNum < numOfPages) setPageNum((prev) => prev + 1);
-  };
-  const prevPage = () => {
-    if (pageNum > 1) setPageNum((prev) => prev - 1);
-  };
-
-  const pageCourses = courses.slice(start, end);
-  // console.log(loadingCategories, loadingCourses);
-
-  if (loadingCategories || loadingCourses) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[30rem]">
-        <span className="loading loading-ring loading-6xl text-primary-text"></span>
+        <span className="loading loading-ring loading-lg text-primary"></span>
       </div>
     );
   }
 
   return (
-    <div className="px-[7.5rem] py-[2.5rem]">
+    <div className="space-y-[2rem] mx-[7.5rem] p-[3rem] bg-surface rounded-[1.25rem]">
+      <div className="flex justify-between items-center">
+        <h1 className="text-4xl text-primary-text font-bold">Search Results</h1>
+        <div className="flex items-center gap-4">
+          {totalCourses > 0 && (
+            <span className="text-base text-primary-text font-normal">
+              {totalCourses} courses
+            </span>
+          )}
+          <FiltersToggler onClick={() => setIsSidebarOpen(true)} />
+        </div>
+      </div>
+
       <FiltersSidebar
         isSidebarOpen={isSidebarOpen}
-        changeSidebarOpen={changeSidebarOpen}
+        changeSidebarOpen={setIsSidebarOpen}
         resetFilters={resetFilters}
-        rating={rating}
-        changeRating={changeRating}
+        rating={filters.rating}
+        changeRating={(e) => updateFilter("minRating", e.target.value || null)}
         categories={categories}
-        selectedCategory={selectedCategory}
-        changeCategory={changeCategory}
-        levels={levels}
-        changeLevels={changeLevels}
-        minValue={minValue}
-        maxValue={maxValue}
-        min={min}
-        max={max}
-        handleMinChange={handleMinChange}
-        handleMaxChange={handleMaxChange}
+        selectedCategory={filters.selectedCategory}
+        changeCategory={(e) => updateFilter("category", e.target.value || null)}
+        levels={filters.levels}
+        changeLevels={(e) => {
+          const updated = { ...filters.levels };
+          if (e.target.name === "All levels") {
+            const value = !filters.levels["All levels"];
+            Object.keys(updated).forEach(
+              (l) => (updated[l as keyof typeof updated] = value)
+            );
+          } else {
+            updated[e.target.name as keyof typeof updated] = e.target.checked;
+            updated["All levels"] = false;
+          }
+          const selected = Object.entries(updated)
+            .filter(([l, c]) => c && l !== "All levels")
+            .map(([l]) => l.toLowerCase());
+          updateFilter("level", selected.length ? selected.join(",") : null);
+        }}
+        minValue={filters.priceRange[0]}
+        maxValue={filters.priceRange[1]}
+        min={MIN_PRICE}
+        max={MAX_PRICE}
+        handleMinChange={(e) => {
+          const value = parseInt(e.target.value);
+          setFilters((prev) => ({
+            ...prev,
+            priceRange: [
+              Math.min(value, prev.priceRange[1] - 1),
+              prev.priceRange[1],
+            ],
+          }));
+          updateFilter("minPrice", value > 0 ? String(value) : null);
+        }}
+        handleMaxChange={(e) => {
+          const value = parseInt(e.target.value);
+          setFilters((prev) => ({
+            ...prev,
+            priceRange: [
+              prev.priceRange[0],
+              Math.max(value, prev.priceRange[0] + 1),
+            ],
+          }));
+          updateFilter("maxPrice", value > 0 ? String(value) : null);
+        }}
       />
 
-      {pageCourses.map((course: Icourse, index) => {
-        console.log("Rendered course:", course);
-        return <CourseCard key={index} course={course} />;
-      })}
+      {memoizedCourses.length > 0 ? (
+        <>
+          <ul className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4">
+            {memoizedCourses.map((course) => (
+              <CourseCard course={course} key={course.id} />
+            ))}
+          </ul>
 
-      {numOfPages > 1 && (
-        <div className="flex justify-center py-[0.5rem]">
-          <Pagination
-            pageNum={pageNum}
-            previous={prevPage}
-            next={nextPage}
-            numOfPages={numOfPages}
-          />
-        </div>
-      )}
-      {courses.length < 1 && (
-        <p className="w-full text-center text-primary-text text-4xl py-[20rem]">
+          {numOfPages > 1 && (
+            <div className="flex justify-center py-[0.5rem]">
+              <Pagination
+                currentPage={pageNum}
+                totalPages={numOfPages}
+                onPrevious={() => updatePageParam(Math.max(pageNum - 1, 1))}
+                onNext={() => hasMore && updatePageParam(pageNum + 1)}
+                onPageChange={updatePageParam}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="w-full text-center text-primary-text text-2xl py-[20rem]">
           No courses found.
         </p>
       )}
     </div>
+  );
+}
+
+function parseLevels(levelParam?: string | null) {
+  const defaultLevels = {
+    "All levels": false,
+    Beginner: false,
+    Intermediate: false,
+    Advanced: false,
+  };
+
+  if (!levelParam) return defaultLevels;
+
+  return levelParam.split(",").reduce(
+    (acc, lvl) => {
+      const normalized =
+        lvl.charAt(0).toUpperCase() + lvl.slice(1).toLowerCase();
+      if (normalized in acc) {
+        acc[normalized as keyof typeof acc] = true;
+      }
+      return acc;
+    },
+    { ...defaultLevels }
   );
 }
