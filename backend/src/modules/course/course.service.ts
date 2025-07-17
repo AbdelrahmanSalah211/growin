@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
-import { User, Course } from 'src/models';
+import { User, Course, CourseCategory } from 'src/models';
 import { APIFeatures } from './../../../utils/APIFeatures';
 
 @Injectable()
@@ -10,6 +10,8 @@ export class CourseService {
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    @InjectRepository(CourseCategory)
+    private courseCategoryRepository: Repository<CourseCategory>,
   ) {}
 
   async createCourse(instructorId: number, courseDto: CreateCourseDto): Promise<Course> {
@@ -47,12 +49,18 @@ export class CourseService {
       throw new NotFoundException(`Course with ID ${courseId} not found`);
     }
 
-    const { title, description, language, level, price } = updatedCourse;
+    const { title, description, language, level, price, courseCategoryId } = updatedCourse;
     course.title = title || course.title;
     course.description = description || course.description;
     course.language = language || course.language;
     course.level = level || course.level;
     course.price = price || course.price;
+    if (courseCategoryId) {
+      const courseCategory = await this.courseCategoryRepository.findOne({
+        where: { id: courseCategoryId },
+      });
+      course.courseCategory = courseCategory || course.courseCategory;
+    }
     if (updatedCourse.courseCover && updatedCourse.imageDeleteURL) {
       course.courseCover = updatedCourse.courseCover;
       course.imageDeleteURL = updatedCourse.imageDeleteURL;
