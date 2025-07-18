@@ -15,8 +15,16 @@ export class CourseService {
   ) {}
 
   async createCourse(instructorId: number, courseDto: CreateCourseDto): Promise<Course> {
+    const {title, description, language, level, price, courseCategoryId } = courseDto;
     const newCourse = this.courseRepository.create({
-      ...courseDto,
+      title,
+      description,
+      language,
+      level,
+      price: parseFloat(price),
+      courseCategory: { id: parseInt(courseCategoryId) } as CourseCategory,
+      courseCover: courseDto.courseCover,
+      imageDeleteURL: courseDto.imageDeleteURL,
       instructor: { id: instructorId } as User,
     });
     return this.courseRepository.save(newCourse);
@@ -54,12 +62,9 @@ export class CourseService {
     course.description = description || course.description;
     course.language = language || course.language;
     course.level = level || course.level;
-    course.price = price || course.price;
-    if (courseCategoryId) {
-      const courseCategory = await this.courseCategoryRepository.findOne({
-        where: { id: courseCategoryId },
-      });
-      course.courseCategory = courseCategory || course.courseCategory;
+    course.price = parseFloat(price) || course.price;
+    if(courseCategoryId) {
+      course.courseCategory = { id: parseInt(courseCategoryId) } as CourseCategory;
     }
     if (updatedCourse.courseCover && updatedCourse.imageDeleteURL) {
       course.courseCover = updatedCourse.courseCover;
