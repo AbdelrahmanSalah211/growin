@@ -1,60 +1,74 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { Lesson } from '../../models/index';
+import { Course, Lesson, User } from '../../models/index';
+import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
 
 @Injectable()
 export class LessonsService {
   constructor(
     @InjectRepository(Lesson)
     private lessonRepository: Repository<Lesson>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  create(createLessonDto: CreateLessonDto) {
+  async createLesson(createLessonDto: CreateLessonDto): Promise<Lesson> {
+    const { title, position, courseId } = createLessonDto;
     const lesson = this.lessonRepository.create({
-      ...createLessonDto,
-      course: { id: createLessonDto.courseId },
+      title,
+      position: parseInt(position!),
+      fileURL: createLessonDto.fileURL,
+      course: { id: parseInt(courseId) } as Course,
     });
     return this.lessonRepository.save(lesson);
   }
 
-  findByCourseId(courseId: number) {
-    const lessons = this.lessonRepository.find({
-      where: { course: { id: courseId } },
-    });
-    return lessons;
-  }
-  addFileURl(id: number, fileURL: string) {
-    return this.lessonRepository.update(id, { fileURL: fileURL });
-  }
-
-  findAll() {
-    return this.lessonRepository.find();
-  }
-
-  findOne(id: number) {
+  async getLesson(id: number): Promise<Lesson | null> {
     return this.lessonRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, updateLessonDto: UpdateLessonDto) {
-    const lesson = await this.lessonRepository.findOne({ where: { id } });
-  
-    if (!lesson) {
-      throw new Error(`Lesson with ID ${id} not found`);
-    }
-  
-    // Only overwrite fields if they are defined
-    Object.assign(lesson, {
-      ...updateLessonDto,
-      fileURL: updateLessonDto.fileURL !== undefined ? updateLessonDto.fileURL : lesson.fileURL,
-    });
-  
-    return this.lessonRepository.save(lesson);
+  async deleteLesson(id: number): Promise<void> {
+    await this.lessonRepository.delete(id);
   }
 
-  remove(id: number) {
-    return this.lessonRepository.delete(id);
+  async updateLesson(lessonId: number, instructorId: number, updateLessonDto: UpdateLessonDto) {
+    const lesson = await this.lessonRepository.findOne({
+      where: { id: lessonId },
+      relations: ['course'],
+    });
+
+    if (!lesson) {
+      throw new Error(`Lesson with ID ${lessonId} not found`);
+    }
+
+    const instructor = await this.userRepository.findOne({
+      where: { id: instructorId },
+    });
+
+    if (!instructor) {
+      throw new Error(`Instructor with ID ${instructorId} not found`);
+    }
+
+    if (instructor.id != instructorId) {
+      throw new Error(`Instructor with ID ${instructorId} is not authorized to update this lesson`);
+    }
+
+    const { title, position } = updateLessonDto;
+    lesson.title = title || lesson.title;
+    lesson.position = position ? parseInt(position) : lesson.position;
+
+    if (updateLessonDto.fileURL) {
+      lesson.fileURL = updateLessonDto.fileURL;
+    }
+    return this.lessonRepository.save(lesson);
+
+  }
+
+  async findCourseLessons(courseId: number): Promise<Lesson[]> {
+    return this.lessonRepository.find({
+      where: { course: { id: courseId } },
+      order: { position: 'ASC' },
+    });
   }
 }

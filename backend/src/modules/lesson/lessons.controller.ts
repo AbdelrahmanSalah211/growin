@@ -9,17 +9,17 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
-  BadRequestException,
   NotFoundException,
+  Req,
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
-import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../videos/cloudinary.service';
 import { JwtAuthGuard } from '../auth/auth.guard';
-import { LessonType } from 'src/models';
-@UseGuards(JwtAuthGuard)
+import { Roles } from '../authorization/roles.decorator';
+import { RolesGuard } from '../authorization/roles.guard';
+import { UserMode } from 'src/models';
+import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
 @Controller('lessons')
 export class LessonsController {
   constructor(
@@ -28,95 +28,64 @@ export class LessonsController {
   ) {}
 
   @Post()
-  create(@Body() createLessonDto: CreateLessonDto) {
-    return this.lessonsService.create(createLessonDto);
-  }
-
-  @Post('bulk')
-  async createBulk(@Body() createLessonDtos: CreateLessonDto[]) {
-    return Promise.all(
-      createLessonDtos.map((dto) => this.lessonsService.create(dto)),
-    );
-  }
-
-  @Get('courseId/:id')
-  getByCourse(@Param('id') courseId: number) {
-    return this.lessonsService.findByCourseId(courseId);
-  }
-  @Get()
-  findAll() {
-    return this.lessonsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lessonsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonsService.update(+id, updateLessonDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lessonsService.remove(+id);
-  }
-
-  @Patch('file/:id') // ←  generic “file” endpoint
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadLessonFile(
-    @Param('id') id: string, // get the lesson id from the URL
-    @UploadedFile() file?: Express.Multer.File,
-    @Body() body?: any, // any other fields (title, section, lessonType…)
+  async createLesson(
+    @Body() createLessonDto: CreateLessonDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    const numericId = Number(id);
-
-    // ────────────────────────────────────────────────────────────────
-    // 1  Fetch the lesson so you know its current lessonType
-    // ────────────────────────────────────────────────────────────────
-    const existingLesson = await this.lessonsService.findOne(numericId);
-    if (!existingLesson) throw new NotFoundException('Lesson not found');
-
-    // allow the client to change the type in the same call
-    const lessonType = (body?.lessonType ??
-      existingLesson.lessonType) as LessonType;
-
-    // ────────────────────────────────────────────────────────────────
-    // 2  Decide which Cloudinary resource_type to use
-    // ────────────────────────────────────────────────────────────────
-    let uploadedUrl: string | undefined;
-
     if (file) {
-      let result;
-      if (lessonType === LessonType.VIDEO) {
-        // videos – keep resource_type "video" (or "auto")
-        result = await this.cloudinaryService.uploadVideo(file); // your existing helper
-      } else {
-        // docs, pdf, zip, etc. – use resource_type "raw"
-        result = await this.cloudinaryService.uploadFile(file); // make helper that accepts 'raw'
-      }
-
-      if (!result?.secure_url) throw new Error('Cloudinary upload failed');
-      uploadedUrl = result.secure_url;
+      const result = await this.cloudinaryService.uploadFile(file);
+      createLessonDto.fileURL = result.secure_url;
     }
+    return this.lessonsService.createLesson(createLessonDto);
+  }
 
-    // ────────────────────────────────────────────────────────────────
-    // 3  Build the payload to update the lesson
-    // ────────────────────────────────────────────────────────────────
-    const updatePayload: Record<string, any> = { ...body };
+  @Get('course/:courseId')
+  async findCourseLessons(
+    @Param('courseId') courseId: number,
+  ){
+    return this.lessonsService.findCourseLessons(courseId);
+  }
 
-    if (uploadedUrl) updatePayload.fileURL = uploadedUrl;
-    if (lessonType !== existingLesson.lessonType)
-      updatePayload.lessonType = lessonType;
-
-    if (Object.keys(updatePayload).length === 0) {
-      throw new BadRequestException('No file or update data provided');
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR, UserMode.LEARNER)
+  @Get(':lessonId')
+  async getLesson(
+    @Param('lessonId') lessonId: number
+  ) {
+    const lesson = await this.lessonsService.getLesson(lessonId);
+    if (!lesson) {
+      throw new NotFoundException(`Lesson with ID ${lessonId} not found`);
     }
+    return lesson;
+  }
 
-    // ────────────────────────────────────────────────────────────────
-    // 4  Persist changes
-    // ────────────────────────────────────────────────────────────────
-    return this.lessonsService.update(numericId, updatePayload);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch(':lessonId')
+  async updateLesson(
+    @Param('lessonId') lessonId: number,
+    @Body() updateLessonDto: UpdateLessonDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: { user: { sub: number } },
+  ) {
+    if (file) {
+      const result = await this.cloudinaryService.uploadFile(file);
+      updateLessonDto.fileURL = result.secure_url;
+    }
+    return this.lessonsService.updateLesson(lessonId, req.user.sub, updateLessonDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserMode.INSTRUCTOR)
+  @Delete(':lessonId')
+  async deleteLesson(
+    @Param('lessonId') lessonId: number
+  ) {
+    await this.lessonsService.deleteLesson(lessonId);
+    return { message: `Lesson with ID ${lessonId} deleted successfully` };
   }
 }

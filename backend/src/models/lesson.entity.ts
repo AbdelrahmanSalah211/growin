@@ -25,7 +25,7 @@ export class Lesson {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ default: 1 })
   position: number;
 
   @Column({ default: 'Lesson Section' })
