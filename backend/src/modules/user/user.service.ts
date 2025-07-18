@@ -46,7 +46,7 @@ export class UserService {
       throw new Error('User not found');
     }
     const { username, email: newEmail, bio } = dto;
-    if (user.email != newEmail){
+    if (newEmail && user.email != newEmail){
       const foundUser = await this.findByEmail(newEmail);
       if(foundUser){
         throw new Error('Email already in use');

@@ -45,7 +45,6 @@ export class ImageService {
         // {
           // headers: {
             // 'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Content-Type': 'application/x-www-form-urlencoded',
           // },
         // },
       );
