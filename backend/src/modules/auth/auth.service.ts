@@ -63,6 +63,7 @@ export class AuthService {
         username: user.username,
         profileImage: user.profileImage,
         userMode: user.userMode,
+        isPasswordPresent: user.isPasswordPresent,
       },
     };
   }
@@ -104,6 +105,7 @@ export class AuthService {
         username: user.username,
         profileImage: user.profileImage,
         userMode: user.userMode,
+        isPasswordPresent: user.isPasswordPresent,
       },
     };
   }
