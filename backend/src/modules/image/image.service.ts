@@ -33,19 +33,21 @@ export class ImageService {
     // Convert buffer to base64 (imgbb expects this format)
     const imageBase64 = file.buffer.toString('base64');
 
-    const form = new URLSearchParams();
+    // const form = new URLSearchParams();
+    const form = new FormData();
     form.append('key', this.apiKey);
     form.append('image', imageBase64);
 
     try {
       const response = await axios.post<ImgbbUploadResponse>(
         this.IMGBB_UPLOAD_URL,
-        form.toString(),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        },
+        form/*.toString()*/,
+        // {
+          // headers: {
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          // },
+        // },
       );
 
       const { display_url, delete_url } = response.data.data;
