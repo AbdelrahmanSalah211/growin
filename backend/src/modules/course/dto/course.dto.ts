@@ -14,8 +14,9 @@ export class CreateCourseDto {
   @IsEnum(['beginner', 'intermediate', 'advanced'])
   level: CourseLevel;
   
-  @IsNumber()
-  price: number;
+  // @IsNumber()
+  @IsString()
+  price: string;
 
   @IsOptional()
   @IsString()
@@ -27,8 +28,9 @@ export class CreateCourseDto {
   @IsNotEmpty()
   imageDeleteURL?: string;
 
-  @IsNumber()
-  courseCategoryId: number;
+  // @IsNumber()
+  @IsString()
+  courseCategoryId: string;
 }
 export class UpdateCourseDto {
   @IsOptional()
@@ -52,8 +54,8 @@ export class UpdateCourseDto {
   level: CourseLevel;
 
   @IsOptional()
-  @IsNumber()
-  price: number;
+  @IsString()
+  price: string;
 
   @IsString()
   @IsOptional()
@@ -65,7 +67,7 @@ export class UpdateCourseDto {
   @IsNotEmpty()
   imageDeleteURL?: string;
 
-  @IsNumber()
   @IsOptional()
-  courseCategoryId?: number;
+  @IsString()
+  courseCategoryId?: string;
 }
