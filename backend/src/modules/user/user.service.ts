@@ -161,6 +161,7 @@ export class UserService {
         username: user.username,
         profileImage: user.profileImage,
         userMode: user.userMode,
+        isPasswordPresent: user.isPasswordPresent,
       },
     };
   }
