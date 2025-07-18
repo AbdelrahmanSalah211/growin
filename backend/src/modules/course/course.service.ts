@@ -1,121 +1,106 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IsNull, Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCourseDto } from './dto/course.dto';
-import { User, Course } from 'src/models';
+import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
+import { User, Course, CourseCategory } from 'src/models';
 import { APIFeatures } from './../../../utils/APIFeatures';
+
 @Injectable()
 export class CourseService {
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    @InjectRepository(CourseCategory)
+    private courseCategoryRepository: Repository<CourseCategory>,
   ) {}
 
-
   async createCourse(instructorId: number, courseDto: CreateCourseDto): Promise<Course> {
+    const {title, description, language, level, price, courseCategoryId } = courseDto;
     const newCourse = this.courseRepository.create({
-      ...courseDto,
+      title,
+      description,
+      language,
+      level,
+      price: parseFloat(price),
+      courseCategory: { id: parseInt(courseCategoryId) } as CourseCategory,
+      courseCover: courseDto.courseCover,
+      imageDeleteURL: courseDto.imageDeleteURL,
       instructor: { id: instructorId } as User,
     });
     return this.courseRepository.save(newCourse);
   }
 
-  async findAll(): Promise<Course[]> {
-    return this.courseRepository
-      .createQueryBuilder('course')
-      .leftJoinAndSelect('course.lessons', 'lesson')
-      .leftJoinAndSelect('course.instructor', 'instructor')
-      .leftJoinAndSelect('course.reviews', 'review')
-      .leftJoinAndSelect('course.enrollments', 'enrollment')
-      .orderBy('lesson.position', 'DESC')
-      .getMany();
-    // return this.courseRepository.find({
-    //   relations: ['lessons', 'instructor', 'reviews', 'enrollments'],
-
-    // });
-  }
-
-  // // to be deleted
-  // async createCourse(
-  //   instructor_id: number,
-  //   course: CreateCourseDto,
-  // ): Promise<Course> {
-  //   const newCourse = new Course();
-  //   newCourse.title = course.title;
-  //   newCourse.instructor = { id: instructor_id } as User;
-  //   newCourse.description = course.description;
-  //   newCourse.isPublished = course.isPublished;
-  //   newCourse.language = course.language;
-  //   newCourse.imageDeleteURL = course.imageDeleteURL;
-  //   newCourse.ratingSum = course.ratingSum;
-  //   newCourse.level = course.level;
-  //   newCourse.price = course.price;
-  //   newCourse.numberOfReviewers = course.numberOfReviewers;
-  //   return this.courseRepository.save(newCourse);
-  // }
-
-  // async uploadImage(courseId: number) {
-  //   const course = await this.courseRepository.findOne({
-  //     where: { id: courseId },
-  //   });
-
-  // }
-
-  async findAllCoursesByUser(userId: number): Promise<Course[]> {
-    return this.courseRepository.find({
-      where: { instructor: { id: userId } },
+  async publishCourse(courseId: number, instructorId: number) {
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId, instructor: { id: instructorId } },
     });
-  }
-
-  async findById(id: number): Promise<Course> {
-    const course = await this.courseRepository
-      .createQueryBuilder('course')
-      .leftJoinAndSelect('course.lessons', 'lesson')
-      .leftJoinAndSelect('course.instructor', 'instructor')
-      .leftJoinAndSelect('course.reviews', 'review')
-      .leftJoinAndSelect('review.student', 'student')
-      .leftJoinAndSelect('course.enrollments', 'enrollment')
-      .where('course.id = :id', { id })
-      .orderBy('lesson.position', 'ASC')
-      .getOne();
 
     if (!course) {
-      throw new NotFoundException(`Course with ID ${id} not found`);
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
     }
-    return course;
-  }
 
-  async delete(id: number) {
-    await this.courseRepository.softDelete(id);
-    return {
-      message: `Course with ID ${id} has been deleted successfully`,
-    };
-  }
-
-  async getAllBySoftDeleted(): Promise<Course[]> {
-    return this.courseRepository.find({
-      withDeleted: true,
-      where: { deletedAt: Not(IsNull()) },
-    });
+    course.isPublished = true;
+    await this.courseRepository.save(course);
+    return { message: `Course with ID ${courseId} has been published successfully` };
   }
 
   async updateCourse(
-    id: number,
-    updatedCourse: Partial<CreateCourseDto>,
-  ): Promise<Course> {
-    const course = await this.courseRepository.findOne({ where: { id } });
+    courseId: number,
+    instructorId: number,
+    updatedCourse: UpdateCourseDto
+  ) {
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId, instructor: { id: instructorId } },
+    });
+
     if (!course) {
-      throw new NotFoundException(`Course with ID ${id} not found`);
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
     }
 
-    Object.assign(course, updatedCourse);
+    const { title, description, language, level, price, courseCategoryId } = updatedCourse;
+    course.title = title || course.title;
+    course.description = description || course.description;
+    course.language = language || course.language;
+    course.level = level || course.level;
+    course.price = parseFloat(price) || course.price;
+    if(courseCategoryId) {
+      course.courseCategory = { id: parseInt(courseCategoryId) } as CourseCategory;
+    }
+    if (updatedCourse.courseCover && updatedCourse.imageDeleteURL) {
+      course.courseCover = updatedCourse.courseCover;
+      course.imageDeleteURL = updatedCourse.imageDeleteURL;
+    }
     return this.courseRepository.save(course);
   }
 
-  async findByInstructor(instructorId: number): Promise<Course[]> {
+  async getAllCourses(): Promise<Course[]> {
+    return this.courseRepository.find({
+      where: { isPublished: true },
+      relations: ['instructor'],
+    });
+  }
+
+  async getCourse(courseId: number): Promise<Course | null> {
+    return this.courseRepository.findOne({
+      where: { id: courseId },
+      relations: ['instructor', 'lessons', 'reviews'],
+      order: {
+        lessons: {
+          position: 'ASC',
+        },
+      },
+    });
+  }
+
+  async getInstructorCourses(instructorId: number): Promise<Course[]> {
     return this.courseRepository.find({
       where: { instructor: { id: instructorId } },
-      relations: ['lessons'],
+    });
+  }
+
+  async deleteCourse(courseId: number): Promise<void> {
+    return this.courseRepository.softDelete(courseId).then(() => {
+      return;
     });
   }
 
