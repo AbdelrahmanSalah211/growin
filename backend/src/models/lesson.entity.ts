@@ -28,10 +28,10 @@ export class Lesson {
   @Column()
   position: number;
 
-  @Column()
+  @Column({ default: 'Lesson Section' })
   section: string;
 
-  @Column({ nullable: true })
+  @Column({ default: 'Lesson Subtitle' })
   subTitle: string;
 
   @Column({
