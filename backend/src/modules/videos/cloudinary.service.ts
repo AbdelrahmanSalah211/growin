@@ -22,9 +22,11 @@ export class CloudinaryService {
           timeout: 600000,
         },
         (error, result: any) => {
-          console.log(error, 'error');
-
-          if (error) return reject(error);
+          console.log('result: ', result);
+          if (error) {
+            console.log('error: ', error);
+            return reject(error);
+          } 
           resolve(result);
         },
       );
