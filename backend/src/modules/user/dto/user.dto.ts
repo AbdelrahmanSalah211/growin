@@ -40,11 +40,11 @@ export class CreateUserDto {
 export class UpdateUserDto  {
   @IsOptional()
   @IsString()
-  username: string;
+  username?: string;
 
   @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
