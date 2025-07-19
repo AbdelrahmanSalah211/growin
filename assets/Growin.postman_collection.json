@@ -1,0 +1,1476 @@
+{
+	"info": {
+		"_postman_id": "6a330195-3ac8-46a6-b5e1-4019bdfa2e17",
+		"name": "Growin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31618134"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"example\",\r\n    \"email\": \"example@gmail.com\",\r\n    \"password\": \"Ex*1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/signup",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().accessToken){\r",
+									"    pm.collectionVariables.set('accessToken', pm.response.json().accessToken);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"identifier\": \"example@gmail.com\",\r\n    \"password\": \"Ex*1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().accessToken){\r",
+									"    pm.collectionVariables.set('accessToken', pm.response.json().accessToken);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/refresh",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/info",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "Example2",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "example2@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "bio",
+									"value": "test change bio 3",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1f063c57-68fd-4450-b000-f8f2c13fbb0a"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/users/info",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"currentPassword\": \"Ex*1234567\",\r\n    \"newPassword\": \"Ex*123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/users/password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{googleAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\": \"As*123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/users/create-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"create-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "switch user mode",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.response.json().accessToken){\r",
+									"    pm.collectionVariables.set('accessToken', pm.response.json().accessToken);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/users/user-mode",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"user-mode"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forget password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"example@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/users/forget-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"forget-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset password",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"10e34be62cb9d55ba47954a97b8bce049dd97dc36ea2bee704d6e565da66aed1\",\r\n    \"newPassword\": \"Ex*123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/users/reset-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Review",
+			"item": [
+				{
+					"name": "create review",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rating\": 4,\r\n    \"comment\": \"this course sucks\",\r\n    \"helpful\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/reviews/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"reviews",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update review",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rating\": 3.5,\r\n    \"comment\": \"this course sucks\",\r\n    \"helpful\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/reviews/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"reviews",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete review",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/reviews/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"reviews",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "student reviews",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/reviews",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Course Category",
+			"item": [
+				{
+					"name": "create category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/course-categories",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"course-categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "course categores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/course-categories",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"course-categories"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Course",
+			"item": [
+				{
+					"name": "create course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Operating Systems",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Learn OS components and details like processes",
+									"type": "text"
+								},
+								{
+									"key": "language",
+									"value": "English",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "2500",
+									"type": "text"
+								},
+								{
+									"key": "level",
+									"value": "advanced",
+									"type": "text"
+								},
+								{
+									"key": "courseCategoryId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1f063c57-68fd-4450-b000-f8f2c13fbb0a"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/courses",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Operating Systems",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Learn OS components and details like processes and threads",
+									"type": "text"
+								},
+								{
+									"key": "language",
+									"value": "English",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "2500",
+									"type": "text"
+								},
+								{
+									"key": "level",
+									"value": "advanced",
+									"type": "text"
+								},
+								{
+									"key": "courseCategoryId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1f063c57-68fd-4450-b000-f8f2c13fbb0a"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/courses/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "24"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "publish course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/courses/publish/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses",
+								"publish",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "24"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "instructor courses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/courses/instructor",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses",
+								"instructor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/courses",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "course",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/courses/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/courses/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "24"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Course",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/courses/search?category=Programming&limit=4&page=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"courses",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "withdrawal",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Programming"
+								},
+								{
+									"key": "level",
+									"value": "beginner",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "2000",
+									"disabled": true
+								},
+								{
+									"key": "minRating",
+									"value": "3.5",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "-createdAt",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "4"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Enrollment",
+			"item": [
+				{
+					"name": "user enrollments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/enrollments/my-enrollments",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"enrollments",
+								"my-enrollments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "is user enrolled",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/enrollments/is-enrolled/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"enrollments",
+								"is-enrolled",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "13"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create enrollment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tran_ref\": \"TST2519402115218\",\r\n    \"merchant_id\": 78429,\r\n    \"profile_id\": 138280,\r\n    \"cart_id\": \"cart:28\",\r\n    \"cart_description\": \"cart:28\",\r\n    \"cart_currency\": \"EGP\",\r\n    \"cart_amount\": \"901.50\",\r\n    \"tran_currency\": \"EGP\",\r\n    \"tran_total\": \"901.50\",\r\n    \"tran_type\": \"Auth\",\r\n    \"tran_class\": \"ECom\",\r\n    \"customer_details\": {\r\n        \"name\": \"Abdelrahman Salah\",\r\n        \"email\": \"abdelrahmansalah@gmail.com\",\r\n        \"phone\": \"01234567890\",\r\n        \"street1\": \"menasha\",\r\n        \"city\": \"Alexandria\",\r\n        \"state\": \"ALX\",\r\n        \"country\": \"EG\",\r\n        \"zip\": \"52121\",\r\n        \"ip\": \"156.218.49.132\"\r\n    },\r\n    \"shipping_details\": {\r\n        \"name\": \"Abdelrahman Salah\",\r\n        \"email\": \"abdelrahmansalah@gmail.com\",\r\n        \"phone\": \"01234567890\",\r\n        \"street1\": \"menasha\",\r\n        \"city\": \"Alexandria\",\r\n        \"state\": \"ALX\",\r\n        \"country\": \"EG\",\r\n        \"zip\": \"52121\"\r\n    },\r\n    \"payment_result\": {\r\n        \"response_status\": \"A\",\r\n        \"response_code\": \"G33974\",\r\n        \"response_message\": \"Authorised\",\r\n        \"acquirer_ref\": \"TRAN0002.68740536.000EB7BF\",\r\n        \"cvv_result\": \" \",\r\n        \"avs_result\": \" \",\r\n        \"transaction_time\": \"2025-07-13T19:12:54Z\"\r\n    },\r\n    \"payment_info\": {\r\n        \"payment_method\": \"Visa\",\r\n        \"card_type\": \"Credit\",\r\n        \"card_scheme\": \"Visa\",\r\n        \"payment_description\": \"4000 00## #### 0002\",\r\n        \"expiryMonth\": 11,\r\n        \"expiryYear\": 2025\r\n    },\r\n    \"threeDSDetails\": {\r\n        \"responseLevel\": 2,\r\n        \"responseStatus\": 4,\r\n        \"enrolled\": \"Y\",\r\n        \"paResStatus\": \"Y\",\r\n        \"eci\": \"05\",\r\n        \"cavv\": \"\",\r\n        \"ucaf\": \"VFNUMjUxOTQwMjExNTIxODYwMjY=\",\r\n        \"threeDSVersion\": \"Test/Simulation\"\r\n    },\r\n    \"ipn_trace\": \"IPNS0002.68740536.000139E3\",\r\n    \"paymentChannel\": \"Payment Page\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/enrollments",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"enrollments"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "add to cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"courseId\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/cart",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/cart",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove course cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"courseId\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/cart/remove-course",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"cart",
+								"remove-course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove whole cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/cart",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "payment",
+			"item": [
+				{
+					"name": "create payment page",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/checkout",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"checkout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lesson",
+			"item": [
+				{
+					"name": "create lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "lesson test 1",
+									"type": "text"
+								},
+								{
+									"key": "position",
+									"value": "6",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/VV/Downloads/JavaScript_in_100_Seconds1080p_uftc89.mp4"
+								},
+								{
+									"key": "courseId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/lessons",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lessons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "lesson doflagemgo",
+									"type": "text"
+								},
+								{
+									"key": "position",
+									"value": "7",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/VV/Downloads/Doflamingo Laugh.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/lessons/:lessonId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lessons",
+								":lessonId"
+							],
+							"variable": [
+								{
+									"key": "lessonId",
+									"value": "138"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "course leesons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/lessons/course/:courseId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lessons",
+								"course",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/lessons/:lessonId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lessons",
+								":lessonId"
+							],
+							"variable": [
+								{
+									"key": "lessonId",
+									"value": "138"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/lessons/:lessonId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"lessons",
+								":lessonId"
+							],
+							"variable": [
+								{
+									"key": "lessonId",
+									"value": "138"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "http://localhost:3000",
+			"type": "default"
+		},
+		{
+			"key": "host",
+			"value": ""
+		},
+		{
+			"key": "accessToken",
+			"value": ""
+		}
+	]
+}
