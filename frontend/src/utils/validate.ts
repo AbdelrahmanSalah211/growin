@@ -108,12 +108,8 @@ export const validateConfirmPassword = (
     messages: [],
   };
 
-  console.log(password, confirmPassword);
-
   if (password !== confirmPassword)
     result.messages.push("Passwords do not match.");
-
-  console.log(result.messages);
 
   result.isValid = result.messages.length === 0;
   return result;

@@ -1,62 +1,55 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FormContainer } from "@/components/layout/FormContainer";
 import { getUserEnrollments } from "@/services/userEntrollmentsService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 import { useAuthStore } from "@/stores/authStore";
-import { CourseCard } from "@/components/course/courseCard";
+import { CourseCard } from "@/components/course/CourseCard";
 
 export default function Home() {
-    useHydrateAuth();
-    const accessToken = useAuthStore((state) => state.token) || "";
+  useHydrateAuth();
+  const accessToken = useAuthStore((state) => state.token) || "";
 
-    const [enrolledCourses, setEnrolledCourses] = useState([]);
-    console.log(enrolledCourses);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
 
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            if (!accessToken) return;
-            try {
-                const courses = await getUserEnrollments(accessToken);
-                setEnrolledCourses(courses);
-            } catch (err) {
-                console.log(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!accessToken) return;
+      try {
+        const courses = await getUserEnrollments(accessToken);
+        setEnrolledCourses(courses);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchCourses();
-    }, [accessToken]);
+    fetchCourses();
+  }, [accessToken]);
 
-    return (
-        <div className="space-y-[2rem] px-[7rem] py-[2rem]">
-            <h1 className="text-[2.5rem] text-primary-text font-extrabold">
-                My Courses
-            </h1>
+  return (
+    <div
+      /*onClick={removeAuth}*/ className="space-y-[2rem] mx-[7.5rem] p-[3rem] bg-surface rounded-[1.25rem]"
+    >
+      <h1 className="text-4xl text-primary-text font-bold">Trending Courses</h1>
 
-            {loading ? (
-                <div className="flex justify-center items-center min-h-[30rem]">
-                    <span className="loading loading-ring loading-6xl text-primary-text"></span>
-                </div>
-            ) : (
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {enrolledCourses.map((enrollment: any) => (
-                        <CourseCard
-                            key={enrollment.course.id}
-                            id={enrollment.course.id}
-                            title={enrollment.course.title}
-                            description={enrollment.course.description}
-                            courseCover={enrollment.course.courseCover}
-                            level={enrollment.course.level}
-                            price={enrollment.course.price}
-                            rating={enrollment.course.rating}
-                        />
-                    ))}
-                </ul>
-            )}
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[30rem]">
+          <span className="loading loading-ring loading-6xl text-primary-text"></span>
         </div>
-    );
+      ) : enrolledCourses.length > 0 ? (
+        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {enrolledCourses.map((enrollment: any) => (
+            <CourseCard course={enrollment.course} key={enrollment.id} />
+          ))}
+        </ul>
+      ) : (
+        <div className="flex justify-center items-center min-h-[30rem]">
+          <p className="text-2xl text-primary-text">No enrolled courses</p>
+        </div>
+      )}
+    </div>
+  );
 }

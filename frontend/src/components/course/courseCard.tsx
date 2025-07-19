@@ -4,6 +4,7 @@ import Image from "next/image";
 import ReviewStars from "@/components/reviewStars/ReviewStars";
 import { getRoundedRating } from "@/utils/equations";
 import { ICourse } from "@/interfaces/ICourse";
+import { formatPrice } from "@/utils/formatPrice";
 
 interface CourseCardProps {
   course: ICourse;
@@ -58,7 +59,7 @@ export const CourseCard: FC<CourseCardProps> = ({ course }) => {
           {/* Price & Level */}
           <div className="flex items-center justify-between mt-auto">
             <span className="text-primary-text font-bold text-sm">
-              E£{course.price}
+              {formatPrice(+course.price!, "EGP", "en-US")}
             </span>
             <span className="text-xs bg-background text-primary-text font-medium px-2 py-0.5 rounded">
               {course.level}

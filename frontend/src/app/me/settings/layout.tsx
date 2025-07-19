@@ -11,12 +11,12 @@ export default async function SettingsLayout({
   const userData = userDataString ? JSON.parse(userDataString) : null;
 
   return (
-    <div className="bg-surface container mx-auto px-4 py-8 flex gap-0 rounded-[1.25rem]">
+    <div className="bg-surface text-primary-text container mx-[7.5rem] flex gap-0 rounded-[1.25rem] min-h-screen">
       {/* Sidebar */}
-      <aside className="w-64 bg-base-200 rounded-l-[1.25rem] p-6 h-fit">
-        <div className="flex flex-col items-center text-center mb-6">
+      <aside className="w-64 bg-base-200 rounded-l-[1.25rem]  border-r border-r-border">
+        <div className="flex flex-col gap-2 p-[1.875rem]">
           <div className="avatar">
-            <div className="w-24 rounded-full bg-base-300">
+            <div className="w-32 rounded-full bg-background border border-border">
               <Image
                 src={userData?.profileImage || "/images.jpeg"}
                 alt={userData?.username || "User"}
@@ -25,31 +25,32 @@ export default async function SettingsLayout({
               />
             </div>
           </div>
-          <h2 className="mt-4 text-lg font-medium">{userData?.username}</h2>
-          <p className="text-sm text-base-content/70">{userData?.email}</p>
+          <div>
+            <h2 className="text-lg font-medium max-w-full truncate">
+              {userData?.username}
+            </h2>
+            <p className="text-sm text-secondary-text max-w-full truncate">
+              {userData?.email}
+            </p>
+          </div>
         </div>
 
-        <ul className="menu w-full gap-1">
-          <li>
-            <Link href="/me/settings/profile" className="text-base">Profile</Link>
-          </li>
-          <li>
-            <Link href="/me/settings/security" className="text-base">Account Security</Link>
-          </li>
-          <li>
-            <Link href="/me/settings/payment" className="text-base">Payment Methods</Link>
-          </li>
-          <li>
-            <Link href="/me/settings/close" className="text-base">Close Account</Link>
-          </li>
+        <ul className="flex flex-col w-full gap-1">
+          <Link href="/me/settings/profile">
+            <li className="flex items-center justify-between px-[1.875rem] py-[0.5625rem] text-base hover:bg-background transition-colors">
+              Profile
+            </li>
+          </Link>
+          <Link href="/me/settings/security">
+            <li className="flex items-center justify-between px-[1.875rem] py-[0.5625rem] text-base hover:bg-background transition-colors">
+              Account Security
+            </li>
+          </Link>
         </ul>
       </aside>
 
-      {/* Separator */}
-      <div className="w-px bg-base-300 mx-0 my-6" />
-
       {/* Main Content */}
-      <main className="flex-1 bg-base-200 rounded-r-[1.25rem] p-6">{children}</main>
+      <main className="w-full">{children}</main>
     </div>
   );
 }

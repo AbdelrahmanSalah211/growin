@@ -4,4 +4,9 @@ export interface IUser {
   username: string;
   profileImage: string;
   userMode: string;
+  bio: string | null;
+  isPasswordPresent: boolean;
+  passwordResetToken: string | null;
+  passwordResetExpires: string | null;
+  refreshToken: string | null;
 }

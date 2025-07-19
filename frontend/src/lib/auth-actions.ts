@@ -1,6 +1,8 @@
 "use server";
 
+import { IUser } from "@/interfaces/IUser";
 import { cookies } from "next/headers";
+
 
 export async function setToken(token: string) {
   const cookieStore = await cookies();
@@ -13,9 +15,9 @@ export async function setToken(token: string) {
   });
 }
 
-export async function setUser(user: string) {
+export async function setUser(user: IUser) {
   const cookieStore = await cookies();
-  cookieStore.set("user", user, {
+  cookieStore.set("user", JSON.stringify(user), {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
@@ -44,3 +46,4 @@ export async function isLoggedIn() {
   const token = await getToken();
   return !!token;
 }
+

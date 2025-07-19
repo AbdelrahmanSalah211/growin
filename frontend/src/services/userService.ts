@@ -6,13 +6,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export interface updateInfoPayload {
     username?: string;
     email?: string;
-    profileImage?: string;
     imageDeleteURL?: string;
-    isPasswordPresent?: boolean;
     bio?: string;
+    file?: FormData;
 }
 
-export interface updatePassword {
+export interface updatePasswordPayload {
     currentPassword: string;
     newPassword: string;
 }
@@ -34,7 +33,7 @@ export async function getUserInfo(accessToken: string) {
 }
 
 export async function updateUserInfo(
-    payload: updateInfoPayload,
+    payload: any,
     accessToken: string
 ) {
     try {
@@ -56,25 +55,25 @@ export async function updateUserInfo(
 }
 
 export async function updatePassword(
-    payload: updatePassword,
-    accessToken: string
+  payload: updatePasswordPayload,
+  accessToken: string
 ) {
-    try {
-        const response = await axiosInstance.patch(
-            `${API_URL}/users/password`,
-            payload,
-            {
-                withCredentials: true,
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            }
-        );
-        return response.data;
-    } catch (error) {
-        const axiosError = error as AxiosError;
-        throw axiosError.response?.data || axiosError.message;
-    }
+  try {
+    const response = await axiosInstance.patch(
+      `${API_URL}/users/password`,
+      payload,
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
 }
 
 export async function createPassword(

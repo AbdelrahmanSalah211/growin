@@ -45,7 +45,7 @@ export default async function Footer() {
               {courses.map(({ id, title }) => (
                 <Link
                   key={id}
-                  href={`/courses/${id}`}
+                  href={`/course/${id}`}
                   className="block link-hover text-base text-primary-text"
                 >
                   {title}

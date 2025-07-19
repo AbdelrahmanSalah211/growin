@@ -1,7 +1,7 @@
 import React from "react";
 import FileInput from "../ui/inputs/FileInput";
 import { UserIcon } from "../icons/UserIcon";
-import { Button } from "../ui/buttons/button";
+import { Button } from "../ui/buttons/Button";
 
 interface ImageChangerProps {
   value: string | null;
@@ -9,7 +9,11 @@ interface ImageChangerProps {
   onSave: () => void;
 }
 
-const ImageChanger: React.FC<ImageChangerProps> = ({ value, onChange, onSave }) => {
+const ImageChanger: React.FC<ImageChangerProps> = ({
+  value,
+  onChange,
+  onSave,
+}) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [preview, setPreview] = React.useState<string | null>(value);
 
@@ -40,17 +44,25 @@ const ImageChanger: React.FC<ImageChangerProps> = ({ value, onChange, onSave }) 
   return (
     <div className="flex gap-8">
       <div>
-        <p className="text-primary-text font-inter font-normal text-[1.125rem] leading-none mb-4">Image Preview</p>
+        <p className="text-primary-text font-inter font-normal text-[1.125rem] leading-none mb-4">
+          Image Preview
+        </p>
         <div className="w-[18rem] h-[18rem] rounded-[0.625rem] bg-background flex items-center justify-center overflow-hidden">
           {preview ? (
-            <img src={preview} alt="Profile" className="object-cover w-full h-full" />
+            <img
+              src={preview}
+              alt="Profile"
+              className="object-cover w-full h-full"
+            />
           ) : (
-            <UserIcon size={192} color="var(--color-primary-text)" />
+            <UserIcon size={192} color="var(--color-primary-text)" strokeWidth={0.5}/>
           )}
         </div>
       </div>
       <div className="flex flex-col flex-1">
-        <p className="text-primary-text font-inter font-normal text-[1.125rem] leading-none mb-4 w-[11.125rem] h-[1.375rem]">Add / Change Image</p>
+        <p className="text-primary-text font-inter font-normal text-[1.125rem] leading-none mb-4 w-[11.125rem] h-[1.375rem]">
+          Add / Change Image
+        </p>
         <div className="w-[28rem] h-[18rem]">
           <FileInput
             multiple={false}

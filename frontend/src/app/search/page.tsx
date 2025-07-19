@@ -5,7 +5,7 @@ import { debounce } from "lodash";
 import { getAllCategories } from "@/services/courseCategoryService";
 import { searchCourse } from "@/services/courseService";
 import { useHydrateAuth } from "@/hooks/useHydrateAuth";
-import { CourseCard } from "@/components/course/courseCard";
+import { CourseCard } from "@/components/course/CourseCard";
 import Pagination from "@/components/pagination/Pagination";
 import FiltersSidebar from "@/components/filters/FiltersSidebar";
 import FiltersToggler from "@/components/filters/FiltersToggler";
@@ -43,7 +43,7 @@ export default function SearchPage() {
   const fetchFilteredCourses = useCallback(
     async (params: URLSearchParams) => {
       try {
-        setLoading(courses.length === 0);
+        setLoading(true);
         params.set("limit", PAGE_SIZE.toString());
         const { data, hasMore, matches } = await searchCourse(
           params.toString()
@@ -138,14 +138,6 @@ export default function SearchPage() {
   const numOfPages = Math.ceil(totalCourses / PAGE_SIZE);
   const memoizedCourses = useMemo(() => courses, [courses]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[30rem]">
-        <span className="loading loading-ring loading-lg text-primary"></span>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-[2rem] mx-[7.5rem] p-[3rem] bg-surface rounded-[1.25rem]">
       <div className="flex justify-between items-center">
@@ -214,14 +206,17 @@ export default function SearchPage() {
         }}
       />
 
-      {memoizedCourses.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[30rem]">
+          <span className="loading loading-ring loading-6xl text-primary-text"></span>
+        </div>
+      ) : memoizedCourses.length > 0 ? (
         <>
           <ul className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4">
             {memoizedCourses.map((course) => (
               <CourseCard course={course} key={course.id} />
             ))}
           </ul>
-
           {numOfPages > 1 && (
             <div className="flex justify-center py-[0.5rem]">
               <Pagination
@@ -235,9 +230,9 @@ export default function SearchPage() {
           )}
         </>
       ) : (
-        <p className="w-full text-center text-primary-text text-2xl py-[20rem]">
-          No courses found.
-        </p>
+        <div className="flex justify-center items-center min-h-[30rem]">
+          <p className="text-2xl text-primary-text">No courses found</p>
+        </div>
       )}
     </div>
   );
