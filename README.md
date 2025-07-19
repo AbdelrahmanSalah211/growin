@@ -12,6 +12,10 @@
 
 </div>
 
+## Project Demo
+
+https://github.com/user-attachments/assets/305a15b2-b9ac-4955-aa96-23e00d304c82
+
 
 ## 📖 Overview
 
@@ -190,8 +194,6 @@ Growin/
           └── utils/
 
 ```
-
-
 
 ## 👥 Team Members
 
