@@ -83,7 +83,7 @@ export class CourseService {
   async getCourse(courseId: number): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id: courseId },
-      relations: ['instructor', 'lessons', 'reviews'],
+      relations: ['instructor', 'lessons', 'reviews', 'reviews.student'],
       order: {
         lessons: {
           position: 'ASC',
