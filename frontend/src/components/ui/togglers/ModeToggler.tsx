@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 export default function ModeToggler() {
   useHydrateAuth();
   const { token, user } = useAuthStore();
-  const router = useRouter();
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
