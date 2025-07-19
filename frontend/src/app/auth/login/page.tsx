@@ -5,7 +5,7 @@ import EmailInput from "@/components/ui/inputs/EmailInput";
 import PasswordInput from "@/components/ui/inputs/PasswordInput";
 import Link from "next/link";
 import { FormState } from "@/types/FormState";
-import { Button } from "@/components/ui/buttons/button";
+import { Button } from "@/components/ui/buttons/Button";
 import { GoogleColorIcon } from "@/components/icons/GoogleColorIcon";
 import AnimatedErrorList from "@/components/ui/feedback/AnimatedErrorList";
 import { validateEmail } from "@/utils/validate";
@@ -13,6 +13,7 @@ import { googleLogin, login, LoginPayload } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
 import { setToken, setUser } from "@/lib/auth-actions";
 import { useRouter } from "next/navigation";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 
 export default function Login() {
   const [formState, setFormState] = useState<FormState>({
@@ -60,7 +61,7 @@ export default function Login() {
     try {
       const data = await login(payload);
       setToken(data.accessToken);
-      setUser(JSON.stringify(data.user));
+      setUser(data.user);
       setAuth(data.accessToken, data.user);
       router.push("/");
     } catch (error) {
@@ -75,7 +76,7 @@ export default function Login() {
     try {
       const data = await googleLogin();
       setToken(data.accessToken);
-      setUser(JSON.stringify(data.user));
+      setUser(data.user);
       setAuth(data.accessToken, data.user);
       router.push("/");
     } catch (error) {

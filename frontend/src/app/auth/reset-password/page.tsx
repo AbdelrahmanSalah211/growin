@@ -4,13 +4,14 @@ import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/inputs/PasswordInput";
 import { FormState } from "@/types/FormState";
-import { Button } from "@/components/ui/buttons/button";
+import { Button } from "@/components/ui/buttons/Button";
 import AnimatedErrorList from "@/components/ui/feedback/AnimatedErrorList";
 import {
   validatePassword,
   validateConfirmPassword,
   ValidationResult,
 } from "@/utils/validate";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 
 export default function ResetPassword() {
   const [formState, setFormState] = useState<FormState>({

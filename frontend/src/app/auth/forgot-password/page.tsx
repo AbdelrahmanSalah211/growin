@@ -3,10 +3,11 @@
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import EmailInput from "@/components/ui/inputs/EmailInput";
 import Link from "next/link";
-import { Button } from "@/components/ui/buttons/button";
+import { Button } from "@/components/ui/buttons/Button";
 import AnimatedErrorList from "@/components/ui/feedback/AnimatedErrorList";
 import { validateEmail } from "@/utils/validate";
 import { forgetPassword } from "@/services/userService";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 
 type FormField = {
   value: string;
@@ -79,7 +80,6 @@ export default function ForgotPassword() {
 
     try {
       const data = await forgetPassword(formState.email.value);
-      console.log(data);
     } catch (error) {
       console.log(error);
     }
