@@ -83,7 +83,7 @@ export default function CreateCoursePage() {
     };
 
     return (
-        <main className="space-y-5 flex flex-col justify-center bg-surface w-[75rem] mx-auto p-8 rounded-2xl mb-4">
+        <main className="space-y-5 flex flex-col justify-center bg-surface w-[81rem] mx-[7.5rem] p-8 rounded-2xl mb-4">
             <h1 className="text-2xl font-bold text-primary-text">
                 Create New Course
             </h1>

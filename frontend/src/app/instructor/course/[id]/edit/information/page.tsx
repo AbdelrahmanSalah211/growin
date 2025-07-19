@@ -7,20 +7,20 @@ import { getAllCategories } from "@/services/courseCategoryService";
 import { ICategory } from "@/interfaces/ICategory";
 import CourseFormFields from "@/components/course/courseFormFields";
 import { toast } from "react-toastify";
-import { Button } from "@/components/ui/buttons/button";
+import { Button } from "@/components/ui/buttons/Button";
 
-type CourseProps = {
-    course: {
-        title: string;
-        description: string;
-        price: string;
-        courseCover: string;
-        language?: string;
-        level?: string;
-        category?: ICategory;
-        file?: File;
-    };
-};
+// type CourseProps = {
+//     course: {
+//         title: string;
+//         description: string;
+//         price: string;
+//         courseCover: string;
+//         language?: string;
+//         level?: string;
+//         courseCategory?: ICategory;
+//         file?: File;
+//     };
+// };
 
 export default function Page() {
     const params = useParams();
@@ -35,7 +35,7 @@ export default function Page() {
         courseCover: "",
         language: "",
         level: "",
-        category: undefined as ICategory | undefined,
+        courseCategory: undefined as ICategory | undefined,
         file: undefined as File | undefined,
     });
     const [categories, setCategories] = useState<ICategory[]>([]);
@@ -57,8 +57,9 @@ export default function Page() {
                         courseCover: courseData.courseCover || "",
                         language: courseData.language || "",
                         level: courseData.level || "",
-                        category: categoriesData.find(
-                            (cat: any) => cat.id === courseData.categoryId
+                        courseCategory: categoriesData.find(
+                            (cat: any) =>
+                                cat.id === courseData.courseCategory.id
                         ),
                         file: undefined,
                     });
@@ -88,9 +89,12 @@ export default function Page() {
             formData.append("description", course.description);
             formData.append("price", course.price);
             formData.append("language", course.language);
-            formData.append("level", course.level);
-            if (course.category) {
-                formData.append("categoryId", course.category.id.toString());
+            formData.append("level", course.level.toLowerCase());
+            if (course.courseCategory) {
+                formData.append(
+                    "courseCategoryId",
+                    String(course.courseCategory.id)
+                );
             }
             if (course.file) {
                 formData.append("file", course.file);
