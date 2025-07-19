@@ -57,6 +57,16 @@ const Dropdown = <T,>({
     const defaultIcon = <Globe className="w-5 h-5 text-gray-500" />;
     const displayIcon = icon || defaultIcon;
 
+    // Find the selected option to display its label
+    const getDisplayText = () => {
+        if (!selectedOption) return placeholder;
+        console.log("selectedCategoryOPtion", selectedOption);
+        const foundOption = options.find(
+            (option) => getValue(option) === selectedOption
+        );
+        return foundOption ? getLabel(foundOption) : placeholder;
+    };
+
     return (
         <div className={`${className}`} ref={dropdownRef}>
             {title && (
@@ -76,7 +86,7 @@ const Dropdown = <T,>({
                         {showIcon && (
                             <span className="mr-3">{displayIcon}</span>
                         )}
-                        <span>{selectedOption || placeholder}</span>
+                        <span>{getDisplayText()}</span>
                     </div>
                     <ChevronDown
                         className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${

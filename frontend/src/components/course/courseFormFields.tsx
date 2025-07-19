@@ -20,7 +20,7 @@ type Props = {
         courseCover: string;
         language?: string;
         level?: string;
-        category?: ICategory;
+        courseCategory?: ICategory;
         file?: File;
     };
     categories: ICategory[];
@@ -38,15 +38,16 @@ export default function CourseFormFields({
     const [selectedLanguage, setSelectedLanguage] = useState("English");
     const [selectedLevel, setSelectedLevel] = useState("Beginner");
     const languages = ["English", "Spanish", "French", "German", "Chinese"];
-    const levels = ["Beginner", "Intermediate", "Advanced"];
+    const levels = ["beginner", "intermediate", "advanced"];
 
     useEffect(() => {
         if (course.courseCover && typeof course.courseCover === "string") {
             setPreview(course.courseCover);
         }
-        console.log("preview", preview);
     }, [course.courseCover]);
-
+    useEffect(() => {
+        console.log(course);
+    }, []);
     const handleFilesChange = (files: FileList) => {
         const file = files[0];
 
@@ -57,7 +58,6 @@ export default function CourseFormFields({
         } else {
             onChange("file", undefined);
         }
-        console.log(course);
     };
 
     return (
@@ -107,13 +107,54 @@ export default function CourseFormFields({
                             getValue={(l) => l}
                         />
                     </div>
-                    <Dropdown
+                    {/* <Dropdown
                         title="Category"
                         options={categories}
-                        selectedOption={course.category?.title || ""}
+                        selectedOption={course.courseCategory?.title || ""}
                         onSelect={(id) => onChange("category", Number(id))}
                         getLabel={(cat) => cat.title}
                         getValue={(cat) => String(cat.id)}
+                    /> */}
+                    {/* <Dropdown
+                        title="Category"
+                        options={categories}
+                        selectedOption={
+                            course.courseCategory?.id
+                                ? String(course.courseCategory.id)
+                                : ""
+                        } // Fix 1: Use ID as string
+                        onSelect={(categoryId) => {
+                            // Fix 2: Find the full category object and pass it to onChange
+                            const selectedCategory = categories.find(
+                                (cat) => cat.id === Number(categoryId)
+                            );
+                            if (selectedCategory) {
+                                onChange("courseCategory", selectedCategory);
+                            }
+                        }}
+                        getLabel={(cat) => cat.title} // Display title in dropdown list
+                        getValue={(cat) => String(cat.id)} // Use ID as the internal value
+                        placeholder="Select a category"
+                    /> */}
+                    <Dropdown
+                        title="Category"
+                        options={categories}
+                        selectedOption={
+                            course.courseCategory?.id
+                                ? String(course.courseCategory.id)
+                                : ""
+                        } // Pass ID as string
+                        onSelect={(categoryId) => {
+                            const selectedCategory = categories.find(
+                                (cat) => cat.id === Number(categoryId)
+                            );
+                            if (selectedCategory) {
+                                onChange("courseCategory", selectedCategory);
+                            }
+                        }}
+                        getLabel={(cat) => cat.title} // Display title to users
+                        getValue={(cat) => String(cat.id)} // Use ID internally
+                        placeholder="Select a category"
                     />
                 </div>
             </section>

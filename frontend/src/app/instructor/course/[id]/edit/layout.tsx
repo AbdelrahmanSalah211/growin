@@ -23,7 +23,7 @@ export default function EditLayout({
     const activeTab = pathname?.split("/").pop();
 
     return (
-        <div className="space-y-5 flex flex-col justify-center bg-surface w-[91rem] mx-auto p-8 rounded-2xl mb-4">
+        <div className="space-y-5 flex flex-col justify-center bg-surface w-[81rem] mx-[7.5rem] p-8 rounded-2xl mb-4">
             <p className="text-[2rem] text-primary-text font-extrabold">
                 Edit Course
             </p>
