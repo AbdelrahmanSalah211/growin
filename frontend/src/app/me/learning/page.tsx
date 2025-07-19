@@ -5,7 +5,7 @@ import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 import { useAuthStore } from "@/stores/authStore";
 import { CourseCard } from "@/components/course/CourseCard";
 
-export default function Home() {
+export default function Page() {
   useHydrateAuth();
   const accessToken = useAuthStore((state) => state.token) || "";
 
@@ -33,17 +33,22 @@ export default function Home() {
     <div
       /*onClick={removeAuth}*/ className="space-y-[2rem] mx-[7.5rem] p-[3rem] bg-surface rounded-[1.25rem]"
     >
-      <h1 className="text-4xl text-primary-text font-bold">Trending Courses</h1>
+      <h1 className="text-4xl text-primary-text font-bold">My Learning</h1>
 
       {loading ? (
         <div className="flex justify-center items-center min-h-[30rem]">
           <span className="loading loading-ring loading-6xl text-primary-text"></span>
         </div>
       ) : enrolledCourses.length > 0 ? (
-        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {enrolledCourses.map((enrollment: any) => (
-            <CourseCard course={enrollment.course} key={enrollment.id} />
-          ))}
+        <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {enrolledCourses.map((enrollment: any) => {
+            console.log(enrollment)
+            return (
+              <CourseCard
+                course={enrollment.course}
+                key={enrollment.courseId}
+              />
+            );})}
         </ul>
       ) : (
         <div className="flex justify-center items-center min-h-[30rem]">

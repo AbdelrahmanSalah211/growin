@@ -69,7 +69,7 @@ const CourseContent: FC<CourseContentProps> = ({
             <div key={lesson.id}>
               {isEnrolled ? (
                 <Link
-                  href={`/courses/${courseId}/lecture/${lesson.id}`}
+                  href={`/course/${courseId}/lecture/${lesson.id}`}
                   className="no-underline"
                 >
                   {lessonContent}
