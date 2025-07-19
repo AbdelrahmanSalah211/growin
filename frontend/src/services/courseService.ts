@@ -28,8 +28,17 @@ export async function getCourses(id?: string) {
   }
 }
 
-export async function createCourse(payload: createCoursePayload) {
-  const accessToken = getAccessToken();
+export async function getCourseById(id: string) {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/courses/${id}`);
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    throw axiosError.response?.data || axiosError.message;
+  }
+}
+
+export async function createCourse(accessToken: string, payload: createCoursePayload) {
   try {
     const response = await axiosInstance.post(`${API_URL}/courses`, payload, {
       headers: {

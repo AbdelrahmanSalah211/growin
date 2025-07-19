@@ -65,6 +65,7 @@ export async function removeCourseFromCart(
   }
 }
 
+
 export async function clearCart(accessToken: string) {
   if (!accessToken) {
     throw new Error("Access token is required argument");

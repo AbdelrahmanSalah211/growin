@@ -1,9 +1,4 @@
-import { AxiosError } from "axios";
 import axiosInstance from "@/lib/axiosInstance";
-
-import { getAccessToken } from "@/stores/authStore";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const checkout = async (
     accessToken: string

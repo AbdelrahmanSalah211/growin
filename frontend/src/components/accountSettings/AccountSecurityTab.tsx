@@ -2,9 +2,14 @@ import React, { useState, FormEvent, ChangeEvent } from "react";
 import { EmailAddressSignAtIcon } from "../icons/EmailAddressSignAtIcon";
 import TextInput from "../ui/inputs/TextInput";
 import PasswordInput from "../ui/inputs/PasswordInput";
-import { Button } from "../ui/buttons/button";
+import { Button } from "../ui/buttons/Button";
 import { FormState } from "@/types/FormState";
-import { validatePassword, validateConfirmPassword, ValidationResult, validateEmail } from "@/utils/validate";
+import {
+  validatePassword,
+  validateConfirmPassword,
+  ValidationResult,
+  validateEmail,
+} from "@/utils/validate";
 import { updatePassword, updateUserInfo } from "@/services/userService";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -37,7 +42,7 @@ const AccountSecurityTab = () => {
     // Validate email
     const emailValidation = validateEmail(inputEmail);
     if (!emailValidation.isValid) {
-      alert(`Email validation failed: ${emailValidation.messages.join(', ')}`);
+      alert(`Email validation failed: ${emailValidation.messages.join(", ")}`);
       return;
     }
 
@@ -55,7 +60,7 @@ const AccountSecurityTab = () => {
         },
         token
       );
-      
+
       setEmail(inputEmail); // Update the verified email
       setEditingEmail(false);
       alert("Email updated successfully!");
@@ -74,7 +79,7 @@ const AccountSecurityTab = () => {
       if (!field) return prevState;
 
       let validation: ValidationResult = { isValid: true, messages: [] };
-      
+
       if (name === "newPassword" && field.validationMethod) {
         validation = field.validationMethod(value);
       } else if (name === "confirmPassword") {
@@ -102,9 +107,11 @@ const AccountSecurityTab = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!passwordFormState.currentPassword.isValid || 
-        !passwordFormState.newPassword.isValid || 
-        !passwordFormState.confirmPassword.isValid) {
+    if (
+      !passwordFormState.currentPassword.isValid ||
+      !passwordFormState.newPassword.isValid ||
+      !passwordFormState.confirmPassword.isValid
+    ) {
       setLoading(false);
       return;
     }
@@ -123,7 +130,7 @@ const AccountSecurityTab = () => {
         },
         token
       );
-      
+
       alert("Password updated successfully!");
       setShowPasswordForm(false);
       setPasswordFormState({
@@ -313,4 +320,4 @@ const AccountSecurityTab = () => {
   );
 };
 
-export default AccountSecurityTab; 
+export default AccountSecurityTab;

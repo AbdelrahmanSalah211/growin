@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import ReviewStars from "../reviewStars/ReviewStars";
-import { Button } from "../ui/buttons/button";
+import { Button } from "../ui/buttons/Button";
 import TextArea from "../ui/inputs/TextArea";
 import CheckBox from "../ui/inputs/CheckBox";
 export interface FormState {
@@ -45,7 +45,7 @@ const RatingForm = () => {
           <ReviewStars
             name="rating"
             value={form.rating}
-            onChange={()=>handleStarsChange}
+            onChange={() => handleStarsChange}
           />
         </div>
         <TextArea

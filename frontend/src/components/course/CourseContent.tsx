@@ -1,79 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import React, { ChangeEvent, FC, useState } from "react";
+import SearchInput from "../ui/inputs/SearchInput";
 import Link from "next/link";
 import { LinkIcon } from "../icons/LinkIcon";
-import SearchInput from "../ui/inputs/SearchInput";
 
-interface CourseContentProps {
-  lessons?: Lessons[];
-  courseId: number;
-  isEnrolled: boolean;
-}
-
-interface Lessons {
+interface Lesson {
   title: string;
   duration: number;
   id: number;
 }
 
-export default function CourseContent({
-  lessons = [],
-  courseId,
-  isEnrolled
-}: CourseContentProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+interface CourseContentProps {
+  isEnrolled: boolean;
+  courseId: number;
+  lessons: Lesson[];
+}
 
-  const filteredLessons = lessons.filter((lesson) =>
-    lesson.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const CourseContent: FC<CourseContentProps> = ({
+  isEnrolled,
+  courseId,
+  lessons,
+}) => {
+  const [searchText, setSearchText] = useState("");
+  const [upperBound, setUpperBound] = useState(10);
+  const remaining = lessons.length - upperBound;
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const changeUpperBound = () => {
+    setUpperBound((prev) => prev + 10);
+  };
+
+  const filteredLessons = searchText.length
+    ? lessons.filter((lesson) =>
+        lesson.title.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : lessons;
 
   return (
-    <section className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-primary-text font-bold text-[2.25rem]">
-          Course Content
-        </h1>
-        <p className="text-base text-secondary-text">
-          {lessons.length} Lectures
-        </p>
+    <div className="flex flex-col gap-4">
+      <div className="space-y-[0.625rem]">
+        <p className="text-primary-text text-base">{lessons.length} lessons</p>
+        <SearchInput onChange={handleSearchChange} />
       </div>
 
-      {/* Search bar */}
-      <div className="flex ">
-        <SearchInput onChange={(e) => setSearchTerm(e.target.value)} />
-      </div>
-
-      <div className="flex flex-col bg-background rounded-[1.25rem] w-full p-6">
-        {filteredLessons.map((lesson, key) => (
-          <div key={key}> 
-            <div className="flex justify-between  items-center">
-              <div className="flex gap-[0.625rem] py-[1.875rem] items-center">
-                <h2 className="text-primary-text text-[1.75rem] font-semibold">
-                  {lesson.title}
-                </h2>
-               {isEnrolled? <Link
-                  href={`/courses/${courseId}/lesson/${lesson.id}`}
-                  key={key}
-                  scroll={false}
-                >
-                  <LinkIcon />
-                </Link>
- :""}              </div>
-              <p>{lesson.duration} min</p>
+      <div className="bg-background rounded-2xl w-full flex flex-col">
+        {filteredLessons.slice(0, upperBound).map((lesson, idx) => {
+          const lessonContent = (
+            <div
+              className={`flex justify-between py-[25px] px-[40px] ${
+                isEnrolled
+                  ? "hover:bg-muted/20 cursor-pointer"
+                  : "cursor-default"
+              } transition`}
+            >
+              <div className="text-primary-text text-xl font-medium flex items-center gap-[1.5rem]">
+                {lesson.title}
+                {isEnrolled && <LinkIcon color="#2C3E50" size={20} />}
+              </div>
+              <p className="text-secondary-text text-lg">{lesson.duration}</p>
             </div>
-            <hr className="border-t border-border" />
-          </div>
-        ))}
+          );
+
+          return (
+            <div key={lesson.id}>
+              {isEnrolled ? (
+                <Link
+                  href={`/courses/${courseId}/lecture/${lesson.id}`}
+                  className="no-underline"
+                >
+                  {lessonContent}
+                </Link>
+              ) : (
+                lessonContent
+              )}
+
+              {idx < filteredLessons.length - 1 && (
+                <hr className="text-border w-full" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {lessons.length > 10 && (
-        <button className="cursor-pointer rounded-[1.25rem] bg-background p-6 w-full">
-          <h2 className="text-center text-primary-text font-semibold">
-            Show more lessons
-          </h2>
-        </button>
+      {remaining > 0 && (
+        <div
+          className="w-[70rem] bg-background font-bold text-lg text-center text-primary-text rounded-[1.25rem] mt-[0.625rem] py-[1rem] cursor-pointer"
+          onClick={changeUpperBound}
+        >
+          {remaining} more lectures
+        </div>
       )}
-    </section>
+    </div>
   );
-}
+};
+
+export default CourseContent;

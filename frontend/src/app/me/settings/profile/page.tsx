@@ -1,140 +1,250 @@
-'use client'
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { getUser } from "@/lib/auth-actions";
+"use client";
+import { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/components/ui/inputs/TextInput";
+import { UserIcon } from "@/components/icons/UserIcon";
 import TextArea from "@/components/ui/inputs/TextArea";
+import { Button } from "@/components/ui/buttons/Button";
+import { ImageUploadIcon } from "@/components/icons/ImageUploadIcon";
 import FileInput from "@/components/ui/inputs/FileInput";
+import Image from "next/image";
+import { useAuthStore } from "@/stores/authStore";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
+import { updateUserInfo } from "@/services/userService";
+import { setUser } from "@/lib/auth-actions";
+import { validateUsername } from "@/utils/validate";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState({
+  useHydrateAuth();
+  const { user, token } = useAuthStore();
+
+  const [initialData, setInitialData] = useState({
     username: "",
-    email: "",
-    profileImage: "",
     bio: "",
+    profileImage: "",
   });
-  const [imagePreview, setImagePreview] = useState("");
-  const [imageFileList, setImageFileList] = useState<FileList | null>(null);
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
-  const [infoChanged, setInfoChanged] = useState(false);
-  const [imageChanged, setImageChanged] = useState(false);
+
+  const [formData, setFormData] = useState({
+    username: "",
+    bio: "",
+    profileImage: "",
+    imageFile: null as File | null,
+  });
+
+  const [isLoading, setIsLoading] = useState({
+    basic: false,
+    image: false,
+  });
+
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+  const [usernameErrors, setUsernameErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    async function fetchUser() {
-      const userString = await getUser();
-      if (userString) {
-        const userObj = JSON.parse(userString);
-        setUser(userObj);
-        setUsername(userObj.username || "");
-        setBio(userObj.bio || "");
-        setImagePreview(userObj.profileImage || "");
-      }
+    if (user) {
+      const { username = "", bio = "", profileImage = "" } = user;
+      setInitialData({ username, bio: bio || "", profileImage });
+      setFormData({ username, bio: bio || "", profileImage, imageFile: null });
+      setIsPageLoading(false);
     }
-    fetchUser();
-  }, []);
+  }, [user]);
 
-  useEffect(() => {
-    setInfoChanged(
-      username !== user.username || bio !== (user.bio || "")
-    );
-  }, [username, bio, user]);
+  const hasTextChanges =
+    formData.username !== initialData.username ||
+    formData.bio !== initialData.bio;
 
-  useEffect(() => {
-    setImageChanged(!!imageFileList);
-    if (imageFileList && imageFileList.length > 0) {
-      setImagePreview(URL.createObjectURL(imageFileList[0]));
-    } else {
-      setImagePreview(user.profileImage || "");
+  const hasImageChange = !!formData.imageFile;
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "username") {
+      const { isValid, messages } = validateUsername(value);
+
+      setUsernameErrors(isValid ? [] : messages);
     }
-  }, [imageFileList, user.profileImage]);
-
-  const handleImageSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // handle image upload logic here
   };
 
-  const handleInfoSubmit = (e: React.FormEvent) => {
+  const handleBasicSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // handle info update logic here
+    if (!hasTextChanges || !token || usernameErrors.length > 0) return;
+
+    setIsLoading((prev) => ({ ...prev, basic: true }));
+
+    const formDataObj = new FormData();
+    formDataObj.append("username", formData.username);
+    formDataObj.append("bio", formData.bio);
+
+    try {
+      const updated = await updateUserInfo(formDataObj, token);
+      setUser(updated);
+
+      setInitialData((prev) => ({
+        ...prev,
+        username: updated.username,
+        bio: updated.bio,
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        username: updated.username,
+        bio: updated.bio,
+      }));
+    } catch (err) {
+      console.error("Failed to save basic info", err);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, basic: false }));
+    }
+  };
+
+  const handleImageSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!formData.imageFile || !token) return;
+
+    setIsLoading((prev) => ({ ...prev, image: true }));
+
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append("file", formData.imageFile);
+
+      const updated = await updateUserInfo(formDataObj, token);
+      setUser(updated);
+
+      setInitialData((prev) => ({
+        ...prev,
+        profileImage: updated.profileImage,
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        profileImage: updated.profileImage,
+        imageFile: null,
+      }));
+    } catch (err) {
+      console.error("Failed to upload image", err);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, image: false }));
+    }
   };
 
   return (
-    <div className="w-full">
-      <h1 className="text-2xl font-bold mb-4">Profile</h1>
-      <div className="bg-base-100 rounded-xl p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Profile Image</h2>
-        <form className="flex gap-8 items-start" onSubmit={handleImageSubmit}>
-          {/* Image Preview */}
-          <div className="flex flex-col gap-2">
-            <span className="text-sm text-base-content/70 mb-2">Image Preview</span>
-            <div className="w-32 h-32 rounded-lg bg-base-200 flex items-center justify-center">
-              {imagePreview ? (
-                <Image
-                  src={imagePreview}
-                  alt="Profile Preview"
-                  width={128}
-                  height={128}
-                  className="object-cover w-full h-full rounded-lg"
+    <div className="w-full h-full flex flex-col">
+      {isPageLoading ? (
+        <p className="w-full h-full flex justify-center items-center text-primary-text">
+          <span className="loading loading-6xl loading-ring"></span>
+        </p>
+      ) : (
+        <>
+          <h1 className="text-3xl font-bold p-7">Profile</h1>
+          <hr className="text-border" />
+          <section className="space-y-5 p-7">
+            <h2 className="text-2xl font-semibold">Basic</h2>
+            <form onSubmit={handleBasicSubmit} className="flex flex-col gap-5">
+              <div>
+                <TextInput
+                  title="Username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  icon={<UserIcon color="var(--color-primary-text)" />}
                 />
-              ) : (
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-16 h-16">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M16 20v-2a4 4 0 0 0-8 0v2" />
-                </svg>
-              )}
+                <span className="block  text-base text-primary-text">
+                  {usernameErrors.map((err) => (
+                    <p key={err}>{err}</p>
+                  ))}
+                </span>
+              </div>
+              <TextArea
+                title="Bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+              />
+              <Button
+                className="!w-fit self-end !px-6"
+                type="submit"
+                buttonProps={{
+                  disabled:
+                    !hasTextChanges ||
+                    isLoading.basic ||
+                    usernameErrors.length > 0,
+                }}
+              >
+                Save
+              </Button>
+            </form>
+          </section>
+          <hr className="text-border" />
+          <section className="w-full space-y-5 p-7">
+            <h2 className="text-2xl font-semibold">Profile Image</h2>
+            <div className="flex gap-5">
+              <div className="flex flex-col gap-[0.625rem]">
+                <p>Image Preview</p>
+                {formData.profileImage ? (
+                  <Image
+                    src={formData.profileImage}
+                    width={100}
+                    height={100}
+                    alt="Profile Image"
+                    className="w-[28rem] border border-border aspect-square rounded-[0.625rem] object-cover"
+                  />
+                ) : (
+                  <div className="w-[18.75rem] aspect-square rounded-[0.625rem] bg-background flex items-center justify-center">
+                    <UserIcon
+                      color="var(--color-secondary-text)"
+                      size={80}
+                      strokeWidth={0.5}
+                    />
+                  </div>
+                )}
+              </div>
+              <form
+                onSubmit={handleImageSubmit}
+                className="w-full flex flex-col gap-5"
+              >
+                <div className="flex flex-col gap-[0.625rem]">
+                  <label htmlFor="profile-image" className="text-primary-text">
+                    Add / Change Image
+                  </label>
+                  <FileInput
+                    acceptedFileType="image/*"
+                    id="profile-image"
+                    onFilesChange={(files) => {
+                      const file = files[0];
+                      if (file) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          imageFile: file,
+                          profileImage: URL.createObjectURL(file),
+                        }));
+                      }
+                    }}
+                    icon={
+                      <ImageUploadIcon
+                        color="var(--color-secondary-text)"
+                        size={80}
+                        strokeWidth={0.5}
+                      />
+                    }
+                  />
+                </div>
+                <Button
+                  className="!w-fit self-end !px-6"
+                  type="submit"
+                  buttonProps={{
+                    disabled: !hasImageChange || isLoading.image,
+                  }}
+                >
+                  Save
+                </Button>
+              </form>
             </div>
-          </div>
-          {/* Image Upload */}
-          <div className="flex-1 flex flex-col gap-2">
-            <span className="text-sm text-base-content/70 mb-2">Add / Change Image</span>
-            <FileInput
-              id="profile-image-upload"
-              acceptedFileType="image/*"
-              files={imageFileList}
-              onFilesChange={setImageFileList}
-              title="Browse Files"
-            />
-          </div>
-          <div className="flex flex-col justify-end h-32">
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              disabled={!imageChanged}
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
-      <div className="bg-base-100 rounded-xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Basic</h2>
-        <form className="flex flex-col gap-4" onSubmit={handleInfoSubmit}>
-          <TextInput
-            title="Username"
-            name="username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            placeholder="Username"
-          />
-          <TextArea
-            title="Bio"
-            name="bio"
-            value={bio}
-            onChange={e => setBio(e.target.value)}
-            placeholder="Type Here..."
-          />
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              disabled={!infoChanged}
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
