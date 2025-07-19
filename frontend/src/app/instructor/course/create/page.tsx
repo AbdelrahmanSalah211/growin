@@ -19,7 +19,7 @@ export default function CreateCoursePage() {
         file: undefined as File | undefined,
         language: "English",
         level: "Beginner",
-        category: "",
+        courseCategory: undefined as ICategory | undefined,
     });
 
     const [categories, setCategories] = useState<ICategory[]>([]);
@@ -61,7 +61,7 @@ export default function CreateCoursePage() {
                     | "intermediate"
                     | "advanced",
                 price: course.price,
-                courseCategoryId: course.category,
+                courseCategoryId: String(course.courseCategory.id),
                 file: course.file,
             };
 
