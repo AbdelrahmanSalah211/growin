@@ -21,7 +21,9 @@ export default async function Page({
     course.ratingSum / course.numberOfReviewers
   );
   const token = await getToken();
-  const { enrolled } = token ? await getIsEnrolledInCourse(courseId, token!): { enrolled: false };
+  const { enrolled } = token
+    ? await getIsEnrolledInCourse(courseId, token!)
+    : { enrolled: false };
 
   return (
     <>
@@ -62,19 +64,23 @@ export default async function Page({
           </span>
         </section>
         <hr className="text-border" />
-        <section className="flex flex-col gap-5">
-          <span className="space-y-1">
-            <p className="text-[1.6875rem] font-bold">
-              {formatPrice(course.price, "EGP", "en-US")}
-            </p>
-            <p className="text-secondary-text">Full Lifetime Access</p>
-          </span>
-          <span className="flex items-center gap-2">
-            <AddToCartButton courseId={course.id} />
-            <CopyUrlButton />
-          </span>
-        </section>
-        <hr className="text-border" />
+        {!enrolled && (
+          <>
+            <section className="flex flex-col gap-5">
+              <span className="space-y-1">
+                <p className="text-[1.6875rem] font-bold">
+                  {formatPrice(course.price, "EGP", "en-US")}
+                </p>
+                <p className="text-secondary-text">Full Lifetime Access</p>
+              </span>
+              <span className="flex items-center gap-2">
+                <AddToCartButton courseId={course.id} />
+                <CopyUrlButton />
+              </span>
+            </section>
+            <hr className="text-border" />
+          </>
+        )}
         <section className="flex flex-col gap-5">
           <h1 className="text-3xl font-bold max-w-3/5 line-clamp-2">
             Course Content

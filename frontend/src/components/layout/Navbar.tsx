@@ -43,7 +43,7 @@ export default async function Navbar() {
                 Explore by Category
               </li>
               {categories.map((category: any) => (
-                <Link key={category.id} href="#" className="block">
+                <Link key={category.id} href={`/search?category=${category.title}`} className="block">
                   <li className="flex items-center justify-between px-[1.75rem] py-[0.9375rem] text-base hover:bg-background transition-colors">
                     <span>{category.title}</span>
                     <LinkIcon color="#2C3E50" size={20} />
