@@ -6,7 +6,7 @@ import PasswordInput from "@/components/ui/inputs/PasswordInput";
 import TextInput from "@/components/ui/inputs/TextInput";
 import Link from "next/link";
 import { FormState } from "@/types/FormState";
-import { Button } from "@/components/ui/buttons/button";
+import { Button } from "@/components/ui/buttons/Button";
 import { GoogleColorIcon } from "@/components/icons/GoogleColorIcon";
 import AnimatedErrorList from "@/components/ui/feedback/AnimatedErrorList";
 import {
@@ -20,6 +20,7 @@ import { signup, googleLogin } from "@/services/authService";
 import { setToken, setUser } from "@/lib/auth-actions";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
+import { useHydrateAuth } from "@/hooks/useHydrateAuth";
 
 export default function Signup() {
   const [step, setStep] = useState(1);
@@ -96,7 +97,7 @@ export default function Signup() {
     try {
       const data = await googleLogin();
       setToken(data.accessToken);
-      setUser(JSON.stringify(data.user));
+      setUser(data.user);
       setAuth(data.accessToken, data.user);
       router.push("/");
     } catch (err) {
