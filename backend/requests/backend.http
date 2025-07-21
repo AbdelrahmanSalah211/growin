@@ -10,6 +10,7 @@ Content-Type: application/json
   "email": "example@example.com",
   "password": "Ex*123456"
 }
+?? status == 201
 
 ### login with email-password approach
 # @name login
@@ -25,18 +26,13 @@ Content-Type: application/json
   const token = response.body.accessToken;
   client.global.set("accessToken", token);
 %}
+?? status == 201
 
 ### get user info
 # @ref login
 GET {{ backendUrl }}/users/info
 Authorization: Bearer {{ accessToken }}
-Content-Type: application/json
-
-### user mode
-# @ref login
-PATCH {{ backendUrl }}/users/user-mode
-Authorization: Bearer {{ accessToken }}
-Content-Type: application/json
+?? status == 200
 
 ### user change password
 # @ref login
@@ -48,6 +44,7 @@ Content-Type: application/json
   "currentPassword": "Ex*123456",
   "newPassword": "Ex*123456"
 }
+?? status == 200
 
 ### update user info
 # @ref login
@@ -58,7 +55,7 @@ Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0g
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="username"
 
-example 2
+example
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="email"
 
@@ -68,6 +65,7 @@ Content-Disposition: form-data; name="bio"
 
 I am user example registered at growin platform
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+?? status == 200
 
 ### forget password
 POST {{ backendUrl }}/users/forget-password
@@ -76,33 +74,141 @@ Content-Type: application/json
 {
   "email": "exampple@example.com"
 }
-
+?? status == 201
 
 ### get courses
 # @name courses
 GET {{ backendUrl }}/courses
-Content-Type: application/json
 
 > {%
   const courseId = response.body[0].id;
   client.global.set("courseId", courseId);
 %}
-
+?? status == 200
 
 ### get course
 # @ref courses
 GET {{ backendUrl }}/courses/{{ courseId }}
+?? status == 200
+
+### search courses
+GET {{ backendUrl }}/courses/search?category=Programming&minRating=3.5&sort=-createdAt&limit=4&page=1
+?? status == 200
 
 ### user enrollments
 # @ref login
 GET {{ backendUrl }}/enrollments/my-enrollments
 Authorization: Bearer {{ accessToken }}
-Content-Type: application/json
+?? status == 200
 
 ### check user enrollment
 # @ref login
 # @ref courses
 GET {{ backendUrl }}/enrollments/is-enrolled/{{ courseId }}
 Authorization: Bearer {{ accessToken }}
+?? status == 200
+
+### change user mode
+# @ref login
+PATCH {{ backendUrl }}/users/user-mode
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+?? status == 200
+
+### create course
+# @name create-course
+# @ref login
+POST {{ backendUrl }}/courses
+Authorization: Bearer {{ accessToken }}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Introduction to JavaScript
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Learn JavaScript fundamentals from scratch
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="price"
+
+99.99
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="language"
+
+English
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="level"
+
+beginner
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="courseCategoryId"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="course-cover.jpg"
+Content-Type: image/jpeg
+
+< ./../../assets/course-cover.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+> {%
+  const newCourseId = response.body.id;
+  client.global.set("newCourseId", newCourseId);
+%}
+
+?? status == 201
+
+### get instructor courses
+# @ref login
+GET {{ backendUrl }}/courses/instructor
+Authorization: Bearer {{ accessToken }}
+?? status == 200
+
+
+### publish course
+# @ref login
+# @ref create-course
+PATCH {{ backendUrl }}/courses/publish/{{ newCourseId }}
+Authorization: Bearer {{ accessToken }}
+?? status == 200
+
+### delete course
+# @ref login
+# @ref create-course
+DELETE {{ backendUrl }}/courses/{{ accessToken }}
+Authorization: Bearer {{ accessToken }}
+?? status == 200
+
+### change user mode
+# @ref login
+PATCH {{ backendUrl }}/users/user-mode
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+?? status == 200
+
+### add to cart
+# @ref login
+POST {{ backendUrl }}/cart
+Authorization: Bearer {{ accessToken }}
 Content-Type: application/json
 
+{
+  "courseId": 3
+}
+
+?? status == 201
+
+### get cart
+# @ref login
+GET {{ backendUrl }}/cart
+Authorization: Bearer {{ accessToken }}
+?? status == 200
+
+### change user mode
+# @ref login
+PATCH {{ backendUrl }}/users/user-mode
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+?? status == 200
