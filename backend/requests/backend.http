@@ -153,8 +153,8 @@ Content-Disposition: form-data; name="courseCategoryId"
 
 1
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="file"; filename="course-cover.jpg"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="file"; filename="course-cover.png"
+Content-Type: image/png
 
 < ./../../assets/course-cover.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
@@ -165,6 +165,46 @@ Content-Type: image/jpeg
 %}
 
 ?? status == 201
+
+### update course
+# @ref course
+# @ref login
+PATCH {{ backendUrl }}/courses/{{ newCourseId }}
+Authorization: Bearer {{ intructorAccessToken }}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Introduction to JavaScript
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Learn JavaScript fundamentals from scratch
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="price"
+
+99.99
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="language"
+
+English
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="level"
+
+beginner
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="courseCategoryId"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="course-cover.png"
+Content-Type: image/png
+
+< ./../../assets/course-cover.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+?? status == 200
 
 ### get instructor courses
 # @ref login
@@ -177,6 +217,85 @@ Authorization: Bearer {{ intructorAccessToken }}
 # @ref login
 # @ref course
 PATCH {{ backendUrl }}/courses/publish/{{ newCourseId }}
+Authorization: Bearer {{ intructorAccessToken }}
+?? status == 200
+
+### create course lesson
+# @name lesson
+# @ref course
+# @ref login
+POST {{ backendUrl }}/lessons
+Authorization: Bearer {{ intructorAccessToken }}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Introduction to JavaScript Lesson 1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="position"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="courseId"
+
+{{ newCourseId }}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="lesson-video.mp4"
+Content-Type: video/mp4
+
+< ./../../assets/lesson-video.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+> {%
+  const newLessonId = response.body.id;
+  client.global.set("newLessonId", newLessonId);
+%}
+
+?? status == 201
+
+### get course lessons
+# @ref course
+# @ref login
+GET {{ backendUrl }}/lessons/course/{{ newCourseId }}
+?? status == 200
+
+### get lesson
+# @ref lesson
+# @ref login
+GET {{ backendUrl }}/lessons/{{ newLessonId }}
+Authorization: Bearer {{ accessToken }}
+?? status == 200
+
+
+### update course lesson
+# @ref lesson
+# @ref login
+PATCH {{ backendUrl }}/lessons/{{ newLessonId }}
+Authorization: Bearer {{ intructorAccessToken }}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Introduction to JavaScript Lesson 1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="position"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="lesson-video.mp4"
+Content-Type: video/mp4
+
+< ./../../assets/lesson-video.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+?? status == 200
+
+### delete lesson
+# @ref lesson
+# @ref login
+DELETE {{ backendUrl }}/lessons/{{ newLessonId }}
 Authorization: Bearer {{ intructorAccessToken }}
 ?? status == 200
 
