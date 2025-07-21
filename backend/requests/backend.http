@@ -1,9 +1,108 @@
-@backendUrl = http://localhost:3000
+@backendUrl=http://localhost:3000
 
-### Get all lessons
-GET {{ backendUrl }}/lessons
-Accept: application/json
 
-### Get all courses
+### register with email-password approach
+POST {{ backendUrl }}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "example",
+  "email": "example@example.com",
+  "password": "Ex*123456"
+}
+
+### login with email-password approach
+# @name login
+POST {{ backendUrl }}/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "example@example.com",
+  "password": "Ex*123456"
+}
+
+> {%
+  const token = response.body.accessToken;
+  client.global.set("accessToken", token);
+%}
+
+### get user info
+# @ref login
+GET {{ backendUrl }}/users/info
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+
+### user mode
+# @ref login
+PATCH {{ backendUrl }}/users/user-mode
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+
+### user change password
+# @ref login
+PATCH {{ backendUrl }}/users/password
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+
+{
+  "currentPassword": "Ex*123456",
+  "newPassword": "Ex*123456"
+}
+
+### update user info
+# @ref login
+PATCH {{ backendUrl }}/users/info
+Authorization: Bearer {{ accessToken }}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="username"
+
+example 2
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+example@example.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bio"
+
+I am user example registered at growin platform
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### forget password
+POST {{ backendUrl }}/users/forget-password
+Content-Type: application/json
+
+{
+  "email": "exampple@example.com"
+}
+
+
+### get courses
+# @name courses
 GET {{ backendUrl }}/courses
-Accept: application/json
+Content-Type: application/json
+
+> {%
+  const courseId = response.body[0].id;
+  client.global.set("courseId", courseId);
+%}
+
+
+### get course
+# @ref courses
+GET {{ backendUrl }}/courses/{{ courseId }}
+
+### user enrollments
+# @ref login
+GET {{ backendUrl }}/enrollments/my-enrollments
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+
+### check user enrollment
+# @ref login
+# @ref courses
+GET {{ backendUrl }}/enrollments/is-enrolled/{{ courseId }}
+Authorization: Bearer {{ accessToken }}
+Content-Type: application/json
+
