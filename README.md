@@ -158,6 +158,12 @@ Gowin is an E-learning platform designed for individuals to enhance their skills
 ## 📚 Documentation
 
 - **[API Documentation](./assets/Growin.postman_collection.json)** - Postman backend API collection with endpoints, request/response formats, and examples.
+- **[Test API Endpoints](./backend/requests/backend.http)** - Test API endpoints using httpyac package.
+
+   ```bash
+   cd backend/requests
+   npx httpyac backend.http
+   ```
 
 
 ### Project Structure
