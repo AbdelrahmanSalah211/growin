@@ -47,15 +47,192 @@ jobs:
           mkdir -p certs
           echo "${{ secrets.DB_SSL_CERT }}" > certs/ca.pem
 
+      - name: Create logs directory
+        run: |
+          mkdir -p backend/logs
+          touch backend/logs/server.log
+          touch backend/logs/error.log
+
       - name: Start NestJS server
         working-directory: ./backend
-        run: npm run start:dev &
-
-      - name: Install wait-on
-        run: npm install -g wait-on
+        run: |
+          # Print Node.js and npm versions for debugging
+          node -v
+          npm -v
+          
+          # Show environment variables (redacted for security)
+          echo "Using PORT: $PORT"
+          echo "Using DB_HOST: ${DB_HOST:0:4}****"
+          
+          # Check package.json script
+          echo "Start script from package.json:"
+          cat package.json | grep -A 2 "\"start:dev\""
+          
+          # Start server with output to both console and log file
+          echo "Starting NestJS server..."
+          npm run start:dev > >(tee ../backend/logs/server.log) 2> >(tee ../backend/logs/error.log >&2) &
+          
+          # Save PID for later reference
+          echo $! > ../backend/server.pid
+          SERVER_PID=$(cat ../backend/server.pid)
+          echo "Server started with PID: $SERVER_PID"
+          
+          # Verify process is actually running
+          sleep 2
+          if ps -p $SERVER_PID > /dev/null; then
+            echo "Process is running with PID $SERVER_PID"
+          else
+            echo "WARNING: Process with PID $SERVER_PID is not running!"
+            echo "Recent logs:"
+            tail -n 20 ../backend/logs/error.log
+          fi
 
       - name: Wait for server to start
-        run: npx wait-on http://localhost:${{ secrets.PORT }}
+        run: |
+          echo "Waiting for server to start on port ${{ secrets.PORT }}..."
+          max_retries=30
+          counter=0
+          
+          # Verify the server process is still running
+          SERVER_PID=$(cat backend/server.pid || echo "Not found")
+          if [ "$SERVER_PID" != "Not found" ] && ps -p $SERVER_PID > /dev/null; then
+            echo "Server process is still running with PID $SERVER_PID"
+          else
+            echo "⚠️ WARNING: Server process is not running or PID file missing!"
+            echo "Active node processes:"
+            ps aux | grep node | grep -v grep || echo "No active Node.js processes"
+          fi
+          
+          # Check if port is actually bound
+          echo "Checking if port ${{ secrets.PORT }} is in use:"
+          netstat -tulpn | grep ${{ secrets.PORT }} || echo "Port ${{ secrets.PORT }} is not in use!"
+          
+          # Tail logs in background for visibility
+          tail -f backend/logs/server.log backend/logs/error.log &
+          TAIL_PID=$!
+          
+          # Try to connect to root endpoint with increasing verbosity
+          until curl -s http://localhost:${{ secrets.PORT }} -o /dev/null || [ $counter -eq $max_retries ]
+          do
+            echo "Attempt $((counter+1))/$max_retries: Server not ready yet, waiting..."
+            
+            # Every 5 attempts, do a more verbose check
+            if [ $((counter % 5)) -eq 0 ]; then
+              echo "Detailed connection attempt:"
+              curl -v http://localhost:${{ secrets.PORT }} || true
+              echo "Recent logs:"
+              tail -n 10 backend/logs/error.log
+              
+              # Check if process is still running
+              if [ "$SERVER_PID" != "Not found" ] && ! ps -p $SERVER_PID > /dev/null; then
+                echo "⚠️ ERROR: Server process has died! Check logs for details."
+                cat backend/logs/error.log
+                kill $TAIL_PID 2>/dev/null || true
+                exit 1
+              fi
+            fi
+            
+            sleep 3
+            counter=$((counter+1))
+          done
+          
+          # Kill the tail process
+          kill $TAIL_PID 2>/dev/null || true
+          
+          if [ $counter -eq $max_retries ]
+          then
+            echo "❌ Server failed to start within the allocated time ($(($counter * 3)) seconds)!"
+            echo "Full server logs:"
+            cat backend/logs/server.log
+            echo "Full error logs:"
+            cat backend/logs/error.log
+            echo "Network status:"
+            netstat -tulpn | grep node || echo "No Node.js network connections found"
+            exit 1
+          fi
+          
+          echo "✅ Server is up and running successfully!"
+          curl -v http://localhost:${{ secrets.PORT }}
 
       - name: Run httpyac tests
-        run: npx httpyac backend/requests/backend.http
+        id: api_tests
+        run: |
+          echo "Running API tests with httpyac..."
+          cd backend
+          
+          # First verify server is accessible with a simple request
+          echo "Verifying server is accessible with curl:"
+          curl -v http://localhost:${{ secrets.PORT }} || true
+          
+          # Set environment variables for httpyac
+          export backendUrl="http://localhost:${{ secrets.PORT }}"
+          echo "Using backendUrl: $backendUrl"
+          
+          # Create simplified httpyac environment file if needed
+          echo '{
+            "default": {
+              "variables": {
+                "backendUrl": "http://localhost:${{ secrets.PORT }}"
+              }
+            }
+          }' > httpyac.env.json
+          
+          echo "Checking httpyac version:"
+          npx httpyac --version
+          
+          echo "Testing endpoints individually for better diagnostics:"
+          
+          # Test core endpoints first to ensure basic connectivity
+          echo "Testing root endpoint..."
+          npx httpyac requests/backend.http --filter GET\ \{\{\ backendUrl\ \}\} || echo "Root endpoint test failed"
+          
+          # Run all tests with timeout
+          echo "Running full test suite..."
+          timeout 300s npx httpyac requests/backend.http --all --log-level verbose
+          TEST_RESULT=$?
+          
+          if [ $TEST_RESULT -eq 0 ]; then
+            echo "✅ API tests passed successfully!"
+            echo "tests_passed=true" >> $GITHUB_OUTPUT
+          elif [ $TEST_RESULT -eq 124 ]; then
+            echo "❌ Tests timed out after 5 minutes"
+            echo "tests_passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "❌ API tests failed with code: $TEST_RESULT"
+            echo "tests_passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+      - name: Display diagnostics on failure
+        if: ${{ failure() }}
+        run: |
+          echo "================ DIAGNOSTIC INFORMATION ================"
+          echo "==== ACTIVE PROCESSES ===="
+          ps aux | grep node | grep -v grep || echo "No node processes running"
+          
+          echo "==== NETWORK CONNECTIONS ===="
+          netstat -tulpn | grep -E '${{ secrets.PORT }}|node' || echo "No relevant network connections"
+          
+          echo "==== SERVER LOGS (LAST 50 LINES) ===="
+          tail -n 50 backend/logs/server.log || echo "No server logs found"
+          
+          echo "==== ERROR LOGS (LAST 50 LINES) ===="
+          tail -n 50 backend/logs/error.log || echo "No error logs found"
+          
+          echo "==== DATABASE CONNECTION INFO ===="
+          echo "DB Host: ${DB_HOST:0:4}**** Port: $DB_PORT"
+          echo "DB SSL Certificate exists: $([ -f backend/certs/ca.pem ] && echo 'Yes' || echo 'No')"
+          echo "DB SSL Certificate size: $(stat -c%s backend/certs/ca.pem 2>/dev/null || echo 'Unknown')"
+          
+          echo "==== SYSTEM INFORMATION ===="
+          free -h
+          df -h
+          
+          echo "================ END DIAGNOSTIC INFORMATION ================"
+      
+      - name: Cleanup - Stop backend server
+        if: always()
+        run: |
+          echo "Stopping NestJS server..."
+          pkill -f "node.*nest start" || echo "No server process found to kill"
