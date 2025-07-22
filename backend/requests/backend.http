@@ -67,15 +67,6 @@ I am user example registered at growin platform
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ?? status == 200
 
-### forget password
-POST {{ backendUrl }}/users/forget-password
-Content-Type: application/json
-
-{
-  "email": "exampple@example.com"
-}
-?? status == 201
-
 ### get courses
 # @name courses
 GET {{ backendUrl }}/courses
