@@ -44,7 +44,10 @@ jobs:
       - name: Start NestJS server
         working-directory: ./backend
         run: npm run start:dev &
-      
+
+      - name: Install wait-on
+        run: npm install -g wait-on
+
       - name: Wait for server to start
         run: npx wait-on http://localhost:${{ secrets.PORT }}
 
