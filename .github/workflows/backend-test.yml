@@ -41,6 +41,12 @@ jobs:
         working-directory: ./backend
         run: npm install
 
+      - name: Create SSL certificate from secret
+        working-directory: ./backend
+        run: |
+          mkdir -p certs
+          echo "${{ secrets.DB_SSL_CERT }}" > certs/ca.pem
+
       - name: Start NestJS server
         working-directory: ./backend
         run: npm run start:dev &
